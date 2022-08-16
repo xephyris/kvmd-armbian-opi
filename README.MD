@@ -29,7 +29,8 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 ## Step 3
 ```git clone https://github.com/srepac/kvmd-armbian.git
 cd kvmd-armbian
-./install.sh```
+./install.sh
+```
 (If very slow, you can use install-mirror.sh to boost install speed.)
 ## Step 4
 - running install.sh or install-mirror.sh after reboot os then running again.
