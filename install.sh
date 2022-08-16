@@ -510,6 +510,8 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   otg-devices
   armbian-packages
   systemctl disable --now janus
+  enable-kvmd-svcs
+
   printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n"
 
   # fix-kvmd-for-tvbox-armbian
@@ -530,7 +532,6 @@ else
   set-ownership 
   create-kvmdfix
   check-kvmd-works
-  enable-kvmd-svcs
   start-kvmd-svcs
 
   printf "\nCheck kvmd devices\n\n" 
