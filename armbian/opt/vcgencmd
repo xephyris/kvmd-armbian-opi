@@ -5,5 +5,6 @@ source armbian-sysinfo
 case $1 in
 	get_throttled) echo "throttled=0x0";;
 	measure_temp) echo "temp=$board_temp'C";;
+	get_config) echo "total_mem=512";;
 esac
 
