@@ -319,10 +319,10 @@ fix-nginx-symlinks() {
   # setup symlinks
   echo
   echo "-> Creating symlinks for use with kvmd python scripts"
-  if [ ! -e /usr/bin/nginx ]; then ln -s /usr/sbin/nginx /usr/bin/; fi
-  if [ ! -e /usr/sbin/python ]; then ln -s /usr/bin/python3 /usr/sbin/python; fi
-  if [ ! -e /usr/bin/iptables ]; then ln -s /usr/sbin/iptables /usr/bin/iptables; fi
-  # if [ ! -e /opt/vc/bin/vcgencmd ]; then mkdir -p /opt/vc/bin/; ln -s /usr/bin/vcgencmd /opt/vc/bin/vcgencmd; fi
+  if [ ! -e /usr/bin/nginx ]; then ln -sf /usr/sbin/nginx /usr/bin/; fi
+  if [ ! -e /usr/sbin/python ]; then ln -sf /usr/bin/python3 /usr/sbin/python; fi
+  if [ ! -e /usr/bin/iptables ]; then ln -sf /usr/sbin/iptables /usr/bin/iptables; fi
+  if [ ! -e /usr/bin/vcgencmd ]; then ln -sf /opt/vc/bin/* /usr/bin/; fi
 
   python-pkg-dir
 
@@ -415,7 +415,7 @@ ls -l /dev/gpio*
 ls -l /dev/kvmd-video
 rm /dev/kvmd-video
 ### video0 is for orange pi -- amlogic requires video1
-ln -s video0 /dev/kvmd-video
+ln -sf video0 /dev/kvmd-video
 SCRIPTEND
 
   chmod +x /usr/bin/kvmd-fix
