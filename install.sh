@@ -226,7 +226,7 @@ fix-udevrules() {
 enable-kvmd-svcs() { 
   # enable KVMD services but don't start them
   echo "-> Enabling kvmd-nginx kvmd-webterm kvmd-otg and kvmd services, but do not start them."
-  systemctl enable kvmd-nginx kvmd-webterm kvmd-otg kvmd 
+  systemctl enable kvmd-nginx kvmd-webterm kvmd-otg kvmd kvmd-fix
 
   # in case going from CSI to USB, then disable kvmd-tc358743 service (in case it's enabled)
   if [[ $( echo $platform | grep usb | wc -l ) -eq 1 ]]; then
