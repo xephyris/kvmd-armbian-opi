@@ -420,11 +420,13 @@ ENDSERVICE
 #
 set -x
 chgrp gpio /dev/gpio*
+chmod 660 /dev/gpio*
 ls -l /dev/gpio*
 
 ls -l /dev/kvmd-video
 rm /dev/kvmd-video
-ln -s video1 /dev/kvmd-video
+### video0 is for orange pi -- amlogic requires video1
+ln -s video0 /dev/kvmd-video
 SCRIPTEND
 
   chmod +x /usr/bin/kvmd-fix
@@ -466,8 +468,7 @@ start-kvmd-svcs() {
   # 1. nginx is the webserver
   # 2. kvmd-otg is for OTG devices (keyboard/mouse, etc..)
   # 3. kvmd is the main daemon
-  systemctl restart kvmd-nginx kvmd-otg kvmd-webterm kvmd 
-  # systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd 
+  systemctl restart kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix
 } # end start-kvmd-svcs
 
 fix-motd() { 
