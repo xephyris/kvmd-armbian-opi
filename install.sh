@@ -227,13 +227,6 @@ enable-kvmd-svcs() {
   # enable KVMD services but don't start them
   echo "-> Enabling kvmd-nginx kvmd-webterm kvmd-otg and kvmd services, but do not start them."
   systemctl enable kvmd-nginx kvmd-webterm kvmd-otg kvmd kvmd-fix
-
-  # in case going from CSI to USB, then disable kvmd-tc358743 service (in case it's enabled)
-  if [[ $( echo $platform | grep usb | wc -l ) -eq 1 ]]; then
-    systemctl disable --now kvmd-tc358743 
-  else
-    systemctl enable kvmd-tc358743 
-  fi
 } # end enable-kvmd-svcs 
 
 build-ustreamer() {
@@ -262,12 +255,8 @@ install-dependencies() {
   echo "-> Installing dependencies for pikvm"
 
   apt-get update > /dev/null
-  for i in $( echo "nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix 
-screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-chi-sim" )
-  do
-    echo "apt-get install -y $i"
-    apt-get install -y $i > /dev/null
-  done
+  echo "apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng"
+  apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng > /dev/null
 
   install-python-packages
 
