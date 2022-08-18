@@ -3,8 +3,16 @@ cd `dirname $0`
 source armbian-sysinfo
 
 case $1 in
-	get_throttled) echo "throttled=0x0";;
-	measure_temp) echo "temp=$board_temp'C";;
-	get_config) echo "total_mem=512";;
+        get_throttled) echo "throttled=0x0";;
+        measure_temp) echo "temp=$board_temp'C";;
+        get_config)
+                case $2 in
+                        total_mem)
+                                KB=$( dmesg | grep Memory: | awk '{print $4}' | cut -d'/' -f2 | sed 's/K//g' )
+                                MB=$( echo $KB / 1024 | bc )
+                                echo "total_mem=$MB";;
+                        *)
+                                echo "invalid option";;
+                esac
+        ;;
 esac
-
