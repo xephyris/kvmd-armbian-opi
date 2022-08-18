@@ -6,10 +6,11 @@
 printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed on Orange Pi
     ____________________________________________________________________________
 
-    To prevent kernel messages from printing to the terminal use "dmesg -n 1".
+    To prevent kernel messages from printing to the terminal use \"dmesg -n 1\".
 
-    To change KVM password use command "kvmd-htpasswd set admin".
+    To change KVM password use command \"kvmd-htpasswd set admin\".
 
     Useful links:
       * https://pikvm.org
+
 "
