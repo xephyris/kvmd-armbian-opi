@@ -399,6 +399,11 @@ ExecStart=/usr/bin/kvmd-fix
 WantedBy=multi-user.target
 ENDSERVICE
 
+  case $( awk '{print $4}' /proc/device-tree/model ) in
+    Zero) VID="video0";;
+    *) VID="video1";;
+  esac
+
   cat <<SCRIPTEND > /usr/bin/kvmd-fix
 #!/bin/bash
 # Written by @srepac
@@ -414,8 +419,9 @@ ls -l /dev/gpio*
 
 ls -l /dev/kvmd-video
 rm /dev/kvmd-video
-### video0 is for orange pi -- amlogic requires video1
-ln -sf video0 /dev/kvmd-video
+### video0 is for orange pi zero
+### all others require video1
+ln -sf $VID /dev/kvmd-video
 SCRIPTEND
 
   chmod +x /usr/bin/kvmd-fix
