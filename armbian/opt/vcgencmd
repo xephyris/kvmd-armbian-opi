@@ -8,7 +8,7 @@ case $1 in
         get_config)
                 case $2 in
                         total_mem)
-                                KB=$( dmesg | grep Memory: | awk '{print $4}' | cut -d'/' -f2 | sed 's/K//g' )
+                                KB=$( grep 'Memory:' /var/log/dmesg* | awk '{print $5}' | cut -d'/' -f2 | sed 's/K//g' | uniq )
                                 MB=$( echo $KB / 1024 | bc )
                                 echo "total_mem=$MB";;
                         *)
