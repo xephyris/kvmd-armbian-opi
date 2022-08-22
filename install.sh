@@ -513,7 +513,6 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   otg-devices
   armbian-packages
   systemctl disable --now janus
-  enable-kvmd-svcs
 
   printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n"
 
@@ -535,6 +534,7 @@ else
   set-ownership 
   create-kvmdfix
   check-kvmd-works
+  enable-kvmd-svcs  
   start-kvmd-svcs
 
   printf "\nCheck kvmd devices\n\n" 
@@ -544,9 +544,6 @@ else
   printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n"
 fi
 
-# For some reason, the kvmd services are not enabled after reboot.  Forcing services to enabled just in case
-enable-kvmd-svcs > /dev/null
-echo
 systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
 
 wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
