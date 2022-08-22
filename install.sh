@@ -399,7 +399,7 @@ ExecStart=/usr/bin/kvmd-fix
 WantedBy=multi-user.target
 ENDSERVICE
 
-  case $( awk '{print $4}' /proc/device-tree/model ) in
+  case $( tr -d '\0' < /proc/device-tree/model | awk '{print $4}' ) in
     Zero) VID="video0";;
     *) VID="video1";;
   esac
@@ -463,6 +463,7 @@ start-kvmd-svcs() {
   # 1. nginx is the webserver
   # 2. kvmd-otg is for OTG devices (keyboard/mouse, etc..)
   # 3. kvmd is the main daemon
+  systemctl daemon-reload
   systemctl restart kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix
 } # end start-kvmd-svcs
 
@@ -537,7 +538,8 @@ else
 fi
 
 # For some reason, the kvmd services are not enabled after reboot.  Forcing services to enabled just in case
-enable-kvmd-svcs
+enable-kvmd-svcs > /dev/null
+echo
 systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
 
 wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
