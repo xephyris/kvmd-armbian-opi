@@ -536,6 +536,10 @@ else
   printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n"
 fi
 
+# For some reason, the kvmd services are not enabled after reboot.  Forcing services to enabled just in case
+enable-kvmd-svcs
+systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
+
 wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
 wget -O /usr/local/bin/pi-temp https://kvmnerds.com/PiKVM/pi-temp 2> /dev/null
 wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
