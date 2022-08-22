@@ -260,8 +260,8 @@ install-dependencies() {
 
   install-python-packages
 
-  echo "-> Install python package dbus_next"
-  pip3 install dbus_next
+  echo "-> Install python package dbus_next and zstandard"
+  pip3 install dbus_next zstandard
 
   echo "-> Make tesseract data link"
   ln -s /usr/share/tesseract-ocr/*/tessdata /usr/share/tessdata
