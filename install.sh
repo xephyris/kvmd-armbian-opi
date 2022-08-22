@@ -244,7 +244,7 @@ build-ustreamer() {
   # else
   #   make WITH_OMX=1 WITH_GPIO=1 WITH_SETPROCTITLE=1	# hardware OMX support with 32-bit ONLY
   # fi
-  make WITH_GPIO=0 WITH_SYSTEMD=1 WITH_JANUS=1 -j
+  make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1 -j
   make install
   # kvmd service is looking for /usr/bin/ustreamer   
   ln -s /usr/local/bin/ustreamer /usr/bin/
@@ -260,7 +260,7 @@ install-dependencies() {
 
   install-python-packages
 
-  echo "-> Install python package dbus_next and zstandard"
+  echo "-> Install python3 modules dbus_next and zstandard"
   pip3 install dbus_next zstandard
 
   echo "-> Make tesseract data link"
@@ -285,11 +285,18 @@ install-dependencies() {
     wget "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
-
+  
+  printf "\n\n-> Building wiringpi from source\n\n"
+  cd /tmp; rm -rf WiringPi
+  git clone https://github.com/WiringPi/WiringPi.git
+  cd WiringPi
+  ./build
+  gpio -v
+  
   echo "-> Install ustreamer"
   if [ ! -e /usr/bin/ustreamer ]; then
     cd /tmp
-	  apt-get install -y libevent-2.1-7 libevent-core-2.1-7 libevent-pthreads-2.1-7 build-essential
+    apt-get install -y libevent-2.1-7 libevent-core-2.1-7 libevent-pthreads-2.1-7 build-essential
     ### required dependent packages for ustreamer ###
     build-ustreamer
     cd ${APP_PATH}
