@@ -536,8 +536,8 @@ else
   printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n"
 fi
 
-
-# Download scriptmenu for Raspbian PiKVM
-#cd /usr/local/bin/; wget https://kvmnerds.com/RPiKVM/scriptmenu > /dev/null 2>&1
-#chmod +x scriptmenu
-#printf "\n\nRun 'scriptmenu' as root anytime for other configurations related to Raspbian PiKVM.\n\n"
+wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
+wget -O /usr/local/bin/pi-temp https://kvmnerds.com/PiKVM/pi-temp 2> /dev/null
+wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
+wget -O /etc/kvmd/web.css https://kvmnerds.com/PiKVM/web.css 2> /dev/null
+chmod +x /usr/local/bin/pi*
