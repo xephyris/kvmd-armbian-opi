@@ -430,9 +430,18 @@ rm /dev/kvmd-video
 ### all others require video1
 ln -sf $VID /dev/kvmd-video
 
+if [ $( systemctl | grep kvmd-oled | grep -c activ ) -eq 0 ]; then
+  echo "kvmd-oled service is not enabled."
+  exit 1
+else
+  echo "kvmd-oled service is enabled and activated."
+fi
+
 ### kvmd-oled fix: swap i2c-0 <-> i2c-1  (code is looking for I2C oled on i2c-1)
-# oled connected to pins #1 - 3.3v, #3 - SDA, #5 - SCL, and #9 - GND
-if [ $( i2cdetect -y 1 | grep -c 3c ) -ne 1 ]; then
+# pins #1 - 3.3v, #3 - SDA, #5 - SCL, and #9 - GND
+i2cget -y 0 0x3c
+if [ $? -eq 0 ]; then
+  echo "-> Found valid I2C OLED at i2c-0.  Applying I2C OLED fix."
   cd /dev
 
   # rename i2c-0 -> i2c-9, move i2c-1 to i2c-0, and rename the good i2c-9 to i2c-1
@@ -442,6 +451,8 @@ if [ $( i2cdetect -y 1 | grep -c 3c ) -ne 1 ]; then
 
   # restart kvmd-oled service
   systemctl restart kvmd-oled
+else
+  echo "-> I2C OLED fix already applied and OLED should be showing info."
 fi
 SCRIPTEND
 
