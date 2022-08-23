@@ -44,3 +44,4 @@ cd kvmd-armbian
  - RK322x based tvbox (MXQ, V88)
  - S905L2 based tvbox
  - Orange pi zero (tested by @MrSuicideParrot)
+ - Orange Pi Zero and One (tested by @srepac)
