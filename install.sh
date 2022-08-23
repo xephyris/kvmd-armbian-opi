@@ -429,6 +429,20 @@ rm /dev/kvmd-video
 ### video0 is for orange pi zero
 ### all others require video1
 ln -sf $VID /dev/kvmd-video
+
+### kvmd-oled fix: swap i2c-0 <-> i2c-1  (code is looking for I2C oled on i2c-1)
+# oled connected to pins #1 - 3.3v, #3 - SDA, #5 - SCL, and #9 - GND
+if [ $( i2cdetect -y 1 | grep -c 3c ) -ne 1 ]; then
+  cd /dev
+
+  # rename i2c-0 -> i2c-9, move i2c-1 to i2c-0, and rename the good i2c-9 to i2c-1
+  mv i2c-0 i2c-9
+  mv i2c-1 i2c-0
+  mv i2c-9 i2c-1
+
+  # restart kvmd-oled service
+  systemctl restart kvmd-oled
+fi
 SCRIPTEND
 
   chmod +x /usr/bin/kvmd-fix
