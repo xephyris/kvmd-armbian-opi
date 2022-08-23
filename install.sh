@@ -239,16 +239,11 @@ build-ustreamer() {
   cd /tmp
   git clone --depth=1 https://github.com/pikvm/ustreamer
   cd ustreamer/
-  # if [[ $( uname -m ) == "aarch64" ]]; then
-  #   make WITH_OMX=0 WITH_GPIO=1 WITH_SETPROCTITLE=1	# ustreamer doesn't support 64-bit hardware OMX 
-  # else
-  #   make WITH_OMX=1 WITH_GPIO=1 WITH_SETPROCTITLE=1	# hardware OMX support with 32-bit ONLY
-  # fi
   make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1 -j
   make install
   # kvmd service is looking for /usr/bin/ustreamer   
-  ln -s /usr/local/bin/ustreamer /usr/bin/
-} # end build-ustreamer 
+  ln -sf /usr/local/bin/ustreamer* /usr/bin/
+} # end build-ustreamer
 
 install-dependencies() {
   echo
@@ -500,7 +495,7 @@ start-kvmd-svcs() {
 } # end start-kvmd-svcs
 
 fix-motd() { 
-  rm /etc/motd
+  if [ -e /etc/motd ]; then rm /etc/motd; fi
   cp armbian/armbian-motd /usr/bin/
   sed -i 's/cat \/etc\/motd/armbian-motd/g' /lib/systemd/system/kvmd-webterm.service
   systemctl daemon-reload
