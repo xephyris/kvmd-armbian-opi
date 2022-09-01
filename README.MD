@@ -28,7 +28,7 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 - If you use rk322x (rk3228A rk3228B rk3229) series chipset, you can use dtb/4.4/rk332x-box.dtb 
 ## Step 3
 ```
-apt install -y git vim
+apt install -y git vim make python3-dev
 git clone https://github.com/srepac/kvmd-armbian.git
 cd kvmd-armbian
 ./install.sh
