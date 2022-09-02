@@ -22,13 +22,14 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
     - Recommended cut off usb cable's power line, it might causes otg disconnect.
 
 ## Step 1
-- Flash armbian debian [Recommended jammy] for your tv box (If kernel not support otg you should build a kernel enable otg features)
+- Flash armbian debian [Recommended bullseye] for your tv box (If kernel not support otg you should build a kernel enable otg features)
+- Flash armbian debian jammy for Orange Pi boards
 
 ## Step 2 (skip this step if running on Orange Pi boards)
 - Modify your dtb file to enable otg feature. Change dr_mode from host to peripheral for otg usb port.
 - If you use rk322x (rk3228A rk3228B rk3229) series chipset, you can use dtb/4.4/rk332x-box.dtb 
 
-## Step 3 - perform part 1 of install
+## Step 3 - Perform part 1 of install
 ```
 apt install -y git vim make python3-dev
 git clone https://github.com/srepac/kvmd-armbian.git
@@ -37,7 +38,7 @@ cd kvmd-armbian
 ```
 This will ask you to press ENTER to reboot after part 1 completes.
 
-## Step 4
+## Step 4 - Perform part 2 of install
 - run install.sh again after reboot os to perform part 2 of install.
 - Enjoy
 
