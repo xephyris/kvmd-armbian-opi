@@ -427,7 +427,7 @@ ln -sf $VID /dev/kvmd-video
 
 if [ $( systemctl | grep kvmd-oled | grep -c activ ) -eq 0 ]; then
   echo "kvmd-oled service is not enabled."
-  exit 1
+  exit 0
 else
   echo "kvmd-oled service is enabled and activated."
 fi
