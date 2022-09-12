@@ -31,7 +31,7 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 
 ## Step 3 - Perform part 1 of install
 ```
-apt install -y git vim make python3-dev
+apt install -y git vim make python3-dev gcc
 git clone https://github.com/srepac/kvmd-armbian.git
 cd kvmd-armbian
 ./install.sh
