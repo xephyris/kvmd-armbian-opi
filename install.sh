@@ -402,8 +402,8 @@ WantedBy=multi-user.target
 ENDSERVICE
 
   case $( tr -d '\0' < /proc/device-tree/model | awk '{print $4}' ) in
-    Zero) VID="video0";;
-    *) VID="video1";;
+    One) VID="video1";;
+    *) VID="video0";;
   esac
 
   cat <<SCRIPTEND > /usr/bin/kvmd-fix
