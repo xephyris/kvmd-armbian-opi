@@ -8,9 +8,16 @@ case $1 in
         get_config)
                 case $2 in
                         total_mem)
-                                KB=$( grep 'Memory:' /var/log/dmesg* | awk '{print $5}' | cut -d'/' -f2 | sed 's/K//g' | head -1 )
-                                MB=$( echo $KB / 1024 | bc )
-                                echo "total_mem=$MB";;
+                                NUM=$( free -m | grep Mem: | awk '{print $2}' )
+                                KB=$( sudo grep 'Memory:' /var/log/dmesg | awk '{print $5}' | cut -d'/' -f2 | sed 's/K//g' | head -1 )
+                                if [[ "$KB" == "" ]]; then
+                                        GB=`echo "( $NUM + 256 ) / 1024" | bc`
+                                        MB=$( echo "${GB} * 1024" | bc )
+                                else
+                                        MB=$( echo $KB / 1024 | bc )
+                                fi
+                                echo "total_mem=$MB"
+                                ;;
                         *)
                                 echo "invalid option";;
                 esac
