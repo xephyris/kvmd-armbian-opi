@@ -9,13 +9,15 @@ case $1 in
                 case $2 in
                         total_mem)
                                 NUM=$( free -m | grep Mem: | awk '{print $2}' )
-                                KB=$( sudo grep 'Memory:' /var/log/dmesg | awk '{print $5}' | cut -d'/' -f2 | sed 's/K//g' | head -1 )
-                                if [[ "$KB" == "" ]]; then
+
+                                if [ -e /var/log/dmesg ]; then
+                                        KB=$( sudo grep 'Memory:' /var/log/dmesg | awk '{print $5}' | cut -d'/' -f2 | sed 's/K//g' | head -1 )
+                                        MB=$( echo $KB / 1024 | bc )
+                                else
                                         GB=`echo "( $NUM + 256 ) / 256" | bc`
                                         MB=$( echo "${GB} * 256" | bc )
-                                else
-                                        MB=$( echo $KB / 1024 | bc )
                                 fi
+
                                 echo "total_mem=$MB"
                                 ;;
                         *)
