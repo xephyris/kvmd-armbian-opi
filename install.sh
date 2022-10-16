@@ -266,7 +266,7 @@ install-dependencies() {
   if [ ! -e /usr/bin/ttyd ]; then
     # Build and install ttyd
     # cd /tmp
-    # apt-get install -y build-essential cmake git libjson-c-dev libwebsockets-dev
+    apt-get install -y build-essential cmake git libjson-c-dev libwebsockets-dev
     # git clone --depth=1 https://github.com/tsl0922/ttyd.git
     # cd ttyd && mkdir build && cd build
     # cmake ..
