@@ -14,12 +14,13 @@ case $1 in
                                 else
                                         KB=""
                                 fi
-                                
+
                                 if [[ "$KB" == "" ]]; then
                                         GB=`echo "( $NUM + 256 ) / 256" | bc`
                                         MB=$( echo "${GB} * 256" | bc )
                                 else
-                                        MB=$( echo $KB / 1024 | bc )
+                                        GB=$( echo "($KB + 2048) / 1024 / 256" | bc )
+                                        MB=$( echo "${GB} * 256" | bc )
                                 fi
                                 echo "total_mem=$MB"
                                 ;;
