@@ -49,3 +49,4 @@ This will ask you to press ENTER to reboot after part 1 completes.
  - S905L2 based tvbox
  - Orange pi zero (tested by @MrSuicideParrot)
  - Orange Pi Zero and One (tested by @srepac)
+ - Nano Pi Neo, ALL-H3-CC H5 2GB, Rock64, Orange Pi Zero Plus, and LaFrite 1GB (tested by @srepac)
