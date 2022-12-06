@@ -29,6 +29,10 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 ## Step 2 (skip this step if running on Orange Pi boards)
 - Modify your dtb file to enable otg feature. Change dr_mode from host to peripheral for otg usb port.
 - If you use rk322x (rk3228A rk3228B rk3229) series chipset, you can use dtb/4.4/rk332x-box.dtb 
+- Add the following to your /boot/armbianEnv.txt file
+```
+overlays=usbhost0 usbhost1 usbhost2 usbhost3
+```
 
 ## Step 3 - Perform part 1 of install
 ```
