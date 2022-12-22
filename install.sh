@@ -419,12 +419,8 @@ chgrp gpio /dev/gpio*
 chmod 660 /dev/gpio*
 ls -l /dev/gpio*
 
+udevadm trigger
 ls -l /dev/kvmd-video
-### not needed as udevadm trigger during boot should create the proper symlink
-#rm /dev/kvmd-video
-### video0 is for orange pi zero
-### all others require video1
-#ln -sf $VID /dev/kvmd-video
 
 if [ \$( systemctl | grep kvmd-oled | grep -c activ ) -eq 0 ]; then
   echo "kvmd-oled service is not enabled."
