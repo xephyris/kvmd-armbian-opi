@@ -349,7 +349,7 @@ apply-custom-patch(){
   read -p "Do you want apply old kernel msd patch? [y/n]" answer
   case $answer in
     n|N|no|No)
-      echo 'You skiped this patch.'
+      echo 'You skipped this patch.'
       ;;
     y|Y|Yes|yes)
       ./patches/custom/old-kernel-msd/apply.sh
@@ -461,7 +461,7 @@ set-ownership() {
 } # end set-ownership
 
 check-kvmd-works() {
-  # check to make sure kvmd -m works before continuing
+  echo "-> Checking kvmd -m works before continuing"
   invalid=1
   while [ $invalid -eq 1 ]; do
     kvmd -m
