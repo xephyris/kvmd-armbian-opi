@@ -1,6 +1,6 @@
 #!/bin/bash
-# modified by xe5700 		2021-11-04	xe5700@outlook.com
-# modified by NewbieOrange	2021-11-04
+# modified by xe5700            2021-11-04      xe5700@outlook.com
+# modified by NewbieOrange      2021-11-04
 # created by @srepac   08/09/2021   srepac@kvmnerds.com
 # Scripted Installer of Pi-KVM on Raspbian (32-bit) meant for RPi4
 #
@@ -15,8 +15,8 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20210818 1830 PDT
-# VER=1.0
+# Last change 20221214 0830 PDT
+# VER=2.0
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"
@@ -28,14 +28,14 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   exit 1
 fi
 
-WHOAMI=$( whoami ) 
+WHOAMI=$( whoami )
 if [ "$WHOAMI" != "root" ]; then
   echo "$WHOAMI, please run script as root."
   exit 1
 fi
 
 press-enter() {
-  echo 
+  echo
   read -p "Press ENTER to continue or CTRL+C to break out of script."
 } # end press-enter
 
@@ -87,10 +87,10 @@ CSIOVERRIDE
   fi
 } # end create-override
 
-install-python-packages() { 
-  for i in $( echo "aiofiles aiohttp appdirs asn1crypto async-timeout bottle cffi chardet click 
-colorama cryptography dateutil dbus dev hidapi idna libgpiod marshmallow more-itertools multidict netifaces 
-packaging passlib pillow ply psutil pycparser pyelftools pyghmi pygments pyparsing requests semantic-version 
+install-python-packages() {
+  for i in $( echo "aiofiles aiohttp appdirs asn1crypto async-timeout bottle cffi chardet click
+colorama cryptography dateutil dbus dev hidapi idna libgpiod marshmallow more-itertools multidict netifaces
+packaging passlib pillow ply psutil pycparser pyelftools pyghmi pygments pyparsing requests semantic-version
 setproctitle setuptools six spidev systemd tabulate urllib3 wrapt xlib yaml yarl" )
   do
     echo "apt-get install python3-$i -y"
@@ -114,11 +114,11 @@ install-tc358743() {
   echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | tee /etc/apt/sources.list.d/uv4l.list
 
   apt-get update > /dev/null
-  echo "apt-get install uv4l-tc358743-extras -y" 
+  echo "apt-get install uv4l-tc358743-extras -y"
   apt-get install uv4l-tc358743-extras -y > /dev/null
 } # install package for tc358743
 
-boot-files() { 
+boot-files() {
   if [[ $( grep srepac /boot/config.txt | wc -l ) -eq 0 ]]; then
 
     if [[ $( echo $platform | grep usb | wc -l ) -eq 1 ]]; then
@@ -131,13 +131,13 @@ boot-files() {
       #   echo "tc358743" >> /etc/modules
       # fi
 
-      # install-tc358743 
+      # install-tc358743
       :
-    fi 
+    fi
   fi  # end of check if entries are already in /boot/config.txt
 
   # Remove OTG serial (Orange pi zero's kernel not support it)
-  sed -i '/^g_serial/d' /etc/modules 
+  sed -i '/^g_serial/d' /etc/modules
 
   # /etc/modules required entries for DWC2, HID and I2C
   if [[ $( grep -w dwc2 /etc/modules | wc -l ) -eq 0 ]]; then
@@ -156,7 +156,7 @@ boot-files() {
   cat /etc/modules
 } # end of necessary boot files
 
-get-packages() { 
+get-packages() {
   printf "\n\n-> Getting Pi-KVM packages from ${PIKVMREPO}\n\n"
   mkdir -p ${KVMDCACHE}
   echo "wget ${PIKVMREPO} -O ${PKGINFO}"
@@ -181,10 +181,10 @@ get-platform() {
   tryagain=1
   while [ $tryagain -eq 1 ]; do
     # amglogic tv box only has usb port, use usb dongle.
-	# printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n  3 - V3 HAT\n" 
+    # printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n  3 - V3 HAT\n"
     # read -p "Please type [1-3]: " capture
-	capture=1;
-    case $capture in 
+    capture=1;
+    case $capture in
       1) platform="kvmd-platform-v2-hdmiusb-rpi4"; tryagain=0;;
       2) platform="kvmd-platform-v2-hdmi-rpi4"; tryagain=0;;
       3) platform="kvmd-platform-v3-hdmi-rpi4"; tryagain=0;;
@@ -199,35 +199,35 @@ get-platform() {
 install-kvmd-pkgs() {
   cd /
 
-  INSTLOG="${KVMDCACHE}/installed_ver.txt"; rm -f $INSTLOG 
-  date > $INSTLOG 
+  INSTLOG="${KVMDCACHE}/installed_ver.txt"; rm -f $INSTLOG
+  date > $INSTLOG
 
 # uncompress platform package first
   i=$( ls ${KVMDCACHE}/${platform}-*.tar.xz )
-  echo "-> Extracting package $i into /" >> $INSTLOG 
-  tar xfJ $i 
+  echo "-> Extracting package $i into /" >> $INSTLOG
+  tar xfJ $i
 
-# then uncompress, kvmd-{version}, kvmd-webterm, and janus packages 
+# then uncompress, kvmd-{version}, kvmd-webterm, and janus packages
   for i in $( ls ${KVMDCACHE}/*.tar.xz | egrep 'kvmd-[0-9]|janus|webterm' )
   do
-    echo "-> Extracting package $i into /" >> $INSTLOG 
+    echo "-> Extracting package $i into /" >> $INSTLOG
     tar xfJ $i
   done
   cd ${APP_PATH}
 } # end install-kvmd-pkgs
 
-fix-udevrules() { 
+fix-udevrules() {
   # for hdmiusb, replace %b with 1-1.4:1.0 in /etc/udev/rules.d/99-kvmd.rules
   sed -i -e 's+\%b+1-1.4:1.0+g' /etc/udev/rules.d/99-kvmd.rules
   echo
   cat /etc/udev/rules.d/99-kvmd.rules
 } # end fix-udevrules
 
-enable-kvmd-svcs() { 
+enable-kvmd-svcs() {
   # enable KVMD services but don't start them
   echo "-> Enabling kvmd-nginx kvmd-webterm kvmd-otg and kvmd services, but do not start them."
   systemctl enable kvmd-nginx kvmd-webterm kvmd-otg kvmd kvmd-fix
-} # end enable-kvmd-svcs 
+} # end enable-kvmd-svcs
 
 build-ustreamer() {
   printf "\n\n-> Building ustreamer\n\n"
@@ -241,7 +241,7 @@ build-ustreamer() {
   cd ustreamer/
   make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1 -j
   make install
-  # kvmd service is looking for /usr/bin/ustreamer   
+  # kvmd service is looking for /usr/bin/ustreamer
   ln -sf /usr/local/bin/ustreamer* /usr/bin/
 } # end build-ustreamer
 
@@ -266,7 +266,7 @@ install-dependencies() {
   if [ ! -e /usr/bin/ttyd ]; then
     # Build and install ttyd
     # cd /tmp
-    apt-get install -y build-essential cmake git libjson-c-dev libwebsockets-dev
+    # apt-get install -y build-essential cmake git libjson-c-dev libwebsockets-dev
     # git clone --depth=1 https://github.com/tsl0922/ttyd.git
     # cd ttyd && mkdir build && cd build
     # cmake ..
@@ -276,18 +276,18 @@ install-dependencies() {
     latest=$(curl -sL https://api.github.com/repos/tsl0922/ttyd/releases/latest | jq -r ".tag_name")
     if [ $arch = arm64 ]; then
       arch='aarch64'
-    fi 
+    fi
     wget "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
-  
+
   printf "\n\n-> Building wiringpi from source\n\n"
   cd /tmp; rm -rf WiringPi
   git clone https://github.com/WiringPi/WiringPi.git
   cd WiringPi
   ./build
   gpio -v
-  
+
   echo "-> Install ustreamer"
   if [ ! -e /usr/bin/ustreamer ]; then
     cd /tmp
@@ -309,13 +309,15 @@ MYSCRIPT
 
   chmod +x /tmp/syspath.py
 
-  PYTHONDIR=$( /tmp/syspath.py | grep packages | sed -e 's/, /\n/g' -e 's/\[//g' -e 's/\]//g' -e "s+'++g" | tail -1 )
+  #PYTHONDIR=$( /tmp/syspath.py | awk -F, '{print $NF}' | cut -d"'" -f2 )
+  ### hardcode path for armbian/raspbian
+  PYTHONDIR="/usr/lib/python3/dist-packages"
 } # end python-pkg-dir
 
 fix-nginx-symlinks() {
-  # disable default nginx service since we will use kvmd-nginx instead 
+  # disable default nginx service since we will use kvmd-nginx instead
   echo
-  echo "-> Disabling nginx service, so that we can use kvmd-nginx instead" 
+  echo "-> Disabling nginx service, so that we can use kvmd-nginx instead"
   systemctl disable --now nginx
 
   # setup symlinks
@@ -335,7 +337,7 @@ fix-nginx-symlinks() {
 } # end fix-nginx-symlinks
 
 fix-python-symlinks(){
-    python-pkg-dir
+  python-pkg-dir
 
   if [ ! -e $PYTHONDIR/kvmd ]; then
     # Debian python版本比 pikvm官方的低一些
@@ -384,7 +386,7 @@ fix-webterm() {
   ls -ld /home/kvmd-webterm
 } # end fix-webterm
 
-create-kvmdfix() { 
+create-kvmdfix() {
   # Create kvmd-fix service and script
   cat <<ENDSERVICE > /lib/systemd/system/kvmd-fix.service
 [Unit]
@@ -400,11 +402,6 @@ ExecStart=/usr/bin/kvmd-fix
 [Install]
 WantedBy=multi-user.target
 ENDSERVICE
-
-  case $( tr -d '\0' < /proc/device-tree/model | awk '{print $4}' ) in
-    One) VID="video1";;
-    *) VID="video0";;
-  esac
 
   cat <<SCRIPTEND > /usr/bin/kvmd-fix
 #!/bin/bash
@@ -474,7 +471,7 @@ check-kvmd-works() {
         echo "Please install missing packages as per the kvmd -m output in another ssh/terminal."
         ;;
       y|Y|Yes|yes)
-        invalid=0	
+        invalid=0
         ;;
       *)
         echo "Try again.";;
@@ -491,7 +488,7 @@ start-kvmd-svcs() {
   systemctl restart kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix
 } # end start-kvmd-svcs
 
-fix-motd() { 
+fix-motd() {
   if [ -e /etc/motd ]; then rm /etc/motd; fi
   cp armbian/armbian-motd /usr/bin/
   sed -i 's/cat \/etc\/motd/armbian-motd/g' /lib/systemd/system/kvmd-webterm.service
@@ -508,8 +505,8 @@ armbian-packages() {
   #cp -rf armbian/udev /etc/
 
   cd ${APP_PATH}
-  # 
-}	#end armbian-packages
+  #
+}       #end armbian-packages
 
 ### MAIN STARTS HERE ###
 # Install is done in two parts
@@ -534,7 +531,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n"
 
   # fix-kvmd-for-tvbox-armbian
-  
+
   # Fix paste-as-keys if running python 3.7
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
     sed -i -e 's/reversed//g' /usr/lib/python3.10/site-packages/kvmd/keyboard/printer.py
@@ -548,13 +545,13 @@ else
   fix-python-symlinks
   fix-webterm
   fix-motd
-  set-ownership 
+  set-ownership
   create-kvmdfix
   check-kvmd-works
-  enable-kvmd-svcs  
+  enable-kvmd-svcs
   start-kvmd-svcs
 
-  printf "\nCheck kvmd devices\n\n" 
+  printf "\nCheck kvmd devices\n\n"
   ls -l /dev/kvmd*
   printf "\nYou should see devices for keyboard, mouse, and video.\n"
 
