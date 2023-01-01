@@ -563,5 +563,6 @@ systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
 wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
 wget -O /usr/local/bin/pi-temp https://kvmnerds.com/PiKVM/pi-temp 2> /dev/null
 wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
+wget -O /usr/local/bin/update-rpikvm.sh https://kvmnerds.com/RPiKVM/update-rpikvm.sh 2> /dev/null
 wget -O /etc/kvmd/web.css https://kvmnerds.com/PiKVM/web.css 2> /dev/null
-chmod +x /usr/local/bin/pi*
+chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
