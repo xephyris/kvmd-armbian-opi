@@ -44,7 +44,7 @@ cd kvmd-armbian
 This will ask you to press ENTER to reboot after part 1 completes.
 
 ## Step 4 - Perform part 2 of install
-- run install.sh again after reboot os to perform part 2 of install.  **NOTE:  May require one more reboot if missing /dev/kvmd-hid-[keyboard|mouse] **
+- run install.sh again after reboot os to perform part 2 of install.  **NOTE:  May require one more reboot if missing /dev/kvmd-hid-[keyboard|mouse]**
 ```
 cd kvmd-armbian
 ./install.sh
