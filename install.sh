@@ -583,8 +583,10 @@ fix-motd() {
 armbian-packages() {
   mkdir -p /opt/vc/bin/
   #cd /opt/vc/bin
-  # Install vcgencmd for armbian platform
-  #cp -rf armbian/opt/* /opt/vc/bin
+  if [ ! -e /usr/bin/vcgencmd ]; then
+    # Install vcgencmd for armbian platform
+    cp -rf armbian/opt/* /opt/vc/bin
+  fi
   #cp -rf armbian/udev /etc/
 
   cd ${APP_PATH}
