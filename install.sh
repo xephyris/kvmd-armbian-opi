@@ -34,6 +34,13 @@ if [ "$WHOAMI" != "root" ]; then
   exit 1
 fi
 
+### added on 01/31/23 in case armbian is installed on rpi boards
+if [[ ! -e /boot/config.txt && -e /boot/firmware/config.txt ]]; then
+  ln -sf /boot/firmware/config.txt /boot/config.txt
+fi
+
+MAKER=$(tr -d '\0' < /proc/device-tree/model | awk '{print $1}')
+
 press-enter() {
   echo
   read -p "Press ENTER to continue or CTRL+C to break out of script."
@@ -119,22 +126,70 @@ install-tc358743() {
 } # install package for tc358743
 
 boot-files() {
-  if [[ $( grep srepac /boot/config.txt | wc -l ) -eq 0 ]]; then
+  if [[ -e /boot/config.txt && $( grep srepac /boot/config.txt | wc -l ) -eq 0 ]]; then
 
-    if [[ $( echo $platform | grep usb | wc -l ) -eq 1 ]]; then
+    if [[ $( echo $platform | grep usb | wc -l ) -eq 1 ]]; then  # hdmiusb platforms
 
-      # Armbian does not support config.txt, remove it.
+      cat <<FIRMWARE >> /boot/config.txt
+# srepac custom configs
+###
+hdmi_force_hotplug=1
+gpu_mem=${GPUMEM}
+enable_uart=1
+#dtoverlay=tc358743
+dtoverlay=disable-bt
+dtoverlay=dwc2,dr_mode=peripheral
+dtparam=act_led_gpio=13
 
-      # amlogic does not support CSI, skip the following
+# HDMI audio capture
+#dtoverlay=tc358743-audio
+
+# SPI (AUM)
+#dtoverlay=spi0-1cs
+
+# I2C (display)
+dtparam=i2c_arm=on
+
+# Clock
+dtoverlay=i2c-rtc,pcf8563
+FIRMWARE
+
+    else   # CSI platforms
+
+      cat <<CSIFIRMWARE >> /boot/config.txt
+# srepac custom configs
+###
+hdmi_force_hotplug=1
+gpu_mem=${GPUMEM}
+enable_uart=1
+dtoverlay=tc358743
+dtoverlay=disable-bt
+dtoverlay=dwc2,dr_mode=peripheral
+dtparam=act_led_gpio=13
+
+# HDMI audio capture
+dtoverlay=tc358743-audio
+
+# SPI (AUM)
+dtoverlay=spi0-1cs
+
+# I2C (display)
+dtparam=i2c_arm=on
+
+# Clock
+dtoverlay=i2c-rtc,pcf8563
+CSIFIRMWARE
+
       # add the tc358743 module to be loaded at boot for CSI
-      # if [[ $( grep -w tc358743 /etc/modules | wc -l ) -eq 0 ]]; then
-      #   echo "tc358743" >> /etc/modules
-      # fi
+      if [[ $( grep -w tc358743 /etc/modules | wc -l ) -eq 0 ]]; then
+        echo "tc358743" >> /etc/modules
+      fi
 
-      # install-tc358743
-      :
     fi
+
   fi  # end of check if entries are already in /boot/config.txt
+
+  #install-tc358743
 
   # Remove OTG serial (Orange pi zero's kernel not support it)
   sed -i '/^g_serial/d' /etc/modules
@@ -150,8 +205,11 @@ boot-files() {
     echo "i2c-dev" >> /etc/modules
   fi
 
-#  printf "\n/boot/config.txt\n\n"
-#  cat /boot/config.txt
+  if [ -e /boot/config.txt ]; then
+    printf "\n/boot/config.txt\n\n"
+    cat /boot/config.txt
+  fi
+
   printf "\n/etc/modules\n\n"
   cat /etc/modules
 } # end of necessary boot files
@@ -180,16 +238,23 @@ get-packages() {
 get-platform() {
   tryagain=1
   while [ $tryagain -eq 1 ]; do
-    # amglogic tv box only has usb port, use usb dongle.
-    # printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n  3 - V3 HAT\n"
-    # read -p "Please type [1-3]: " capture
-    capture=1;
+    case $MAKER in
+      Raspberry)       ### get which capture device for use with RPi boards
+        # amglogic tv box only has usb port, use usb dongle.
+        printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n  3 - V3 HAT\n"
+        read -p "Please type [1-3]: " capture
+        ;;
+
+      *) capture=1;;    ### force all other sbcs to use hdmiusb platform
+    esac
+
     case $capture in
       1) platform="kvmd-platform-v2-hdmiusb-rpi4"; tryagain=0;;
       2) platform="kvmd-platform-v2-hdmi-rpi4"; tryagain=0;;
       3) platform="kvmd-platform-v3-hdmi-rpi4"; tryagain=0;;
       *) printf "\nTry again.\n"; tryagain=1;;
     esac
+
     echo
     echo "Platform selected -> $platform"
     echo
@@ -208,11 +273,29 @@ install-kvmd-pkgs() {
   tar xfJ $i
 
 # then uncompress, kvmd-{version}, kvmd-webterm, and janus packages
-  for i in $( ls ${KVMDCACHE}/*.tar.xz | egrep 'kvmd-[0-9]|janus|webterm' )
+  for i in $( ls ${KVMDCACHE}/*.tar.xz | egrep 'kvmd-[0-9]|webterm' )
   do
     echo "-> Extracting package $i into /" >> $INSTLOG
     tar xfJ $i
   done
+
+  # uncompress janus package if /usr/bin/janus doesn't exist
+  if [ ! -e /usr/bin/janus ]; then
+    i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus )
+    echo "-> Extracting package $i into /" >> $INSTLOG
+    tar xfJ $i
+
+  else      # confirm that /usr/bin/janus actually runs properly
+    /usr/bin/janus --version > /dev/null 2> /dev/null
+    if [ $? -eq 0 ]; then
+      echo "You have a working valid janus binary."
+    else    # error status code, so uncompress from REPO package
+      i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus )
+      echo "-> Extracting package $i into /" >> $INSTLOG
+      tar xfJ $i
+    fi
+  fi
+
   cd ${APP_PATH}
 } # end install-kvmd-pkgs
 
@@ -501,7 +584,7 @@ armbian-packages() {
   mkdir -p /opt/vc/bin/
   #cd /opt/vc/bin
   # Install vcgencmd for armbian platform
-  cp -rf armbian/opt/* /opt/vc/bin
+  #cp -rf armbian/opt/* /opt/vc/bin
   #cp -rf armbian/udev /etc/
 
   cd ${APP_PATH}
@@ -541,6 +624,12 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   reboot
 else
   printf "\nRunning part 2 of PiKVM installer script for Armbian by @srepac\n"
+  ### run these to make sure kvmd users are created ###
+
+  echo "==> Ensuring KVMD users and groups ..."
+  systemd-sysusers /usr/lib/sysusers.d/kvmd.conf
+  systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
+
   fix-nginx-symlinks
   fix-python-symlinks
   fix-webterm
@@ -566,3 +655,10 @@ wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/
 wget -O /usr/local/bin/update-rpikvm.sh https://kvmnerds.com/RPiKVM/update-rpikvm.sh 2> /dev/null
 wget -O /etc/kvmd/web.css https://kvmnerds.com/PiKVM/web.css 2> /dev/null
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
+
+### fix totp.secret file permissions for use with 2FA
+chmod go+r /etc/kvmd/totp.secret
+chown kvmd:kvmd /etc/kvmd/totp.secret
+
+### update default hostname info in webui to reflect current hostname
+sed -i -e "s/localhost.localdomain/$(hostname)/g" /etc/kvmd/meta.yaml
