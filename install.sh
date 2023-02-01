@@ -663,4 +663,4 @@ chmod go+r /etc/kvmd/totp.secret
 chown kvmd:kvmd /etc/kvmd/totp.secret
 
 ### update default hostname info in webui to reflect current hostname
-sed -i -e "s/localhost.localdomain/$(hostname)/g" /etc/kvmd/meta.yaml
+sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
