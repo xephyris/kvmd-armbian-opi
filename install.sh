@@ -37,7 +37,7 @@ if [ "$WHOAMI" != "root" ]; then
 fi
 
 PYTHONVER=$( python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
-case $PYTHONVER in 
+case $PYTHONVER in
   3.10|3.1?)
     echo "Python $PYTHONVER is supported."
     ;;
@@ -231,7 +231,9 @@ CSIFIRMWARE
 
 get-packages() {
   printf "\n\n-> Getting Pi-KVM packages from ${PIKVMREPO}\n\n"
-  mkdir -p ${KVMDCACHE}
+  mkdir -p ${KVMDCACHE}/ARCHIVE
+  mv ${KVMDCACHE}/kvmd* ${KVMDCACHE}/ARCHIVE   ### move previous kvmd* packages into ARCHIVE
+
   echo "wget ${PIKVMREPO} -O ${PKGINFO}"
   wget ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
   echo
@@ -605,8 +607,8 @@ armbian-packages() {
   #cp -rf armbian/udev /etc/
 
   cd ${APP_PATH}
-  #
-}       #end armbian-packages
+} # end armbian-packages
+
 
 ### MAIN STARTS HERE ###
 # Install is done in two parts
@@ -679,3 +681,6 @@ chown kvmd:kvmd /etc/kvmd/totp.secret
 
 ### update default hostname info in webui to reflect current hostname
 sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
+
+### restore htpasswd from previous install, if applies
+if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd; fi
