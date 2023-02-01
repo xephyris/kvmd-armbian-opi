@@ -1,8 +1,10 @@
 #!/bin/bash
+# https://github.com/srepac/kvmd-armbian
+#
 # modified by xe5700            2021-11-04      xe5700@outlook.com
 # modified by NewbieOrange      2021-11-04
 # created by @srepac   08/09/2021   srepac@kvmnerds.com
-# Scripted Installer of Pi-KVM on Raspbian (32-bit) meant for RPi4
+# Scripted Installer of Pi-KVM on Armbian 32-bit and 64-bit (as long as it's running python 3.10)
 #
 # *** MSD is disabled by default ***
 #
@@ -15,8 +17,8 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20221214 0830 PDT
-# VER=2.0
+# Last change 20230201 1025 PDT
+# VER=2.1
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"
@@ -33,6 +35,17 @@ if [ "$WHOAMI" != "root" ]; then
   echo "$WHOAMI, please run script as root."
   exit 1
 fi
+
+PYTHONVER=$( python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
+case $PYTHONVER in 
+  3.10|3.1?)
+    echo "Python $PYTHONVER is supported."
+    ;;
+  *)
+    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 or higher installed.  Exiting."
+    exit 1
+    ;;
+esac
 
 ### added on 01/31/23 in case armbian is installed on rpi boards
 if [[ ! -e /boot/config.txt && -e /boot/firmware/config.txt ]]; then
@@ -71,7 +84,7 @@ kvmd:
     streamer:
         forever: true
         cmd_append:
-            - "--slowdown"      # for usb dongle (so target doesn't have to reboot)
+            - "--slowdown"      # so target doesn't have to reboot
         resolution:
             default: 1280x720
 USBOVERRIDE
@@ -87,6 +100,8 @@ kvmd:
         type: disabled
     streamer:
         forever: true
+        cmd_append:
+            - "--slowdown"      # so target doesn't have to reboot
 CSIOVERRIDE
 
     fi
