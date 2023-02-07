@@ -42,7 +42,7 @@ case $PYTHONVER in
     echo "Python $PYTHONVER is supported."
     ;;
   *)
-    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 or higher installed.  Exiting."
+    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 installed.  Exiting."
     exit 1
     ;;
 esac
