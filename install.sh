@@ -335,6 +335,9 @@ build-ustreamer() {
   echo "apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus"
   apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus
 
+  # fix refcount.h
+  sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
+  
   # Download ustreamer source and build it
   cd /tmp
   git clone --depth=1 https://github.com/pikvm/ustreamer
