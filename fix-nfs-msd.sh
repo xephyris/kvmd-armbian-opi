@@ -1,7 +1,7 @@
 #!/bin/bash
 # Written by srepac (c) 2023
 #
-# This is meant for armbian PiKVM use -- required to make NFS MSD work properly
+# This is meant for armbian PiKVM use -- required to make NFS MSD work properly (in effect since kvmd 3.206)
 #
 # In summary, this script will perform the following steps:
 : "
