@@ -36,6 +36,7 @@ overlays=usbhost0 usbhost1 usbhost2 usbhost3
 
 ## Step 3 - Perform part 1 of install
 ```
+apt update
 apt install -y git vim make python3-dev gcc
 git clone https://github.com/srepac/kvmd-armbian.git
 cd kvmd-armbian
