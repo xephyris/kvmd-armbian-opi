@@ -232,7 +232,7 @@ CSIFIRMWARE
 get-packages() {
   printf "\n\n-> Getting Pi-KVM packages from ${PIKVMREPO}\n\n"
   mkdir -p ${KVMDCACHE}/ARCHIVE
-  if [ $( ls ${KVMDCACHE}/kvmd* | wc -l ) -gt 0 ]; then
+  if [ $( ls ${KVMDCACHE}/kvmd* > /dev/null 2>&1 | wc -l ) -gt 0 ]; then
     mv ${KVMDCACHE}/kvmd* ${KVMDCACHE}/ARCHIVE   ### move previous kvmd* packages into ARCHIVE
   fi
 
