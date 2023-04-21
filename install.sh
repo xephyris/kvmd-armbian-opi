@@ -42,7 +42,7 @@ case $PYTHONVER in
     echo "Python $PYTHONVER is supported."
     ;;
   *)
-    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 installed.  Exiting."
+    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 or higher installed.  Exiting."
     exit 1
     ;;
 esac
@@ -339,7 +339,7 @@ build-ustreamer() {
 
   # fix refcount.h
   sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
-  
+
   # Download ustreamer source and build it
   cd /tmp
   git clone --depth=1 https://github.com/pikvm/ustreamer
@@ -608,11 +608,33 @@ armbian-packages() {
   if [ ! -e /usr/bin/vcgencmd ]; then
     # Install vcgencmd for armbian platform
     cp -rf armbian/opt/* /opt/vc/bin
+  else
+    ln -s /usr/bin/vcgencmd /opt/vc/bin/
   fi
   #cp -rf armbian/udev /etc/
 
   cd ${APP_PATH}
 } # end armbian-packages
+
+fix-nfs-msd() {
+  NAME="aiofiles.tar"
+  AIOFILES="https://kvmnerds.com/RPiKVM/$NAME"
+
+  echo -n "-> Downloading $AIOFILES into /tmp ... "
+  wget -O /tmp/$NAME $AIOFILES > /dev/null 2> /dev/null
+  echo "done"
+
+  LOCATION="/usr/lib/python3.10/site-packages"
+  echo "-> Extracting /tmp/$NAME into $LOCATION"
+  tar xvf /tmp/$NAME -C $LOCATION
+
+  echo "-> Renaming original aiofiles and creating symlink to correct aiofiles"
+  cd /usr/lib/python3/dist-packages
+  mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
+  ln -s $LOCATION/aiofiles .
+  ls -ld aiofiles*
+}
+
 
 
 ### MAIN STARTS HERE ###
@@ -689,3 +711,5 @@ sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 
 ### restore htpasswd from previous install, if applies
 if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd; fi
+
+fix-nfs-msd
