@@ -18,4 +18,4 @@ printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed on Orange Pi
 
 "
 
-cat /etc/motd.custom
+if [ -e /etc/motd.custom ]; then cat /etc/motd.custom; fi
