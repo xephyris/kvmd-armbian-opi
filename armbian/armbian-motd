@@ -12,6 +12,8 @@ printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed on Orange Pi
 
     Useful links:
       * https://pikvm.org
+      * https://docs.pikvm.org
       * https://github.com/srepac/kvmd-armbian
+      * https://wiki.archlinux.org/title/systemd-networkd
 
 "
