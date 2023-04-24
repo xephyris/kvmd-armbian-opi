@@ -17,3 +17,5 @@ printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed on Orange Pi
       * https://wiki.archlinux.org/title/systemd-networkd
 
 "
+
+cat /etc/motd.custom
