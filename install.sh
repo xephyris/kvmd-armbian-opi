@@ -563,6 +563,9 @@ set-ownership() {
 
   # add kvmd user to video group (this is required in order to use CSI bridge with OMX and h264 support)
   usermod -a -G video kvmd
+
+  # add kvmd user to dialout group (required for xh_hk4401 kvm switch support)
+  usermod -a -G dialout kvmd
 } # end set-ownership
 
 check-kvmd-works() {
