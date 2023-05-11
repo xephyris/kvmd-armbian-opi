@@ -76,7 +76,7 @@ create-override() {
 kvmd:
     hid:
         mouse_alt:
-            device: /dev/kvmd-hid-mouse-alt  # allow absolute/relative mouse mode
+            device: /dev/kvmd-hid-mouse-alt  # allow relative mouse mode
     msd:
         type: disabled
     atx:
