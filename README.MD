@@ -63,3 +63,4 @@ cd kvmd-armbian
  - Libre Computer Le Potato, La Frite 1GB, Renegade ROC-RK3328-CC and ALL-H3-CC H5 2GB (tested by @srepac)
  - Inovato Quadra tv box (tested by @srepac)
  - Big Tree Tech CB1+Rpi4 board (WIP by @srepac)
+ - Orange Pi PC+ and orange pi 3 (tested by @ducs4rs)
