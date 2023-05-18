@@ -19,7 +19,7 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
     - If you are using arm board you can remove gpio patch to enable gpio feature.
 * Video capture device:
     - HDMI to USB dongle (30 RMB On taobao, 10$ on aliexpress.) or USB HDMI loop capture dongle
-      cheap hdmi to usb dongle all use physics USB2.0 port, but fake USB3.0(USB 5GBPS, USB3.2GEN1) version supports 720P 60FPS,
+    - cheap hdmi to usb dongle all use physics USB2.0 port, but fake USB3.0(USB 5GBPS, USB3.2GEN1) version supports 720P 60FPS,
       usb 2.0 version only supports 720P 30FPS.
 * USB-A to USB-A cable or micro-USB to USB-A cable:
     - Recommended to cut off usb cable's power line, otherwise it might cause otg disconnect.
