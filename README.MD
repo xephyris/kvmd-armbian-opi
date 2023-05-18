@@ -3,10 +3,12 @@ This project supports non-Raspberry Pi device to run pikvm on armbian
 
 # Install
 KVMD Install for armbian
+
 It supports Allwinner, Amlogic and Rockchip based tv box, tested on phicomm n1, mxq pro 4k, tqc a01. 
 Chipset needs to support USB OTG feature, lots of old amglogic chipset does not support otg feature, such as s805 and s905.
 You should install armbian with debian jammy as jammy has python 3.10 which the newer kvmd code is based on.
 Then run this script (2x) to install pikvm.
+
 Install script is a fork from @srepac raspbian pikvm install script.
 
 Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
