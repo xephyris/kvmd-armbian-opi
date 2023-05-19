@@ -438,7 +438,7 @@ fix-nginx-symlinks() {
   if [ ! -e $PYTHONDIR/kvmd ]; then
     # Debian python版本比 pikvm官方的低一些
     # in case new kvmd packages are now using python 3.11
-    ln -s /usr/lib/python3.1*/site-packages/kvmd* ${PYTHONDIR}
+    ln -sf /usr/lib/python3.1*/site-packages/kvmd* ${PYTHONDIR}
   fi
 } # end fix-nginx-symlinks
 
@@ -447,7 +447,7 @@ fix-python-symlinks(){
 
   if [ ! -e $PYTHONDIR/kvmd ]; then
     # Debian python版本比 pikvm官方的低一些
-    ln -s /usr/lib/python3.10/site-packages/kvmd* ${PYTHONDIR}
+    ln -sf /usr/lib/python3.1*/site-packages/kvmd* ${PYTHONDIR}
   fi
 }
 
@@ -667,7 +667,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
 
   # Fix paste-as-keys if running python 3.7
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
-    sed -i -e 's/reversed//g' /usr/lib/python3.10/site-packages/kvmd/keyboard/printer.py
+    sed -i -e 's/reversed//g' /usr/lib/python3.1*/site-packages/kvmd/keyboard/printer.py
   fi
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
