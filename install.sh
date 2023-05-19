@@ -49,7 +49,7 @@ esac
 
 ### added on 01/31/23 in case armbian is installed on rpi boards
 if [[ ! -e /boot/config.txt && -e /boot/firmware/config.txt ]]; then
-  /boot/firmware/config.txt /boot/config.txt
+  ln -sf /boot/firmware/config.txt /boot/config.txt
 fi
 
 MAKER=$(tr -d '\0' < /proc/device-tree/model | awk '{print $1}')
