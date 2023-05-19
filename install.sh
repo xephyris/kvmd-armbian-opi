@@ -49,7 +49,7 @@ esac
 
 ### added on 01/31/23 in case armbian is installed on rpi boards
 if [[ ! -e /boot/config.txt && -e /boot/firmware/config.txt ]]; then
-  ln -sf /boot/firmware/config.txt /boot/config.txt
+  /boot/firmware/config.txt /boot/config.txt
 fi
 
 MAKER=$(tr -d '\0' < /proc/device-tree/model | awk '{print $1}')
@@ -437,7 +437,8 @@ fix-nginx-symlinks() {
 
   if [ ! -e $PYTHONDIR/kvmd ]; then
     # Debian python版本比 pikvm官方的低一些
-    ln -s /usr/lib/python3.10/site-packages/kvmd* ${PYTHONDIR}
+    # in case new kvmd packages are now using python 3.11
+    ln -s /usr/lib/python3.1*/site-packages/kvmd* ${PYTHONDIR}
   fi
 } # end fix-nginx-symlinks
 
