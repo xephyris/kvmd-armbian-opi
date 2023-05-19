@@ -4,7 +4,7 @@
 # modified by xe5700            2021-11-04      xe5700@outlook.com
 # modified by NewbieOrange      2021-11-04
 # created by @srepac   08/09/2021   srepac@kvmnerds.com
-# Scripted Installer of Pi-KVM on Armbian 32-bit and 64-bit (as long as it's running python 3.10)
+# Scripted Installer of Pi-KVM on Armbian 32-bit and 64-bit (as long as it's running python 3.10 or higher)
 #
 # *** MSD is disabled by default ***
 #
@@ -38,7 +38,7 @@ fi
 
 PYTHONVER=$( python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
 case $PYTHONVER in
-  3.10)
+  3.10|3.11)
     echo "Python $PYTHONVER is supported."
     ;;
   *)
@@ -628,7 +628,7 @@ fix-nfs-msd() {
   wget -O /tmp/$NAME $AIOFILES > /dev/null 2> /dev/null
   echo "done"
 
-  LOCATION="/usr/lib/python3.10/site-packages"
+  LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting /tmp/$NAME into $LOCATION"
   tar xvf /tmp/$NAME -C $LOCATION
 
