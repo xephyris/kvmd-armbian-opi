@@ -30,7 +30,7 @@ echo -n "-> Downloading $AIOFILES into /tmp ... "
 wget -O /tmp/$NAME $AIOFILES > /dev/null 2> /dev/null
 echo "done"
 
-LOCATION="/usr/lib/python3.10/site-packages"
+LOCATION="/usr/lib/python3.11/site-packages"
 echo "-> Extracting /tmp/$NAME into $LOCATION"
 tar xvf /tmp/$NAME -C $LOCATION
 
