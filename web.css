@@ -1,0 +1,11 @@
+/* Here you can customize the Web UI */
+div.stream-box-mouse-enabled {
+    cursor: crosshair !important;  /* crosshair instead of blue blob */
+}
+div#stream-box {
+    border: 0px !important;        /* fix video pixel-imperfection */
+}
+div.window:fullscreen {
+    border: 0px !important;        /* fix video pixel-imperfection */
+    border-radius: 0px !important; /* fix full-screen focus-loss rounded corner cutoff */
+}
