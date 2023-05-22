@@ -7,7 +7,6 @@
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
-PIKVMREPO="https://kvmnerds.com/REPO/NEW"               # known working versions for raspbian
 KVMDCACHE="/var/cache/kvmd"
 PKGINFO="${KVMDCACHE}/packages.txt"
 REPOFILE="/tmp/pikvmrepo.html"; /bin/rm -f $REPOFILE
@@ -18,7 +17,7 @@ get-packages() {
   wget ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
 
   # Download each of the pertinent packages for Rpi4, webterm, and the main service
-  for pkg in `egrep 'kvmd|ustreamer' ${PKGINFO} | grep -v sig | cut -d'>' -f3 | cut -d'"' -f2 | egrep -i "kvmd-[0-9]\.|${INSTALLED_PLATFORM}|ustreamer"`
+  for pkg in `egrep 'kvmd|ustreamer' ${PKGINFO} | cut -d'"' -f2 | grep -v sig | egrep -i "kvmd-[0-9]\.|${INSTALLED_PLATFORM}|ustreamer"`
   do
     rm -f ${KVMDCACHE}/$pkg*
     wget ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
@@ -86,12 +85,13 @@ perform-update() {
   CURRENTVER=$( pikvm-info | grep kvmd-platform | awk '{print $1}' )
 
   # get latest released kvmd and kvmd-platform versions from REPO
-  KVMDMAJOR=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'>' -f3 | cut -d'"' -f2 | grep 'kvmd-[0-9]' | cut -d'-' -f2 | cut -d'.' -f1 | uniq )
-  KVMDMINOR=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'>' -f3 | cut -d'"' -f2 | grep 'kvmd-[0-9]' | cut -d'-' -f2 | sed 's/^[0-9]\.//g' | sort -nr | head -1 )
+  KVMDMAJOR=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'"' -f2 | grep 'kvmd-[0-9]' | cut -d'-' -f2 | cut -d'.' -f1 | uniq )
+  KVMDMINOR=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'"' -f2 | grep 'kvmd-[0-9]' | cut -d'-' -f2 | sed 's/^[0-9]\.//g' | sort -nr | head -1 )
   KVMDVER="$KVMDMAJOR.$KVMDMINOR"
-  KVMDFILE=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'>' -f3 | cut -d'"' -f2 | grep 'kvmd-[0-9]' | grep $KVMDVER )
 
-  KVMDPLATFORMFILE=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'>' -f3 | cut -d'"' -f2 | grep 'kvmd-platform' | grep $INSTALLED_PLATFORM | grep $KVMDVER )
+  KVMDFILE=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'"' -f2 | grep 'kvmd-[0-9]' | grep $KVMDVER )
+
+  KVMDPLATFORMFILE=$( egrep kvmd $PKGINFO | grep -v sig | cut -d'"' -f2 | grep 'kvmd-platform' | grep $INSTALLED_PLATFORM | grep $KVMDVER )
 
   PYTHONVER=$( /usr/bin/python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
   case $PYTHONVER in
@@ -173,7 +173,7 @@ update-logo() {
   sed -i -e 's|class="svg-gray" src="\.\.|class="svg-color" src="\.\.|g' /usr/share/kvmd/web/kvm/index.html
 
   ### download opikvm-logo.svg and then overwrite logo.svg
-  wget -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://kvmnerds.com/RPiKVM/opikvm-logo.svg > /dev/null 2> /dev/null
+  wget -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
   cd /usr/share/kvmd/web/share/svg
   cp logo.svg logo.svg.old
   cp opikvm-logo.svg logo.svg
