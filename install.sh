@@ -699,11 +699,18 @@ fi
 
 systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
 
-wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
-wget -O /usr/local/bin/pi-temp https://kvmnerds.com/PiKVM/pi-temp 2> /dev/null
-wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
-wget -O /usr/local/bin/update-rpikvm.sh https://kvmnerds.com/RPiKVM/update-rpikvm.sh 2> /dev/null
-wget -O /etc/kvmd/web.css https://kvmnerds.com/PiKVM/web.css 2> /dev/null
+#wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
+#wget -O /usr/local/bin/pi-temp https://kvmnerds.com/PiKVM/pi-temp 2> /dev/null
+#wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
+#wget -O /usr/local/bin/update-rpikvm.sh https://kvmnerds.com/RPiKVM/update-rpikvm.sh 2> /dev/null
+#wget -O /etc/kvmd/web.css https://kvmnerds.com/PiKVM/web.css 2> /dev/null
+
+wget -O /usr/local/bin/pistat https://raw.githubusercontent.com/srepac/kvmd-armbian/master/pistat 2> /dev/null
+wget -O /usr/local/bin/pi-temp https://raw.githubusercontent.com/srepac/kvmd-armbian/master/pi-temp 2> /dev/null
+wget -O /usr/local/bin/pikvm-info https://raw.githubusercontent.com/srepac/kvmd-armbian/master/pikvm-info 2> /dev/null
+wget -O /etc/kvmd/web.css https://raw.githubusercontent.com/srepac/kvmd-armbian/master/web.css 2> /dev/null
+wget -O /usr/local/bin/update-rpikvm.sh https://raw.githubusercontent.com/srepac/kvmd-armbian/master/update-rpikvm.sh 2> /dev/null
+
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
 ### fix totp.secret file permissions for use with 2FA
