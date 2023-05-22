@@ -54,6 +54,16 @@ cd kvmd-armbian
 ```
 - Enjoy
 
+
+# Updating RPiKVM
+Update armbian pikvm anytime in order to take advantage of new features/updates.
+
+- run the update-rpikvm.sh script to perform update
+```
+update-rpikvm.sh
+```
+
+
 # Tested device
  - Phicomm N1
  - TQC A01 (Ethernet port not working, only support wireless.)
@@ -66,3 +76,4 @@ cd kvmd-armbian
  - Inovato Quadra tv box (tested by @srepac)
  - Big Tree Tech CB1+Rpi4 board (WIP by @srepac)
  - Orange Pi PC+ and orange pi 3 (tested by @ducs4rs)
+
