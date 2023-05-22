@@ -622,15 +622,10 @@ armbian-packages() {
 
 fix-nfs-msd() {
   NAME="aiofiles.tar"
-  AIOFILES="https://kvmnerds.com/RPiKVM/$NAME"
-
-  echo -n "-> Downloading $AIOFILES into /tmp ... "
-  wget -O /tmp/$NAME $AIOFILES > /dev/null 2> /dev/null
-  echo "done"
 
   LOCATION="/usr/lib/python3.11/site-packages"
-  echo "-> Extracting /tmp/$NAME into $LOCATION"
-  tar xvf /tmp/$NAME -C $LOCATION
+  echo "-> Extracting $NAME into $LOCATION"
+  tar xvf $NAME -C $LOCATION
 
   echo "-> Renaming original aiofiles and creating symlink to correct aiofiles"
   cd /usr/lib/python3/dist-packages
@@ -699,17 +694,12 @@ fi
 
 systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
 
-#wget -O /usr/local/bin/pistat https://kvmnerds.com/PiKVM/pistat 2> /dev/null
-#wget -O /usr/local/bin/pi-temp https://kvmnerds.com/PiKVM/pi-temp 2> /dev/null
-#wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
-#wget -O /usr/local/bin/update-rpikvm.sh https://kvmnerds.com/RPiKVM/update-rpikvm.sh 2> /dev/null
-#wget -O /etc/kvmd/web.css https://kvmnerds.com/PiKVM/web.css 2> /dev/null
-
-wget -O /usr/local/bin/pistat https://raw.githubusercontent.com/srepac/kvmd-armbian/master/pistat 2> /dev/null
-wget -O /usr/local/bin/pi-temp https://raw.githubusercontent.com/srepac/kvmd-armbian/master/pi-temp 2> /dev/null
-wget -O /usr/local/bin/pikvm-info https://raw.githubusercontent.com/srepac/kvmd-armbian/master/pikvm-info 2> /dev/null
-wget -O /etc/kvmd/web.css https://raw.githubusercontent.com/srepac/kvmd-armbian/master/web.css 2> /dev/null
-wget -O /usr/local/bin/update-rpikvm.sh https://raw.githubusercontent.com/srepac/kvmd-armbian/master/update-rpikvm.sh 2> /dev/null
+### I uploaded all these into github on 05/22/23 -- so just copy them into correct location
+cp -rf pistat /usr/local/bin/pistat
+cp -rf pi-temp /usr/local/bin/pi-temp
+cp -rf pikvm-info /usr/local/bin/pikvm-info
+cp -rf web.css /etc/kvmd/web.css
+cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
