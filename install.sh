@@ -695,6 +695,7 @@ fi
 systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
 
 ### I uploaded all these into github on 05/22/23 -- so just copy them into correct location
+cd ${APP_PATH}
 cp -rf pistat /usr/local/bin/pistat
 cp -rf pi-temp /usr/local/bin/pi-temp
 cp -rf pikvm-info /usr/local/bin/pikvm-info
