@@ -522,12 +522,15 @@ ENDSERVICE
 ### These fixes are required in order for kvmd service to start properly
 #
 set -x
-chgrp gpio /dev/gpio*
-chmod 660 /dev/gpio*
-ls -l /dev/gpio*
+if [ \$( ls /dev/ | grep -c gpio ) -gt 0 ]; then
+  chgrp gpio /dev/gpio*
+  chmod 660 /dev/gpio*
+  ls -l /dev/gpio*
+fi
 
 udevadm trigger
-ls -l /dev/kvmd-video
+sleep 3
+ls -l /dev/kvmd*
 
 if [ \$( systemctl | grep kvmd-oled | grep -c activ ) -eq 0 ]; then
   echo "kvmd-oled service is not enabled."
@@ -641,7 +644,6 @@ fix-nfs-msd() {
 
 add-ch9329-support() {
   wget -O install-ch9329.sh https://kvmnerds.com/PiKVM/install-ch9329.sh 2> /dev/null
-  wget -O ch9329.tar https://kvmnerds.com/PiKVM/ch9329.tar 2> /dev/null
   chmod +x install-ch9329.sh
   ./install-ch9329.sh
 }
@@ -737,7 +739,7 @@ cp -rf pistat /usr/local/bin/pistat
 cp -rf pi-temp /usr/local/bin/pi-temp
 cp -rf pikvm-info /usr/local/bin/pikvm-info
 cp -rf web.css /etc/kvmd/web.css
-cp -rf update-x86-pikvm.sh /usr/local/bin/update-rpikvm.sh
+cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
