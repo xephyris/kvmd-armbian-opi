@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-## Update script for x86
+## Update script for Raspbian
 #
 ###
 # Updated on 20220211 1130PDT
@@ -206,6 +206,18 @@ misc-fixes() {
   set +x
 }
 
+fix-python311() {
+  printf "\n-> python3.11 kvmd path fix\n\n"
+  cd /usr/lib/python3/dist-packages/; ls -ld kvmd*
+
+  if [ $( ls -ld kvmd | grep -c 3.10 ) -gt 0 ]; then
+    ln -sf /usr/lib/python3.11/site-packages/kvmd .
+    ls -ld kvmd*
+  else
+    printf "\nkvmd is already symlinked to python3.11 version.  Nothing to do.\n"
+  fi
+}
+
 
 ### MAIN STARTS HERE ###
 REPOVER=$(ls -ltr $KVMDCACHE/ustreamer* | awk -F\/ '{print $NF}' | cut -d'-' -f2 | tail -1)
@@ -221,15 +233,21 @@ update-ustreamer
 set-ownership
 restore-configs
 update-logo
+fix-python311
 misc-fixes
 
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 
 ### fix for x86 pikvm serial HID ###
-sed -i -e 's/ttyAMA0/ttyUSB0/g' /etc/udev/rules.d/99-kvmd.rules
+sed -i -e 's/ttyAMA0/ttyUSB[0-2]/g' /etc/udev/rules.d/99-kvmd.rules
 
 #wget -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
 
-printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
-printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
+### if kvmd service is enabled, then restart service and show message ###
+if systemctl is-enabled -q kvmd; then
+  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
+  printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
+else
+  printf "\nkvmd service is disabled.  Not starting service\n"
+fi
