@@ -739,7 +739,7 @@ cp -rf pistat /usr/local/bin/pistat
 cp -rf pi-temp /usr/local/bin/pi-temp
 cp -rf pikvm-info /usr/local/bin/pikvm-info
 cp -rf web.css /etc/kvmd/web.css
-cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
+cp -rf update-x86-pikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
