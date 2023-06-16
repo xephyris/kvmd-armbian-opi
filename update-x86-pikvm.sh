@@ -247,8 +247,8 @@ update-ustreamer
 set-ownership
 restore-configs
 update-logo
-fix-python311
 misc-fixes
+fix-python311
 fix-nfs-msd
 
 ### add ms unit of measure to Polling rate in webui ###
