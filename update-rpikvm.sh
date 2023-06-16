@@ -198,6 +198,18 @@ misc-fixes() {
   set +x
 }
 
+fix-python311() {
+  printf "\n-> python3.11 kvmd path fix\n\n"
+  cd /usr/lib/python3/dist-packages/; ls -ld kvmd*
+
+  if [ $( ls -ld kvmd | grep -c 3.10 ) -gt 0 ]; then
+    ln -sf /usr/lib/python3.11/site-packages/kvmd .
+    ls -ld kvmd*
+  else
+    printf "\nkvmd is already symlinked to python3.11 version.  Nothing to do.\n"
+  fi
+}
+
 fix-nfs-msd() {
   NAME="aiofiles.tar"
 
@@ -228,6 +240,7 @@ set-ownership
 restore-configs
 update-logo
 misc-fixes
+fix-python311
 fix-nfs-msd
 
 ### add ms unit of measure to Polling rate in webui ###
