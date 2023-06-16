@@ -8,7 +8,7 @@ echo "Host OS:  $NAME `uname -r`  `uname -m`"
 # pistat is built-in to pi-kvm (/usr/local/bin)
 /usr/local/bin/pistat && echo
 
-printf "%-25s\t%s\n" "Version" "Package-Name" "----------------------------" "-----------------------------"
+printf "%-32s\t%s\n" "Version" "Package-Name" "---------------------------------" "-----------------------------"
 
 get-packages() {
 if [[ $( echo $NAME | cut -d' ' -f1 ) == "Arch" ]]; then
@@ -21,13 +21,13 @@ else
         if [[ "$KVMDPLAT" != "" ]]; then
                 KVMDVER=$( echo $KVMDPLAT | cut -d'-' -f6 )
                 PLATFORM=$( echo $KVMDPLAT | cut -d'-' -f1,2,3,4,5 )
-                printf "%-25s\t%s\n" $KVMDVER $PLATFORM
+                printf "%-32s\t%s\n" $KVMDVER $PLATFORM
         fi
 
         USTREAMVER=$( /usr/bin/ustreamer -v )
-        printf "%-25s\t%s\n" $USTREAMVER "ustreamer"
+        printf "%-32s\t%s\n" $USTREAMVER "ustreamer"
         JANUSVER=$( /usr/bin/janus -V | tail -1 | awk '{print $NF}' )
-        printf "%-25s\t%s\n" $JANUSVER "janus"
+        printf "%-32s\t%s\n" $JANUSVER "janus"
 
         if [ ! -e $TMPFILE ]; then
                 apt list 2> /dev/null | egrep 'upgradable|installed' | grep -v ^$ | awk '{print $2, $1}' > $TMPFILE
@@ -43,6 +43,6 @@ get-packages
 PACKAGES="janus pikvm kvmd ustreamer nginx wpa wireless python3/stable python$ firmware raspberrypi tailscale"
 for PKG in $( echo $PACKAGES ); do
         if [ $(grep -w $PKG $TMPFILE | wc -l) -gt 0 ]; then
-                printf "%-25s\t%s\n" $(grep -w $PKG $TMPFILE | sed 's/-[1-9]+//g' | awk -F\/ '{print $1}' )
+                printf "%-32s\t%s\n" $(grep -w $PKG $TMPFILE | sed 's/-[1-9]+//g' | awk -F\/ '{print $1}' )
         fi
 done | sort -u | sort -k2
