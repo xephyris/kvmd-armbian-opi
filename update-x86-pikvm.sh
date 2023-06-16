@@ -218,6 +218,20 @@ fix-python311() {
   fi
 }
 
+fix-nfs-msd() {
+  NAME="aiofiles.tar"
+
+  LOCATION="/usr/lib/python3.11/site-packages"
+  echo "-> Extracting $NAME into $LOCATION"
+  tar xvf $NAME -C $LOCATION
+
+  echo "-> Renaming original aiofiles and creating symlink to correct aiofiles"
+  cd /usr/lib/python3/dist-packages
+  mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
+  ln -s $LOCATION/aiofiles .
+  ls -ld aiofiles*
+}
+
 
 ### MAIN STARTS HERE ###
 REPOVER=$(ls -ltr $KVMDCACHE/ustreamer* | awk -F\/ '{print $NF}' | cut -d'-' -f2 | tail -1)
@@ -235,6 +249,7 @@ restore-configs
 update-logo
 fix-python311
 misc-fixes
+fix-nfs-msd
 
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
