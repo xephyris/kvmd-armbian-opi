@@ -248,5 +248,10 @@ sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 
 wget -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
 
-printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
-printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
+### if kvmd service is enabled, then restart service and show message ###
+if systemctl is-enabled -q kvmd; then
+  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
+  printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
+else
+  printf "\nkvmd service is disabled.  Not starting service\n"
+fi
