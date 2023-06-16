@@ -5,9 +5,9 @@
 #
 # In summary, this script will perform the following steps:
 : "
-1.  take the contents of /usr/lib/python3.10/site-packages/aiofiles from arch pikvm and extract it to armbian
+1.  take the contents of /usr/lib/python3.11/site-packages/aiofiles from arch pikvm and extract it to armbian
 2.  rename aiofiles within /usr/lib/python3/dist-packages to aiofiles.YYYYMMDD.hhmm
-3.  create symlink to /usr/lib/python3.10/site-packages/aiofiles into /usr/lib/python3/dist-packages
+3.  create symlink to /usr/lib/python3.11/site-packages/aiofiles into /usr/lib/python3/dist-packages
 4.  restart kvmd
 "
 
