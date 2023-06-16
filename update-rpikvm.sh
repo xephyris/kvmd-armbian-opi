@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-## Update script for Raspbian
+## Update script for Raspbian/Armbian
 #
 ###
 # Updated on 20220211 1130PDT
