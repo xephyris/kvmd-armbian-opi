@@ -716,6 +716,7 @@ else
   fix-python-symlinks
   fix-webterm
   fix-motd
+  fix-nfs-msd
   set-ownership
   create-kvmdfix
   add-ch9329-support
@@ -752,5 +753,3 @@ sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 
 ### restore htpasswd from previous install, if applies
 if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd; fi
-
-fix-nfs-msd
