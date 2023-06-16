@@ -324,7 +324,7 @@ install-kvmd-pkgs() {
 
 fix-udevrules() {
   # for hdmiusb, replace %b with 1-1.4:1.0 in /etc/udev/rules.d/99-kvmd.rules
-  sed -i -e 's+\%b+1-1.4:1.0+g' -e 's+ttyAMA0+ttyUSB0+g' /etc/udev/rules.d/99-kvmd.rules
+  sed -i -e 's+\%b+1-1.4:1.0+g' -e 's+ttyAMA0+ttyUSB[0-2]+g' /etc/udev/rules.d/99-kvmd.rules
   echo
   cat /etc/udev/rules.d/99-kvmd.rules
 } # end fix-udevrules
