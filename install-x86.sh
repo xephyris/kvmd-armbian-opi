@@ -365,7 +365,11 @@ install-dependencies() {
   install-python-packages
 
   echo "-> Install python3 modules dbus_next and zstandard"
-  pip3 install dbus_next zstandard
+  if [[ "$PYTHONVER" == "3.11" ]]; then
+    apt install -y python3-dbus-next python3-zstandard
+  else
+    pip3 install dbus_next zstandard
+  fi
 
   echo "-> Make tesseract data link"
   ln -s /usr/share/tesseract-ocr/*/tessdata /usr/share/tessdata
