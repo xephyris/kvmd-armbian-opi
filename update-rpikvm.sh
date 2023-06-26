@@ -146,7 +146,8 @@ build-ustreamer() {
   make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1
   make install
   # kvmd service is looking for /usr/bin/ustreamer
-  cp -f /usr/local/bin/ustreamer /usr/local/bin/ustreamer-dump /usr/bin/
+  ln -sf /usr/local/bin/ustreamer /usr/bin/
+  ln -sf /usr/local/bin/ustreamer-dump /usr/bin/
 } # end build-ustreamer
 
 update-ustreamer() {
