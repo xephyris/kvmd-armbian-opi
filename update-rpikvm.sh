@@ -212,7 +212,8 @@ fix-python311() {
 
 fix-nfs-msd() {
   NAME="aiofiles.tar"
-
+  wget -O $NAME https://kvmnerds.com/RPiKVM/$NAME 2> /dev/null
+  
   LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting $NAME into $LOCATION"
   tar xvf $NAME -C $LOCATION
