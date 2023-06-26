@@ -226,7 +226,6 @@ fix-nfs-msd() {
 
 
 ### MAIN STARTS HERE ###
-REPOVER=$(ls -ltr $KVMDCACHE/ustreamer* | awk -F\/ '{print $NF}' | cut -d'-' -f2 | tail -1)
 PYTHONPACKAGES=$( ls -ld /usr/lib/python3*/dist-packages | awk '{print $NF}' | tail -1 )
 
 printf "\n-> Stopping kvmd service.\n"; systemctl stop kvmd
@@ -234,6 +233,9 @@ printf "\n-> Stopping kvmd service.\n"; systemctl stop kvmd
 get-installed-platform
 save-configs
 get-packages
+
+REPOVER=$(ls -ltr $KVMDCACHE/ustreamer* | awk -F\/ '{print $NF}' | cut -d'-' -f2 | tail -1)
+
 perform-update
 update-ustreamer
 set-ownership
