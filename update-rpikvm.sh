@@ -3,7 +3,7 @@
 ## Update script for Raspbian/Armbian
 #
 ###
-# Updated on 20230616 0755PDT
+# Updated on 20230628 1930PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -113,16 +113,16 @@ perform-update() {
     tar xfJ $KVMDCACHE/$KVMDFILE
     tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
 
-    rm $PYTHONPACKAGES/kvmd*egg-info
-    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*egg* $PYTHONPACKAGES
+    rm $PYTHONPACKAGES/kvmd*info*
+    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
 
     echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
     "
 
     cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
     tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
-    rm $PYTHONPACKAGES/kvmd*egg-info 2> /dev/null
-    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*egg* $PYTHONPACKAGES 2> /dev/null
+    rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
+    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
     echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
   fi
 } # end perform-update
@@ -246,6 +246,8 @@ update-logo
 misc-fixes
 fix-python311
 fix-nfs-msd
+
+ln -s python3 /usr/bin/python
 
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
