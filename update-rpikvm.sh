@@ -247,7 +247,7 @@ misc-fixes
 fix-python311
 fix-nfs-msd
 
-ln -s python3 /usr/bin/python
+ln -sf python3 /usr/bin/python
 
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
