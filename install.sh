@@ -709,6 +709,9 @@ cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
+### fix for kvmd 3.230 and higher
+ln -sf python3 /usr/bin/python
+
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
 chown kvmd:kvmd /etc/kvmd/totp.secret
