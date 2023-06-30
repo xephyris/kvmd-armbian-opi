@@ -135,7 +135,7 @@ install-tc358743() {
   curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | apt-key add -
   echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | tee /etc/apt/sources.list.d/uv4l.list
 
-  apt-get update > /dev/null
+  #apt-get update > /dev/null
   echo "apt-get install uv4l-tc358743-extras -y"
   apt-get install uv4l-tc358743-extras -y > /dev/null
 } # install package for tc358743
@@ -354,7 +354,7 @@ install-dependencies() {
   echo
   echo "-> Installing dependencies for pikvm"
 
-  apt-get update > /dev/null
+  #apt-get update > /dev/null
   echo "apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev"
   apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev > /dev/null
 
