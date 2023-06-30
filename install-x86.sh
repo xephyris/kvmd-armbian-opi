@@ -17,8 +17,8 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20230201 1025 PDT
-# VER=2.1
+# Last change 20230630 0945 PDT
+# VER=3.0
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"
