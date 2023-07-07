@@ -45,6 +45,8 @@ save-configs() {
 
   # Save mouse settings (in case you changed move freq to 10ms from 100ms)
   cp /usr/share/kvmd/web/share/js/kvm/mouse.js /usr/share/kvmd/web/share/js/kvm/mouse.js.save
+
+  cp /etc/kvmd/nginx/listen-https.conf /etc/kvmd/nginx/listen-https.conf.save
 } # end save-configs
 
 restore-configs() {
@@ -67,6 +69,8 @@ restore-configs() {
 
   # Restore mouse settings (in case you changed move freq to 10ms from 100ms)
   cp /usr/share/kvmd/web/share/js/kvm/mouse.js.save /usr/share/kvmd/web/share/js/kvm/mouse.js
+
+  cp /etc/kvmd/nginx/listen-https.conf.save /etc/kvmd/nginx/listen-https.conf
 } # end restore-configs
 
 set-ownership() {
