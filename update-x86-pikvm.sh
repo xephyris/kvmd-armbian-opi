@@ -46,6 +46,8 @@ save-configs() {
   # Save mouse settings (in case you changed move freq to 10ms from 100ms)
   cp /usr/share/kvmd/web/share/js/kvm/mouse.js /usr/share/kvmd/web/share/js/kvm/mouse.js.save
 
+  cp /etc/kvmd/nginx/listen-https.conf /etc/kvmd/nginx/listen-https.conf.save
+  
   cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py.save
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py.save
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py.save
@@ -72,6 +74,8 @@ restore-configs() {
   # Restore mouse settings (in case you changed move freq to 10ms from 100ms)
   cp /usr/share/kvmd/web/share/js/kvm/mouse.js.save /usr/share/kvmd/web/share/js/kvm/mouse.js
 
+  cp /etc/kvmd/nginx/listen-https.conf.save /etc/kvmd/nginx/listen-https.conf
+  
   cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py.save /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py.save /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py.save /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py
