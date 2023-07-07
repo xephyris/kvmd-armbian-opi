@@ -638,6 +638,54 @@ fix-nfs-msd() {
   ls -ld aiofiles*
 }
 
+fix-nginx() {
+  #set -x
+  KERNEL=$( uname -r | awk -F\- '{print $1}' )
+  ARCH=$( uname -r | awk -F\- '{print $NF}' )
+  echo "KERNEL:  $KERNEL   ARCH:  $ARCH"
+  case $ARCH in
+    ARCH) SEARCHKEY=nginx-mainline;;
+    *) SEARCHKEY="nginx/";;
+  esac
+
+  HTTPSCONF="/etc/kvmd/nginx/listen-https.conf"
+  echo "HTTPSCONF BEFORE:  $HTTPSCONF"
+  cat $HTTPSCONF
+
+  if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
+    wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
+    chmod +x /usr/local/bin/pikvm-info
+    echo "Getting list of packages installed..."
+    pikvm-info > /dev/null    ### this generates /tmp/pacmanquery with list of installed pkgs
+  fi
+
+  NGINXVER=$( grep $SEARCHKEY /tmp/pacmanquery | awk '{print $1}' | cut -d'.' -f1,2 )
+  echo
+  echo "NGINX version installed:  $NGINXVER"
+
+  case $NGINXVER in
+    1.2[56789]|1.3*|1.4*|1.5*)   # nginx version 1.25 and higher
+      cat << NEW_CONF > $HTTPSCONF
+listen 443 ssl;
+listen [::]:443 ssl;
+http2 on;
+NEW_CONF
+      ;;
+
+    1.18|*)   # nginx version 1.18 and lower
+      cat << ORIG_CONF > $HTTPSCONF
+listen 443 ssl http2;
+listen [::]:443 ssl;
+ORIG_CONF
+      ;;
+
+  esac
+
+  echo "HTTPSCONF AFTER:  $HTTPSCONF"
+  cat $HTTPSCONF
+  set +x
+} # end fix-nginx
+
 
 
 ### MAIN STARTS HERE ###
@@ -688,6 +736,7 @@ else
   fix-webterm
   fix-motd
   fix-nfs-msd
+  fix-nginx
   set-ownership
   create-kvmdfix
   check-kvmd-works
