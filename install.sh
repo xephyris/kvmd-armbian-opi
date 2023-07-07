@@ -644,6 +644,10 @@ fix-nfs-msd() {
 # Install is done in two parts
 # First part requires a reboot in order to create kvmd users and groups
 # Second part will start the necessary kvmd services
+
+### fix for kvmd 3.230 and higher
+ln -sf python3 /usr/bin/python
+
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
@@ -708,9 +712,6 @@ cp -rf web.css /etc/kvmd/web.css
 cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
-
-### fix for kvmd 3.230 and higher
-ln -sf python3 /usr/bin/python
 
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
