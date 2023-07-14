@@ -732,6 +732,7 @@ ORIG_CONF
 
 ### fix for kvmd 3.230 and higher
 ln -sf python3 /usr/bin/python
+GPUMEM=256
 
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
