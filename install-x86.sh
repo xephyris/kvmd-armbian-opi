@@ -812,5 +812,5 @@ sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 ### restore htpasswd from previous install, if applies
 if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd; fi
 
-### instead of showing # fps dynamic, show removed fps dynamic instead;  USELESS fps meter fix
-sed -i -e 's|${__fps}|removed|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
+### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
+sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
