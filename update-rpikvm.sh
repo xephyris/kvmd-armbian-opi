@@ -315,3 +315,6 @@ if systemctl is-enabled -q kvmd; then
 else
   printf "\nkvmd service is disabled.  Not starting service\n"
 fi
+
+### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
+sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
