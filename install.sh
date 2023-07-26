@@ -766,6 +766,9 @@ chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 chmod go+r /etc/kvmd/totp.secret
 chown kvmd:kvmd /etc/kvmd/totp.secret
 
+### additional python pip dependencies for kvmd 3.238 and higher
+pip3 install async-lru 2> /dev/null
+
 ### update default hostname info in webui to reflect current hostname
 sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 
