@@ -802,6 +802,9 @@ cp -rf update-x86-pikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
+### additional python pip dependencies for kvmd 3.238 and higher
+pip3 install async-lru 2> /dev/null
+
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
 chown kvmd:kvmd /etc/kvmd/totp.secret
