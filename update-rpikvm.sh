@@ -303,6 +303,9 @@ fix-nginx
 
 ln -sf python3 /usr/bin/python
 
+### additional python pip dependencies for kvmd 3.238 and higher
+pip3 install async-lru
+
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 
