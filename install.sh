@@ -693,6 +693,11 @@ ORIG_CONF
 # First part requires a reboot in order to create kvmd users and groups
 # Second part will start the necessary kvmd services
 
+### fix for kvmd 3.230 and higher
+ln -sf python3 /usr/bin/python
+
+### additional python pip dependencies for kvmd 3.238 and higher
+pip3 install async-lru 2> /dev/null
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
@@ -728,8 +733,8 @@ else
   systemd-sysusers /usr/lib/sysusers.d/kvmd.conf
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
-  ### fix for kvmd 3.230 and higher
-  ln -sf python3 /usr/bin/python
+  ### additional python pip dependencies for kvmd 3.238 and higher
+  pip3 install async-lru 2> /dev/null
 
   fix-nginx-symlinks
   fix-python-symlinks
