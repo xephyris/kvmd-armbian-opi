@@ -696,8 +696,6 @@ ORIG_CONF
 ### fix for kvmd 3.230 and higher
 ln -sf python3 /usr/bin/python
 
-### additional python pip dependencies for kvmd 3.238 and higher
-pip3 install async-lru 2> /dev/null
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
