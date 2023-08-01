@@ -734,6 +734,9 @@ ORIG_CONF
 ln -sf python3 /usr/bin/python
 GPUMEM=256
 
+### additional python pip dependencies for kvmd 3.238 and higher
+pip3 install async-lru 2> /dev/null
+
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
@@ -805,9 +808,6 @@ chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
 chown kvmd:kvmd /etc/kvmd/totp.secret
-
-### additional python pip dependencies for kvmd 3.238 and higher
-pip3 install async-lru 2> /dev/null
 
 ### update default hostname info in webui to reflect current hostname
 sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
