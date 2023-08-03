@@ -526,6 +526,11 @@ ENDSERVICE
 ### These fixes are required in order for kvmd service to start properly
 #
 set -x
+
+# create this dir so that running kvmd-otgconf doesn't give errors
+mkdir -p /run/kvmd/otg
+/root/ch_reset.py
+
 if [ \$( ls /dev/ | grep -c gpio ) -gt 0 ]; then
   chgrp gpio /dev/gpio*
   chmod 660 /dev/gpio*
@@ -563,6 +568,41 @@ fi
 SCRIPTEND
 
   chmod +x /usr/bin/kvmd-fix
+
+  cat << CHRESET > /root/ch_reset.py
+#!/usr/bin/python3
+import serial
+import time
+
+device_path = "/dev/kvmd-hid"
+
+chip = serial.Serial(device_path, 9600, timeout=1)
+
+command = [87, 171, 0, 15, 0]
+sum = sum(command) % 256
+command.append(sum)
+
+print("Resetting CH9329")
+
+chip.write(serial.to_bytes(command))
+
+time.sleep(2)
+
+data = list(chip.read(5))
+
+print("Initial data:", data)
+
+if data[4] :
+        more_data = list(chip.read(data[4]))
+        data.extend(more_data)
+
+print("Output: ", data)
+
+
+chip.close()
+CHRESET
+
+  chmod +x /root/ch_reset.py
 } # end create-kvmdfix
 
 set-ownership() {
