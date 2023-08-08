@@ -820,7 +820,7 @@ else
   fix-nginx
   set-ownership
   create-kvmdfix
-  if [ ! -e ${PYTHONDIR}/kvmd/plugins/hid/ch9329 ]; then add-ch9329-support; fi    # starting with kvmd 3.239, ch9329 has been merged with kvmd master
+  if [ ! -e ${LOCATION}/kvmd/plugins/hid/ch9329 ]; then add-ch9329-support; fi    # starting with kvmd 3.239, ch9329 has been merged with kvmd master
   apply-x86-mods
   check-kvmd-works
   enable-kvmd-svcs
