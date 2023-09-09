@@ -771,7 +771,7 @@ ocr-fix() {
   pip3 list | grep -i pillow
 
   # 2.  update Pillow to 10.0.0
-  pip3 install -U Pillow
+  pip3 install -U Pillow 2> /dev/null
 
   # 3.  check that Pillow module is now running 10.0.0
   pip3 list | grep -i pillow
