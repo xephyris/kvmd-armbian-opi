@@ -11,6 +11,17 @@
 4.  restart kvmd
 "
 
+# first, check to make sure that NFS_Primary is mounted in /var/lib/kvmd/msd
+if [ $(mount | grep -c NFS_Primary) -le 0 ]; then
+  echo "Missing /var/lib/kvmd/msd/NFS_Primary mount"
+  echo "Please follow https://docs.pikvm.org/msd/#nfs-storage then re-run script."
+  exit 1
+else
+  echo "/var/lib/kvmd/msd/NFS_Primary is mounted."
+  echo "-> Stopping kvmd"
+  systemctl stop kvmd
+fi
+
 NAME="aiofiles.tar"
 AIOFILES="https://raw.githubusercontent.com/srepac/kvmd-armbian/master/$NAME"
 
