@@ -686,6 +686,24 @@ ORIG_CONF
   set +x
 } # end fix-nginx
 
+ocr-fix() { 
+  echo
+  echo "-> Apply OCR fix..."
+  
+  # 1.  verify that Pillow module is currently running 9.0.x
+  pip3 list | grep -i pillow
+
+  # 2.  update Pillow to 10.0.0
+  pip3 install -U Pillow
+
+  # 3.  check that Pillow module is now running 10.0.0
+  pip3 list | grep -i pillow
+
+  #4.  restart kvmd and confirm OCR now works.
+  systemctl restart kvmd
+
+  echo
+} # end ocr-fix
 
 
 ### MAIN STARTS HERE ###
@@ -740,6 +758,8 @@ else
   fix-motd
   fix-nfs-msd
   fix-nginx
+  ocr-fix
+  
   set-ownership
   create-kvmdfix
   check-kvmd-works
