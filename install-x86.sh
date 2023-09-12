@@ -865,12 +865,12 @@ else
   fix-nfs-msd
   fix-nginx
   ocr-fix
-  x86-fix-3.256
   
   set-ownership
   create-kvmdfix
   if [ ! -e ${LOCATION}/kvmd/plugins/hid/ch9329 ]; then add-ch9329-support; fi    # starting with kvmd 3.239, ch9329 has been merged with kvmd master
   apply-x86-mods
+  x86-fix-3.256
   check-kvmd-works
   enable-kvmd-svcs
   start-kvmd-svcs
