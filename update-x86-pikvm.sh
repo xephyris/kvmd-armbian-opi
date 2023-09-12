@@ -315,6 +315,25 @@ ocr-fix() {  # create function
   echo
 } # end ocr-fix
 
+x86-fix-3.256() {
+  echo "-> Apply x86-fix for 3.256 and higher..."
+  cd /usr/lib/python3/dist-packages/kvmd/apps/
+  cp __init__.py __init__.py.$( date +%Y%m%d )
+  wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
+  mv __init__.py.1 __init__.py
+
+  cd /usr/share/kvmd/web/share/js
+  cp session.js session.js.$( date +%Y%m%d )
+  wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/web/share/js/kvm/session.js 2> /dev/null
+  mv session.js.1 session.js
+
+  cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/
+  cp hw.py hw.py.$( date +%Y%m%d )
+  #wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
+  #mv hw.py.1 hw.py
+  wget -O hw.py https://kvmnerds.com/PiKVM/TESTING/hw.py 2> /dev/null
+} # end x86-fix-3.256
+
 
 ### MAIN STARTS HERE ###
 PYTHONPACKAGES=$( ls -ld /usr/lib/python3*/dist-packages | awk '{print $NF}' | tail -1 )
@@ -337,6 +356,7 @@ fix-python311
 fix-nfs-msd
 fix-nginx
 ocr-fix
+x86-fix-3.256
 
 ln -sf python3 /usr/bin/python
 
