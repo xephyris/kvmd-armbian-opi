@@ -323,9 +323,13 @@ x86-fix-3.256() {
   mv __init__.py.1 __init__.py
 
   cd /usr/share/kvmd/web/share/js
-  cp session.js session.js.$( date +%Y%m%d )
+  if [ -e session.js ]; then
+    cp session.js session.js.$( date +%Y%m%d )
+  fi
   wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/web/share/js/kvm/session.js 2> /dev/null
-  mv session.js.1 session.js
+  if [ -e session.js.1 ]; then
+    mv session.js.1 session.js
+  fi
 
   cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/
   cp hw.py hw.py.$( date +%Y%m%d )
