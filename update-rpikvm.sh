@@ -3,7 +3,7 @@
 ## Update script for Raspbian/Armbian
 #
 ###
-# Updated on 20230628 1930PDT
+# Updated on 20230914 1100PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -188,8 +188,16 @@ update-logo() {
 misc-fixes() {
   printf "\n-> Misc fixes: python dependencies for 2FA function\n"
   set -x
-  ### pyotp and qrcode is required for 3.196 and higher (for use with 2FA)
-  pip3 install pyotp qrcode 2> /dev/null
+
+  PIP3LIST="/tmp/pip3.list"
+  if [ ! -e $PIP3LIST ]; then pip3 list > $PIP3LIST ; fi
+
+  if [ $( egrep -c 'pyotp|qrcode' $PIP3LIST ) -eq 0 ]; then
+    ### pyotp and qrcode is required for 3.196 and higher (for use with 2FA)
+    pip3 install pyotp qrcode 2> /dev/null
+  else
+    echo "pip3 modules pyotp and qrcode already installed"
+  fi
 
   TOTPFILE="/etc/kvmd/totp.secret"
   if [ -e $TOTPFILE ]; then
@@ -218,7 +226,7 @@ fix-python311() {
 fix-nfs-msd() {
   NAME="aiofiles.tar"
   wget -O $NAME https://kvmnerds.com/RPiKVM/$NAME 2> /dev/null
-  
+
   LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting $NAME into $LOCATION"
   tar xvf $NAME -C $LOCATION
@@ -232,7 +240,7 @@ fix-nfs-msd() {
 
 fix-nginx() {
   echo
-  echo "-> Applying NGINX fix..."  
+  echo "-> Applying NGINX fix..."
   #set -x
   KERNEL=$( uname -r | awk -F\- '{print $1}' )
   ARCH=$( uname -r | awk -F\- '{print $NF}' )
@@ -285,7 +293,7 @@ ocr-fix() {  # create function
   echo "-> Apply OCR fix..."
 
   # 1.  verify that Pillow module is currently running 9.0.x
-  PILLOWVER=$( pip3 list | grep -i pillow | awk '{print $NF}' )
+  PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
 
   case $PILLOWVER in
     9.*|8.*|7.*)   # Pillow running at 9.x and lower
@@ -335,7 +343,11 @@ ln -sf python3 /usr/bin/python
 
 ### additional python pip dependencies for kvmd 3.238 and higher
 echo "-> Applying kvmd 3.238 and higher fix..."
-pip3 install async-lru 2> /dev/null
+if [ $( grep -c async-lru $PIP3LIST ) -eq 0 ]; then
+  pip3 install async-lru 2> /dev/null
+else
+  grep async-lru $PIP3LIST
+fi
 
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
