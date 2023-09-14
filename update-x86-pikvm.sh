@@ -197,8 +197,16 @@ update-logo() {
 misc-fixes() {
   printf "\n-> Misc fixes: python dependencies for 2FA function\n"
   set -x
-  ### pyotp and qrcode is required for 3.196 and higher (for use with 2FA)
-  pip3 install pyotp qrcode 2> /dev/null
+
+  PIP3LIST="/tmp/pip3.list"
+  if [ ! -e $PIP3LIST ]; then pip3 list > $PIP3LIST ; fi
+
+  if [ $( egrep -c 'pyotp|qrcode' $PIP3LIST ) -eq 0 ]; then
+    ### pyotp and qrcode is required for 3.196 and higher (for use with 2FA)
+    pip3 install pyotp qrcode 2> /dev/null
+  else
+    echo "pip3 modules pyotp and qrcode already installed"
+  fi
 
   TOTPFILE="/etc/kvmd/totp.secret"
   if [ -e $TOTPFILE ]; then
@@ -294,7 +302,7 @@ ocr-fix() {  # create function
   echo "-> Apply OCR fix..."
 
   # 1.  verify that Pillow module is currently running 9.0.x
-  PILLOWVER=$( pip3 list | grep -i pillow | awk '{print $NF}' )
+  PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
 
   case $PILLOWVER in
     9.*|8.*|7.*)   # Pillow running at 9.x and lower
@@ -319,6 +327,7 @@ ocr-fix() {  # create function
 
 x86-fix-3.256() {
   echo "-> Apply x86-fix for 3.256 and higher..."
+
   cd /usr/lib/python3/dist-packages/kvmd/apps/
   cp __init__.py __init__.py.$( date +%Y%m%d )
   wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
@@ -338,6 +347,7 @@ x86-fix-3.256() {
   #wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
   #mv hw.py.1 hw.py
   wget -O hw.py https://kvmnerds.com/PiKVM/TESTING/hw.py 2> /dev/null
+
   echo
 } # end x86-fix-3.256
 
@@ -368,8 +378,12 @@ x86-fix-3.256
 ln -sf python3 /usr/bin/python
 
 ### additional python pip dependencies for kvmd 3.238 and higher
-echo "-> Applying fix for kvmd 3.238 and higher..."
-pip3 install async-lru 2> /dev/null
+echo "-> Applying kvmd 3.238 and higher fix..."
+if [ $( grep -c async-lru $PIP3LIST ) -eq 0 ]; then
+  pip3 install async-lru 2> /dev/null
+else
+  grep async-lru $PIP3LIST
+fi
 
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
