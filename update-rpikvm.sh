@@ -334,6 +334,7 @@ ocr-fix
 ln -sf python3 /usr/bin/python
 
 ### additional python pip dependencies for kvmd 3.238 and higher
+echo "-> Applying kvmd 3.238 and higher fix..."
 pip3 install async-lru 2> /dev/null
 
 ### add ms unit of measure to Polling rate in webui ###
