@@ -47,7 +47,7 @@ save-configs() {
   cp /usr/share/kvmd/web/share/js/kvm/mouse.js /usr/share/kvmd/web/share/js/kvm/mouse.js.save
 
   cp /etc/kvmd/nginx/listen-https.conf /etc/kvmd/nginx/listen-https.conf.save
-  
+
   cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py.save
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py.save
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py.save
@@ -75,7 +75,7 @@ restore-configs() {
   cp /usr/share/kvmd/web/share/js/kvm/mouse.js.save /usr/share/kvmd/web/share/js/kvm/mouse.js
 
   cp /etc/kvmd/nginx/listen-https.conf.save /etc/kvmd/nginx/listen-https.conf
-  
+
   cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py.save /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/gpio.py
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py.save /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/hw.py
   cp /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py.save /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/base.py
@@ -227,7 +227,7 @@ fix-python311() {
 fix-nfs-msd() {
   NAME="aiofiles.tar"
   wget -O $NAME https://kvmnerds.com/RPiKVM/$NAME 2> /dev/null
-  
+
   LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting $NAME into $LOCATION"
   tar xvf $NAME -C $LOCATION
@@ -240,6 +240,8 @@ fix-nfs-msd() {
 }
 
 fix-nginx() {
+  echo
+  echo "-> Applying NGINX fix..."
   #set -x
   KERNEL=$( uname -r | awk -F\- '{print $1}' )
   ARCH=$( uname -r | awk -F\- '{print $NF}' )
@@ -336,6 +338,7 @@ x86-fix-3.256() {
   #wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
   #mv hw.py.1 hw.py
   wget -O hw.py https://kvmnerds.com/PiKVM/TESTING/hw.py 2> /dev/null
+  echo
 } # end x86-fix-3.256
 
 
@@ -365,6 +368,7 @@ x86-fix-3.256
 ln -sf python3 /usr/bin/python
 
 ### additional python pip dependencies for kvmd 3.238 and higher
+echo "-> Applying fix for kvmd 3.238 and higher..."
 pip3 install async-lru 2> /dev/null
 
 ### add ms unit of measure to Polling rate in webui ###
