@@ -3,7 +3,7 @@
 ## Update script for x86
 #
 ###
-# Updated on 20230628 1930PDT
+# Updated on 20230914 1100PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
