@@ -231,7 +231,8 @@ fix-nfs-msd() {
 }
 
 fix-nginx() {
-  #set -x
+  echo
+  echo "-> Applying NGINX fix..."  #set -x
   KERNEL=$( uname -r | awk -F\- '{print $1}' )
   ARCH=$( uname -r | awk -F\- '{print $NF}' )
   echo "KERNEL:  $KERNEL   ARCH:  $ARCH"
