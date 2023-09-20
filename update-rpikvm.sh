@@ -10,6 +10,7 @@ PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
 KVMDCACHE="/var/cache/kvmd"
 PKGINFO="${KVMDCACHE}/packages.txt"
 REPOFILE="/tmp/pikvmrepo.html"; /bin/rm -f $REPOFILE
+ln -sf python3 /usr/bin/python
 
 get-packages() {
   printf "\n-> Getting newest Pi-KVM packages from ${PIKVMREPO}\n\n"
@@ -350,8 +351,6 @@ else
   apt remove -y tesseract-ocr tesseract-ocr-eng > /dev/null 2> /dev/null
   echo
 fi
-
-ln -sf python3 /usr/bin/python
 
 ### additional python pip dependencies for kvmd 3.238 and higher
 echo "-> Applying kvmd 3.238 and higher fix..."
