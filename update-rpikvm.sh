@@ -292,7 +292,7 @@ ORIG_CONF
 
 ocr-fix() {  # create function
   echo
-  echo "-> Apply OCR fix..."
+  echo "-> Apply OCR fix for board with $RAM RAM..."
 
   # 1.  verify that Pillow module is currently running 9.0.x
   PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
