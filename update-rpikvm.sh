@@ -338,8 +338,10 @@ misc-fixes
 fix-python311
 fix-nfs-msd
 fix-nginx
+
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
-if [ $( echo $RAM | grep -c 256MB ) -eq 0 ]; then
+RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
+if [ $RAMMB -gt 256 ]; then
   # RAM > 256MB so we can support OCR (and perform OCR-fix)
   ocr-fix
 else
