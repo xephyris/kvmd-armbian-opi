@@ -3,13 +3,14 @@
 ## Update script for x86
 #
 ###
-# Updated on 20230914 1100PDT
+# Updated on 20230922 1100PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
 KVMDCACHE="/var/cache/kvmd"
 PKGINFO="${KVMDCACHE}/packages.txt"
 REPOFILE="/tmp/pikvmrepo.html"; /bin/rm -f $REPOFILE
+ln -sf python3 /usr/bin/python
 
 get-packages() {
   printf "\n-> Getting newest Pi-KVM packages from ${PIKVMREPO}\n\n"
@@ -222,11 +223,12 @@ misc-fixes() {
 
 fix-python311() {
   printf "\n-> python3.11 kvmd path fix\n\n"
-  cd /usr/lib/python3/dist-packages/; ls -ld kvmd*
+  cd /usr/lib/python3/dist-packages/
+  ls -ld kvmd
+  ls -ld kvmd-[0-9]* | tail -2  # show last 2 kvmd-*info links
 
   if [ $( ls -ld kvmd | grep -c 3.10 ) -gt 0 ]; then
     ln -sf /usr/lib/python3.11/site-packages/kvmd .
-    ls -ld kvmd*
   else
     printf "\nkvmd is already symlinked to python3.11 version.  Nothing to do.\n"
   fi
@@ -238,13 +240,13 @@ fix-nfs-msd() {
 
   LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting $NAME into $LOCATION"
-  tar xvf $NAME -C $LOCATION
+  tar xvf $NAME -C $LOCATION > /dev/null
 
   echo "-> Renaming original aiofiles and creating symlink to correct aiofiles"
   cd /usr/lib/python3/dist-packages
   mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
-  ln -s $LOCATION/aiofiles .
-  ls -ld aiofiles*
+  ln -sf $LOCATION/aiofiles .
+  ls -ltrd aiofiles* | tail -2
 }
 
 fix-nginx() {
@@ -299,7 +301,7 @@ ORIG_CONF
 
 ocr-fix() {  # create function
   echo
-  echo "-> Apply OCR fix..."
+  echo "-> Apply OCR fix for board with $RAM RAM..."
 
   # 1.  verify that Pillow module is currently running 9.0.x
   PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
@@ -328,6 +330,7 @@ ocr-fix() {  # create function
 x86-fix-3.256() {
   echo "-> Apply x86-fix for 3.256 and higher..."
 
+  set -x
   cd /usr/lib/python3/dist-packages/kvmd/apps/
   cp __init__.py __init__.py.$( date +%Y%m%d )
   wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
@@ -344,10 +347,9 @@ x86-fix-3.256() {
 
   cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/
   cp hw.py hw.py.$( date +%Y%m%d )
-  #wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
-  #mv hw.py.1 hw.py
   wget -O hw.py https://kvmnerds.com/PiKVM/TESTING/hw.py 2> /dev/null
 
+  set +x
   echo
 } # end x86-fix-3.256
 
@@ -372,10 +374,20 @@ misc-fixes
 fix-python311
 fix-nfs-msd
 fix-nginx
-ocr-fix
-x86-fix-3.256
 
-ln -sf python3 /usr/bin/python
+RAM=$( pistat | grep '^#' | awk '{print $NF}' )
+RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
+if [ $RAMMB -gt 256 ]; then
+  # RAM > 256MB so we can support OCR (and perform OCR-fix)
+  ocr-fix
+else
+  echo
+  echo "-> Too low RAM [ $RAM ] onboard to support OCR.  Removing tesseract packages"
+  apt remove -y tesseract-ocr tesseract-ocr-eng > /dev/null 2> /dev/null
+  echo
+fi
+
+x86-fix-3.256
 
 ### additional python pip dependencies for kvmd 3.238 and higher
 echo "-> Applying kvmd 3.238 and higher fix..."
