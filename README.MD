@@ -11,6 +11,8 @@ Then run this script (2x) to install pikvm.
 
 Install script is a fork from @srepac raspbian pikvm install script.
 
+** NOTE:  all commands need to be run as root user. **
+
 Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 
 # Hardware for kvmd-armbian project
