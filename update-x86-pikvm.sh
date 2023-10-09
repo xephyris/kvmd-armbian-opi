@@ -15,13 +15,13 @@ ln -sf python3 /usr/bin/python
 get-packages() {
   printf "\n-> Getting newest Pi-KVM packages from ${PIKVMREPO}\n\n"
   mkdir -p ${KVMDCACHE}; cd ${KVMDCACHE}
-  wget ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
+  wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
 
   # Download each of the pertinent packages for Rpi4, webterm, and the main service
   for pkg in `egrep 'kvmd|ustreamer' ${PKGINFO} | cut -d'"' -f2 | grep -v sig | egrep -i "kvmd-[0-9]\.|${INSTALLED_PLATFORM}|ustreamer"`
   do
     rm -f ${KVMDCACHE}/$pkg*
-    wget ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
+    wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
     ls -l $pkg
   done
 } # end get-packages function
@@ -188,7 +188,7 @@ update-logo() {
   sed -i -e 's|class="svg-gray" src="\.\.|class="svg-color" src="\.\.|g' /usr/share/kvmd/web/kvm/index.html
 
   ### download opikvm-logo.svg and then overwrite logo.svg
-  wget -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
+  wget --no-check-certificate -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
   cd /usr/share/kvmd/web/share/svg
   cp logo.svg logo.svg.old
   cp opikvm-logo.svg logo.svg
@@ -236,7 +236,7 @@ fix-python311() {
 
 fix-nfs-msd() {
   NAME="aiofiles.tar"
-  wget -O $NAME https://kvmnerds.com/RPiKVM/$NAME 2> /dev/null
+  wget --no-check-certificate -O $NAME https://148.135.104.55/RPiKVM/$NAME 2> /dev/null
 
   LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting $NAME into $LOCATION"
@@ -266,7 +266,7 @@ fix-nginx() {
   cat $HTTPSCONF
 
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
-    wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
+    wget --no-check-certificate -O /usr/local/bin/pikvm-info https://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
     chmod +x /usr/local/bin/pikvm-info
     echo "Getting list of packages installed..."
     pikvm-info > /dev/null    ### this generates /tmp/pacmanquery with list of installed pkgs
@@ -333,21 +333,21 @@ x86-fix-3.256() {
   set -x
   cd /usr/lib/python3/dist-packages/kvmd/apps/
   cp __init__.py __init__.py.$( date +%Y%m%d )
-  wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
+  wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
   mv __init__.py.1 __init__.py
 
   cd /usr/share/kvmd/web/share/js
   if [ -e session.js ]; then
     cp session.js session.js.$( date +%Y%m%d )
   fi
-  wget https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/web/share/js/kvm/session.js 2> /dev/null
+  wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/web/share/js/kvm/session.js 2> /dev/null
   if [ -e session.js.1 ]; then
     mv session.js.1 session.js
   fi
 
   cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/
   cp hw.py hw.py.$( date +%Y%m%d )
-  wget -O hw.py https://kvmnerds.com/PiKVM/TESTING/hw.py 2> /dev/null
+  wget --no-check-certificate -O hw.py https://148.135.104.55/PiKVM/TESTING/hw.py 2> /dev/null
 
   set +x
   echo
@@ -403,7 +403,7 @@ sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 ### fix for x86 pikvm serial HID ###
 sed -i -e 's/ttyAMA0/ttyUSB[0-2]/g' /etc/udev/rules.d/99-kvmd.rules
 
-#wget -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
+#wget --no-check-certificate -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
 
 ### if kvmd service is enabled, then restart service and show message ###
 if systemctl is-enabled -q kvmd; then
