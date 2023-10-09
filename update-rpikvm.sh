@@ -15,13 +15,13 @@ ln -sf python3 /usr/bin/python
 get-packages() {
   printf "\n-> Getting newest Pi-KVM packages from ${PIKVMREPO}\n\n"
   mkdir -p ${KVMDCACHE}; cd ${KVMDCACHE}
-  wget ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
+  wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
 
   # Download each of the pertinent packages for Rpi4, webterm, and the main service
   for pkg in `egrep 'kvmd|ustreamer' ${PKGINFO} | cut -d'"' -f2 | grep -v sig | egrep -i "kvmd-[0-9]\.|${INSTALLED_PLATFORM}|ustreamer"`
   do
     rm -f ${KVMDCACHE}/$pkg*
-    wget ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
+    wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
     ls -l $pkg
   done
 } # end get-packages function
@@ -179,7 +179,7 @@ update-logo() {
   sed -i -e 's|class="svg-gray" src="\.\.|class="svg-color" src="\.\.|g' /usr/share/kvmd/web/kvm/index.html
 
   ### download opikvm-logo.svg and then overwrite logo.svg
-  wget -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
+  wget --no-check-certificate -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
   cd /usr/share/kvmd/web/share/svg
   cp logo.svg logo.svg.old
   cp opikvm-logo.svg logo.svg
@@ -227,7 +227,7 @@ fix-python311() {
 
 fix-nfs-msd() {
   NAME="aiofiles.tar"
-  wget -O $NAME https://kvmnerds.com/RPiKVM/$NAME 2> /dev/null
+  wget --no-check-certificate -O $NAME https://148.135.104.55/RPiKVM/$NAME 2> /dev/null
 
   LOCATION="/usr/lib/python3.11/site-packages"
   echo "-> Extracting $NAME into $LOCATION"
@@ -257,7 +257,7 @@ fix-nginx() {
   cat $HTTPSCONF
 
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
-    wget -O /usr/local/bin/pikvm-info https://kvmnerds.com/PiKVM/pikvm-info 2> /dev/null
+    wget --no-check-certificate -O /usr/local/bin/pikvm-info https://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
     chmod +x /usr/local/bin/pikvm-info
     echo "Getting list of packages installed..."
     pikvm-info > /dev/null    ### this generates /tmp/pacmanquery with list of installed pkgs
@@ -363,7 +363,7 @@ fi
 ### add ms unit of measure to Polling rate in webui ###
 sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 
-wget -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
+wget --no-check-certificate -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
 
 ### if kvmd service is enabled, then restart service and show message ###
 if systemctl is-enabled -q kvmd; then
