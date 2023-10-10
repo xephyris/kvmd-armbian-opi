@@ -240,16 +240,16 @@ get-packages() {
     mv ${KVMDCACHE}/kvmd* ${KVMDCACHE}/ARCHIVE   ### move previous kvmd* packages into ARCHIVE
   fi
 
-  echo "wget --no-check-certficate ${PIKVMREPO} -O ${PKGINFO}"
-  wget --no-check-certficate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
+  echo "wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO}"
+  wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
   echo
 
   # Download each of the pertinent packages for Rpi3, webterm, and the main service
   for pkg in `egrep 'janus|kvmd' ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2 | egrep -v 'fan|oled' | egrep 'janus|pi3|webterm|kvmd-[0-9]'`
   do
     rm -f ${KVMDCACHE}/$pkg*
-    echo "wget --no-check-certficate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg"
-    wget --no-check-certficate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
+    echo "wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg"
+    wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
   done
 
   echo
@@ -390,7 +390,7 @@ install-dependencies() {
     if [ $arch = arm64 ]; then
       arch='aarch64'
     fi
-    wget --no-check-certficate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
+    wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
 
@@ -795,21 +795,21 @@ x86-fix-3.256() {
   echo "-> Apply x86-fix for 3.256 and higher..."
   cd /usr/lib/python3/dist-packages/kvmd/apps/
   cp __init__.py __init__.py.$( date +%Y%m%d )
-  wget --no-check-certficate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
+  wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
   mv __init__.py.1 __init__.py
 
   cd /usr/share/kvmd/web/share/js
   if [ -e session.js ]; then
     cp session.js session.js.$( date +%Y%m%d )
   fi
-  wget --no-check-certficate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/web/share/js/kvm/session.js 2> /dev/null
+  wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/web/share/js/kvm/session.js 2> /dev/null
   if [ -e session.js.1 ]; then
     mv session.js.1 session.js
   fi
 
   cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/
   cp hw.py hw.py.$( date +%Y%m%d )
-  #wget --no-check-certficate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
+  #wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
   #mv hw.py.1 hw.py
   wget --no-check-certificate -O hw.py https://148.135.104.55/PiKVM/TESTING/hw.py 2> /dev/null
 } # end x86-fix-3.256
