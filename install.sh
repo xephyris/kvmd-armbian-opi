@@ -236,16 +236,16 @@ get-packages() {
     mv ${KVMDCACHE}/kvmd* ${KVMDCACHE}/ARCHIVE   ### move previous kvmd* packages into ARCHIVE
   fi
 
-  echo "wget --no-check-certficate ${PIKVMREPO} -O ${PKGINFO}"
-  wget --no-check-certficate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
+  echo "wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO}"
+  wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
   echo
 
   # Download each of the pertinent packages for Rpi4, webterm, and the main service
   for pkg in `egrep 'janus|kvmd' ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2 | egrep -v 'fan|oled' | egrep 'janus|pi4|webterm|kvmd-[0-9]'`
   do
     rm -f ${KVMDCACHE}/$pkg*
-    echo "wget --no-check-certficate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg"
-    wget --no-check-certficate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
+    echo "wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg"
+    wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
   done
 
   echo
@@ -386,7 +386,7 @@ install-dependencies() {
     if [ $arch = arm64 ]; then
       arch='aarch64'
     fi
-    wget --no-check-certficate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
+    wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
 
@@ -653,7 +653,7 @@ fix-nginx() {
   cat $HTTPSCONF
 
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
-    wget --no-check-certficate -O /usr/local/bin/pikvm-info https://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
+    wget --no-check-certificate -O /usr/local/bin/pikvm-info https://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
     chmod +x /usr/local/bin/pikvm-info
     echo "Getting list of packages installed..."
     pikvm-info > /dev/null    ### this generates /tmp/pacmanquery with list of installed pkgs
