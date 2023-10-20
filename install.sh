@@ -775,6 +775,7 @@ else
 
   ### additional python pip dependencies for kvmd 3.238 and higher
   pip3 install async-lru 2> /dev/null
+  async-lru-fix
 
   fix-nginx-symlinks
   fix-python-symlinks
@@ -783,7 +784,6 @@ else
   fix-nfs-msd
   fix-nginx
   ocr-fix
-  async-lru-fix
 
   set-ownership
   create-kvmdfix
