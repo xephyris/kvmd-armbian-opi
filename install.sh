@@ -140,7 +140,7 @@ install-tc358743() {
   #echo "apt-get install uv4l-tc358743-extras -y" | tee -a $LOGFILE
   #apt-get install uv4l-tc358743-extras -y >> $LOGFILE
 
-  systemctl enable kvmd-tc358743
+  systemctl enable kvmd-tc358743 kvmd-janus-static
 } # install package for tc358743
 
 boot-files() {
@@ -335,9 +335,9 @@ enable-kvmd-svcs() {
 
   case $( pikvm-info | grep kvmd-platform | cut -d'-' -f4 ) in
     hdmi)
-      echo "Starting kvmd-tc358743 service for CSI 2 HDMI capture"
-      systemctl restart kvmd-tc358743
-      systemctl status kvmd-tc358743 | grep Loaded
+      echo "Starting kvmd-tc358743 and kvmd-janus-static services for CSI 2 HDMI capture"
+      systemctl restart kvmd-tc358743 kvmd-janus-static
+      systemctl status kvmd-tc358743 kvmd-janus-static | grep Loaded
       ;;
     hdmiusb)
       echo "USB-HDMI capture"
