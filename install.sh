@@ -724,7 +724,7 @@ ocr-fix() {  # create function
 async-lru-fix() {
   ASYNCLRUVER=$( grep -i 'async[-_]lru' $PIP3LIST | aw '{print $NF}' )
   case $ASYNCLRUVER in
-    1.*) pip3 install -U async_lru;;
+    1.*) pip3 install -U async_lru --break-system-packages;;     # raspbian bookworm only installs 1.0.x, this forces 2.0.x
     2.*) echo "Nothing to do.  aync-lru is already running $ASYNCLRUVER";;
   esac
 } # end async-lru-fix
