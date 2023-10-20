@@ -17,7 +17,7 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20231020 1445 PDT
+# Last change 20231020 1500 PDT
 VER=3.2
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
@@ -264,11 +264,11 @@ get-packages() {
 get-platform() {
   tryagain=1
   while [ $tryagain -eq 1 ]; do
-    echo -n "MAKER:  $MAKER "
+    echo -n "Single Board Computer:  $MAKER "
+    model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f3,4,5 | sed -e 's/ //g' -e 's/Z/z/g' -e 's/Model//' -e 's/Rev//g'  -e 's/1.[0-9]//g' )
 
     case $MAKER in
       Raspberry)       ### get which capture device for use with RPi boards
-        model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f3,4,5 | sed -e 's/ //g' -e 's/Z/z/g' -e 's/Model//' -e 's/Rev//g'  -e 's/1.[0-9]//g' )
 
         echo "Pi Model $model"
         case $model in
@@ -353,7 +353,7 @@ get-platform() {
         ;; # end case $MAKER in Raspberry)
 
       # other SBC makers can only support hdmi dongle
-      *) echo; capture=1;;    ### force all other sbcs to use hdmiusb platform
+      *) echo "$model"; capture=1;;    ### force all other sbcs to use hdmiusb platform
 
     esac # end case $MAKER
 
@@ -488,12 +488,16 @@ install-dependencies() {
     chmod +x /usr/bin/ttyd
   fi
 
-  printf "\n\n-> Building wiringpi from source\n\n" | tee -a $LOGFILE
-  cd /tmp; rm -rf WiringPi
-  git clone https://github.com/WiringPi/WiringPi.git
-  cd WiringPi
-  ./build
-  gpio -v
+  if [ ! -e /usr/local/bin/gpio ]; then
+    printf "\n\n-> Building wiringpi from source\n\n" | tee -a $LOGFILE
+    cd /tmp; rm -rf WiringPi
+    git clone https://github.com/WiringPi/WiringPi.git
+    cd WiringPi
+    ./build
+  else
+    printf "\n\n-> Wiringpi (gpio) is already instaled.\n\n" | tee -a $LOGFILE
+  fi
+  gpio -v | tee -a $LOGFILE
 
   echo "-> Install ustreamer" | tee -a $LOGFILE
   if [ ! -e /usr/bin/ustreamer ]; then
