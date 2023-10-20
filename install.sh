@@ -288,6 +288,7 @@ get-platform() {
             ZEROWPLATFILE=$( cat kvmnerds-packages.txt | grep kvmd-platform | grep -v sig | cut -d'"' -f4 | grep zerow | tail -1 )
 
             # download the zerow platform file from custom repo
+            echo "wget -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE" | tee -a $LOGFILE
             wget -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE 2> /dev/null
             export GPUMEM=64
             ;;
