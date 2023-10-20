@@ -813,7 +813,7 @@ cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
 case $( pikvm-info | grep kvmd-platform | cut -d'-' -f4 ) in
-  hdmi) echo "Starting kvmd-tc358743 service for CSI 2 HDMI capture"; systemctl start kvmd-tc358743;;
+  hdmi) echo "Starting kvmd-tc358743 service for CSI 2 HDMI capture"; systemctl start kvmd-tc358743; systemctl status kvmd-tc358743 | grep Loaded;;
   hdmiusb) echo "USB-HDMI capture";;
 esac
 
