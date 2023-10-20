@@ -17,7 +17,7 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20231020 1500 PDT
+# Last change 20231020 1445 PDT
 VER=3.2
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
@@ -264,13 +264,13 @@ get-packages() {
 get-platform() {
   tryagain=1
   while [ $tryagain -eq 1 ]; do
-    echo -n "Single Board Computer:  $MAKER "
+    echo -n "Single Board Computer:  $MAKER " | tee -a $LOGFILE
     model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f3,4,5 | sed -e 's/ //g' -e 's/Z/z/g' -e 's/Model//' -e 's/Rev//g'  -e 's/1.[0-9]//g' )
 
     case $MAKER in
       Raspberry)       ### get which capture device for use with RPi boards
 
-        echo "Pi Model $model"
+        echo "Pi Model $model" | tee -a $LOGFILE
         case $model in
 
           zero2*)
@@ -353,7 +353,10 @@ get-platform() {
         ;; # end case $MAKER in Raspberry)
 
       # other SBC makers can only support hdmi dongle
-      *) echo "$model"; capture=1;;    ### force all other sbcs to use hdmiusb platform
+      *)
+        echo "$model" | tee -a $LOGFILE
+        platform="kvmd-platform-v2-hdmiusb-rpi4"; tryagain=0
+        ;;
 
     esac # end case $MAKER
 
