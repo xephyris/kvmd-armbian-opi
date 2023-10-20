@@ -694,9 +694,6 @@ ocr-fix() {  # create function
   echo
   echo "-> Apply OCR fix..."
 
-  PIP3LIST="/tmp/pip3.list"; /bin/rm -f $PIP3LIST
-  pip3 list 2> /dev/null > $PIP3LIST
-
   # 1.  verify that Pillow module is currently running 9.0.x
   PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
 
@@ -722,6 +719,12 @@ ocr-fix() {  # create function
 } # end ocr-fix
 
 async-lru-fix() {
+  echo
+  echo "-> Ensuring async-lru is installed with version 2.x ..."
+  pip3 install async-lru 2> /dev/null
+  PIP3LIST="/tmp/pip3.list"; /bin/rm -f $PIP3LIST
+  pip3 list 2> /dev/null > $PIP3LIST
+
   ASYNCLRUVER=$( grep -i 'async[-_]lru' $PIP3LIST | awk '{print $NF}' )
   case $ASYNCLRUVER in
     1.*) pip3 install -U async_lru --break-system-packages;;     # raspbian bookworm only installs 1.0.x, this forces 2.0.x
@@ -774,8 +777,7 @@ else
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
   ### additional python pip dependencies for kvmd 3.238 and higher
-  pip3 install async-lru 2> /dev/null
-  async-lru-fix
+  async-lru-fix   # this is required in case of raspbian bookworm (which only installs 1.x)
 
   fix-nginx-symlinks
   fix-python-symlinks
