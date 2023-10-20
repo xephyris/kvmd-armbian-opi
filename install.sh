@@ -469,7 +469,7 @@ install-dependencies() {
   fi
 
   echo "-> Make tesseract data link" | tee -a $LOGFILE
-  ln -s /usr/share/tesseract-ocr/*/tessdata /usr/share/tessdata
+  ln -sf /usr/share/tesseract-ocr/*/tessdata /usr/share/tessdata
 
   echo "-> Install TTYD" | tee -a $LOGFILE
   apt install -y ttyd | tee -a $LOGFILE
