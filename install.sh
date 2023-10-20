@@ -21,9 +21,10 @@
 # VER=3.0
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
-KVMDCACHE="/var/cache/kvmd"
+KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
 PKGINFO="${KVMDCACHE}/packages.txt"
 APP_PATH=$(readlink -f $(dirname $0))
+LOGFILE="${KVMDCACHE}/installer.log"; touch $LOGFILE; date >> $LOGFILE
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   echo "usage:  $0 [-f]   where -f will force re-install new pikvm platform"
@@ -39,10 +40,10 @@ fi
 PYTHONVER=$( python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
 case $PYTHONVER in
   3.10|3.11)
-    echo "Python $PYTHONVER is supported."
+    echo "Python $PYTHONVER is supported." | tee -a $LOGFILE
     ;;
   *)
-    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 or higher installed.  Exiting."
+    echo "Python $PYTHONVER is NOT supported.  Please make sure you have python3.10 or higher installed.  Exiting." | tee -a $LOGFILE
     exit 1
     ;;
 esac
@@ -115,8 +116,8 @@ colorama cryptography dateutil dbus dev hidapi idna libgpiod marshmallow more-it
 packaging passlib pillow ply psutil pycparser pyelftools pyghmi pygments pyparsing requests semantic-version
 setproctitle setuptools six spidev systemd tabulate urllib3 wrapt xlib yaml yarl pyotp qrcode serial " )
   do
-    echo "apt-get install python3-$i -y"
-    apt-get install python3-$i -y > /dev/null
+    echo "apt-get install python3-$i -y" | tee -a $LOGFILE
+    apt-get install python3-$i -y >> $LOGFILE
   done
 } # end install python-packages
 
@@ -135,9 +136,9 @@ install-tc358743() {
   #curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | apt-key add -
   #echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | tee /etc/apt/sources.list.d/uv4l.list
 
-  #apt-get update > /dev/null
-  #echo "apt-get install uv4l-tc358743-extras -y"
-  #apt-get install uv4l-tc358743-extras -y > /dev/null
+  #apt-get update >> $LOGFILE
+  #echo "apt-get install uv4l-tc358743-extras -y" | tee -a $LOGFILE
+  #apt-get install uv4l-tc358743-extras -y >> $LOGFILE
 
   systemctl enable kvmd-tc358743
 } # install package for tc358743
@@ -223,22 +224,22 @@ CSIFIRMWARE
   fi
 
   if [ -e /boot/config.txt ]; then
-    printf "\n/boot/config.txt\n\n"
-    cat /boot/config.txt
+    printf "\n/boot/config.txt\n\n" | tee -a $LOGFILE
+    cat /boot/config.txt | tee -a $LOGFILE
   fi
 
-  printf "\n/etc/modules\n\n"
-  cat /etc/modules
+  printf "\n/etc/modules\n\n" | tee -a $LOGFILE
+  cat /etc/modules | tee -a $LOGFILE
 } # end of necessary boot files
 
 get-packages() {
-  printf "\n\n-> Getting Pi-KVM packages from ${PIKVMREPO}\n\n"
+  printf "\n\n-> Getting Pi-KVM packages from ${PIKVMREPO}\n\n" | tee -a $LOGFILE
   mkdir -p ${KVMDCACHE}/ARCHIVE
   if [ $( ls ${KVMDCACHE}/kvmd* > /dev/null 2>&1 | wc -l ) -gt 0 ]; then
     mv ${KVMDCACHE}/kvmd* ${KVMDCACHE}/ARCHIVE   ### move previous kvmd* packages into ARCHIVE
   fi
 
-  echo "wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO}"
+  echo "wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO}" | tee -a $LOGFILE
   wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
   echo
 
@@ -246,13 +247,13 @@ get-packages() {
   for pkg in `egrep 'janus|kvmd' ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2 | egrep -v 'fan|oled' | egrep 'janus|pi4|webterm|kvmd-[0-9]'`
   do
     rm -f ${KVMDCACHE}/$pkg*
-    echo "wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg"
+    echo "wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg" | tee -a $LOGFILE
     wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg 2> /dev/null
   done
 
   echo
-  echo "ls -l ${KVMDCACHE}"
-  ls -l ${KVMDCACHE}
+  echo "ls -l ${KVMDCACHE}" | tee -a $LOGFILE
+  ls -l ${KVMDCACHE} | tee -a $LOGFILE
   echo
 } # end get-packages function
 
@@ -277,7 +278,7 @@ get-platform() {
     esac
 
     echo
-    echo "Platform selected -> $platform"
+    echo "Platform selected -> $platform" | tee -a $LOGFILE
     echo
   done
 } # end get-platform
@@ -307,9 +308,9 @@ install-kvmd-pkgs() {
     tar xfJ $i
 
   else      # confirm that /usr/bin/janus actually runs properly
-    /usr/bin/janus --version > /dev/null 2> /dev/null
+    /usr/bin/janus --version > /dev/null 2>> $LOGFILE
     if [ $? -eq 0 ]; then
-      echo "You have a working valid janus binary."
+      echo "You have a working valid janus binary." | tee -a $LOGFILE
     else    # error status code, so uncompress from REPO package
       i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus )
       echo "-> Extracting package $i into /" >> $INSTLOG
@@ -329,15 +330,26 @@ fix-udevrules() {
 
 enable-kvmd-svcs() {
   # enable KVMD services but don't start them
-  echo "-> Enabling kvmd-nginx kvmd-webterm kvmd-otg and kvmd services, but do not start them."
+  echo "-> Enabling kvmd-nginx kvmd-webterm kvmd-otg and kvmd services, but do not start them." | tee -a $LOGFILE
   systemctl enable kvmd-nginx kvmd-webterm kvmd-otg kvmd kvmd-fix
+
+  case $( pikvm-info | grep kvmd-platform | cut -d'-' -f4 ) in
+    hdmi)
+      echo "Starting kvmd-tc358743 service for CSI 2 HDMI capture"
+      systemctl restart kvmd-tc358743
+      systemctl status kvmd-tc358743 | grep Loaded
+      ;;
+    hdmiusb)
+      echo "USB-HDMI capture"
+      ;;
+  esac | tee -a $LOGFILE
 } # end enable-kvmd-svcs
 
 build-ustreamer() {
-  printf "\n\n-> Building ustreamer\n\n"
+  printf "\n\n-> Building ustreamer\n\n" | tee -a $LOGFILE
   # Install packages needed for building ustreamer source
-  echo "apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus"
-  apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus
+  echo "apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus" | tee -a $LOGFILE
+  apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus >> $LOGFILE
 
   # fix refcount.h
   sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
@@ -354,28 +366,27 @@ build-ustreamer() {
 
 install-dependencies() {
   echo
-  echo "-> Installing dependencies for pikvm"
+  echo "-> Installing dependencies for pikvm" | tee -a $LOGFILE
 
-  #apt-get update > /dev/null
-  echo "apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev"
-  apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev > /dev/null
+  echo "apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev" | tee -a $LOGFILE
+  apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev >> $LOGFILE
 
   sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 
   install-python-packages
 
-  echo "-> Install python3 modules dbus_next and zstandard"
+  echo "-> Install python3 modules dbus_next and zstandard" | tee -a $LOGFILE
   if [[ "$PYTHONVER" == "3.11" ]]; then
     apt install -y python3-dbus-next python3-zstandard
   else
     pip3 install dbus_next zstandard
   fi
 
-  echo "-> Make tesseract data link"
+  echo "-> Make tesseract data link" | tee -a $LOGFILE
   ln -s /usr/share/tesseract-ocr/*/tessdata /usr/share/tessdata
 
-  echo "-> Install TTYD"
-  apt install -y ttyd
+  echo "-> Install TTYD" | tee -a $LOGFILE
+  apt install -y ttyd | tee -a $LOGFILE
   if [ ! -e /usr/bin/ttyd ]; then
     # Build and install ttyd
     # cd /tmp
@@ -386,7 +397,8 @@ install-dependencies() {
     # make -j && make install
     # Install binary from GitHub
     arch=$(dpkg --print-architecture)
-    latest=$(curl -sL https://api.github.com/repos/tsl0922/ttyd/releases/latest | jq -r ".tag_name")
+    #latest=$(curl -sL https://api.github.com/repos/tsl0922/ttyd/releases/latest | jq -r ".tag_name")
+    latest=1.6.3     # confirmed works with pikvm, latest from github (1.7.4) did not allow typing in webterm
     if [ $arch = arm64 ]; then
       arch='aarch64'
     fi
@@ -394,14 +406,14 @@ install-dependencies() {
     chmod +x /usr/bin/ttyd
   fi
 
-  printf "\n\n-> Building wiringpi from source\n\n"
+  printf "\n\n-> Building wiringpi from source\n\n" | tee -a $LOGFILE
   cd /tmp; rm -rf WiringPi
   git clone https://github.com/WiringPi/WiringPi.git
   cd WiringPi
   ./build
   gpio -v
 
-  echo "-> Install ustreamer"
+  echo "-> Install ustreamer" | tee -a $LOGFILE
   if [ ! -e /usr/bin/ustreamer ]; then
     cd /tmp
     apt-get install -y libevent-2.1-7 libevent-core-2.1-7 libevent-pthreads-2.1-7 build-essential
@@ -430,12 +442,12 @@ MYSCRIPT
 fix-nginx-symlinks() {
   # disable default nginx service since we will use kvmd-nginx instead
   echo
-  echo "-> Disabling nginx service, so that we can use kvmd-nginx instead"
+  echo "-> Disabling nginx service, so that we can use kvmd-nginx instead" | tee -a $LOGFILE
   systemctl disable --now nginx
 
   # setup symlinks
   echo
-  echo "-> Creating symlinks for use with kvmd python scripts"
+  echo "-> Creating symlinks for use with kvmd python scripts" | tee -a $LOGFILE
   if [ ! -e /usr/bin/nginx ]; then ln -sf /usr/sbin/nginx /usr/bin/; fi
   if [ ! -e /usr/sbin/python ]; then ln -sf /usr/bin/python3 /usr/sbin/python; fi
   if [ ! -e /usr/bin/iptables ]; then ln -sf /usr/sbin/iptables /usr/bin/iptables; fi
@@ -494,10 +506,10 @@ fix-kvmd-for-tvbox-armbian(){
 
 fix-webterm() {
   echo
-  echo "-> Creating kvmd-webterm homedir"
+  echo "-> Creating kvmd-webterm homedir" | tee -a $LOGFILE
   mkdir -p /home/kvmd-webterm
   chown kvmd-webterm /home/kvmd-webterm
-  ls -ld /home/kvmd-webterm
+  ls -ld /home/kvmd-webterm | tee -a $LOGFILE
 } # end fix-webterm
 
 create-kvmdfix() {
@@ -578,7 +590,7 @@ set-ownership() {
 } # end set-ownership
 
 check-kvmd-works() {
-  echo "-> Checking kvmd -m works before continuing"
+  echo "-> Checking kvmd -m works before continuing" | tee -a $LOGFILE
   invalid=1
   while [ $invalid -eq 1 ]; do
     kvmd -m
@@ -632,10 +644,10 @@ fix-nfs-msd() {
   NAME="aiofiles.tar"
 
   LOCATION="/usr/lib/python3.11/site-packages"
-  echo "-> Extracting $NAME into $LOCATION"
+  echo "-> Extracting $NAME into $LOCATION" | tee -a $LOGFILE
   tar xvf $NAME -C $LOCATION
 
-  echo "-> Renaming original aiofiles and creating symlink to correct aiofiles"
+  echo "-> Renaming original aiofiles and creating symlink to correct aiofiles" | tee -a $LOGFILE
   cd /usr/lib/python3/dist-packages
   mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
   ln -s $LOCATION/aiofiles .
@@ -646,7 +658,7 @@ fix-nginx() {
   #set -x
   KERNEL=$( uname -r | awk -F\- '{print $1}' )
   ARCH=$( uname -r | awk -F\- '{print $NF}' )
-  echo "KERNEL:  $KERNEL   ARCH:  $ARCH"
+  echo "KERNEL:  $KERNEL   ARCH:  $ARCH" | tee -a $LOGFILE
   case $ARCH in
     ARCH) SEARCHKEY=nginx-mainline;;
     *) SEARCHKEY="nginx/";;
@@ -659,13 +671,13 @@ fix-nginx() {
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
     wget --no-check-certificate -O /usr/local/bin/pikvm-info https://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
     chmod +x /usr/local/bin/pikvm-info
-    echo "Getting list of packages installed..."
+    echo "Getting list of packages installed..." | tee -a $LOGFILE
     pikvm-info > /dev/null    ### this generates /tmp/pacmanquery with list of installed pkgs
   fi
 
   NGINXVER=$( grep $SEARCHKEY /tmp/pacmanquery | awk '{print $1}' | cut -d'.' -f1,2 )
   echo
-  echo "NGINX version installed:  $NGINXVER"
+  echo "NGINX version installed:  $NGINXVER" | tee -a $LOGFILE
 
   case $NGINXVER in
     1.2[56789]|1.3*|1.4*|1.5*)   # nginx version 1.25 and higher
@@ -685,14 +697,14 @@ ORIG_CONF
 
   esac
 
-  echo "HTTPSCONF AFTER:  $HTTPSCONF"
-  cat $HTTPSCONF
+  echo "HTTPSCONF AFTER:  $HTTPSCONF" | tee -a $LOGFILE
+  cat $HTTPSCONF | tee -a $LOGFILE
   set +x
 } # end fix-nginx
 
 ocr-fix() {  # create function
   echo
-  echo "-> Apply OCR fix..."
+  echo "-> Apply OCR fix..." | tee -a $LOGFILE
 
   # 1.  verify that Pillow module is currently running 9.0.x
   PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
@@ -700,17 +712,17 @@ ocr-fix() {  # create function
   case $PILLOWVER in
     9.*|8.*|7.*)   # Pillow running at 9.x and lower
       # 2.  update Pillow to 10.0.0
-      pip3 install -U Pillow 2> /dev/null
+      pip3 install -U Pillow 2>> $LOGFILE
 
       # 3.  check that Pillow module is now running 10.0.0
-      pip3 list | grep -i pillow
+      pip3 list | grep -i pillow | tee -a $LOGFILE
 
       #4.  restart kvmd and confirm OCR now works.
       systemctl restart kvmd
       ;;
 
     10.*|11.*|12.*)  # Pillow running at 10.x and higher
-      echo "Already running Pillow $PILLOWVER.  Nothing to do."
+      echo "Already running Pillow $PILLOWVER.  Nothing to do." | tee -a $LOGFILE
       ;;
 
   esac
@@ -720,15 +732,15 @@ ocr-fix() {  # create function
 
 async-lru-fix() {
   echo
-  echo "-> Ensuring async-lru is installed with version 2.x ..."
+  echo "-> Ensuring async-lru is installed with version 2.x ..." | tee -a $LOGFILE
   pip3 install async-lru 2> /dev/null
   PIP3LIST="/tmp/pip3.list"; /bin/rm -f $PIP3LIST
   pip3 list 2> /dev/null > $PIP3LIST
 
   ASYNCLRUVER=$( grep -i 'async[-_]lru' $PIP3LIST | awk '{print $NF}' )
   case $ASYNCLRUVER in
-    1.*) pip3 install -U async_lru --break-system-packages;;     # raspbian bookworm only installs 1.0.x, this forces 2.0.x
-    2.*) echo "Nothing to do.  aync-lru is already running $ASYNCLRUVER";;
+    1.*) pip3 install -U async_lru --break-system-packages | tee -a $LOGFILE;;     # raspbian bookworm only installs 1.0.x, this forces 2.0.x
+    2.*) echo "Nothing to do.  aync-lru is already running $ASYNCLRUVER" | tee -a $LOFILE;;
   esac
 } # end async-lru-fix
 
@@ -738,13 +750,22 @@ async-lru-fix() {
 # First part requires a reboot in order to create kvmd users and groups
 # Second part will start the necessary kvmd services
 
+### I uploaded all these into github on 05/22/23 -- so just copy them into correct location
+cd ${APP_PATH}
+cp -rf pistat /usr/local/bin/pistat
+cp -rf pi-temp /usr/local/bin/pi-temp
+cp -rf pikvm-info /usr/local/bin/pikvm-info
+cp -rf web.css /etc/kvmd/web.css
+cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
+chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
+
 ### fix for kvmd 3.230 and higher
 ln -sf python3 /usr/bin/python
 
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
-  printf "\nRunning part 1 of PiKVM installer script for Armbian by @srepac\n"
+  printf "\nRunning part 1 of PiKVM installer script by @srepac\n" | tee -a $LOGFILE
   get-packages
   get-platform
   boot-files
@@ -757,22 +778,22 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   armbian-packages
   systemctl disable --now janus
 
-  printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n"
-
-  # fix-kvmd-for-tvbox-armbian
+  printf "\nEnd part 1 of PiKVM installer script by @srepac\n\n" >> $LOGFILE
+  printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
 
   # Fix paste-as-keys if running python 3.7
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
     sed -i -e 's/reversed//g' /usr/lib/python3.1*/site-packages/kvmd/keyboard/printer.py
   fi
+
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
   reboot
 else
-  printf "\nRunning part 2 of PiKVM installer script for Armbian by @srepac\n"
+  printf "\nRunning part 2 of PiKVM installer script by @srepac\n" | tee -a $LOGFILE
   ### run these to make sure kvmd users are created ###
 
-  echo "==> Ensuring KVMD users and groups ..."
+  echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
   systemd-sysusers /usr/lib/sysusers.d/kvmd.conf
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
@@ -793,29 +814,14 @@ else
   enable-kvmd-svcs
   start-kvmd-svcs
 
-  printf "\nCheck kvmd devices\n\n"
-  ls -l /dev/kvmd*
-  printf "\nYou should see devices for keyboard, mouse, and video.\n"
+  printf "\nCheck kvmd devices\n\n" | tee -a $LOGFILE
+  ls -l /dev/kvmd* | tee -a $LOGFILE
+  printf "\nYou should see devices for keyboard, mouse, and video.\n" | tee -a $LOGFILE
 
-  printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n"
+  printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n" | tee -a $LOGFILE
 fi
 
-systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded
-
-### I uploaded all these into github on 05/22/23 -- so just copy them into correct location
-cd ${APP_PATH}
-cp -rf pistat /usr/local/bin/pistat
-cp -rf pi-temp /usr/local/bin/pi-temp
-cp -rf pikvm-info /usr/local/bin/pikvm-info
-cp -rf web.css /etc/kvmd/web.css
-cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
-
-chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
-
-case $( pikvm-info | grep kvmd-platform | cut -d'-' -f4 ) in
-  hdmi) echo "Starting kvmd-tc358743 service for CSI 2 HDMI capture"; systemctl start kvmd-tc358743; systemctl status kvmd-tc358743 | grep Loaded;;
-  hdmiusb) echo "USB-HDMI capture";;
-esac
+systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded | tee -a $LOGFILE
 
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
