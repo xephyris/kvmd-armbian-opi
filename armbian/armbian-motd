@@ -3,7 +3,7 @@ if [ -e /etc/update-motd.d/10-armbian-header ]; then /etc/update-motd.d/10-armbi
 if [ -e /etc/update-motd.d/30-armbian-sysinfo ]; then /etc/update-motd.d/30-armbian-sysinfo; fi
 if [ -e /etc/update-motd.d/41-armbian-config ]; then /etc/update-motd.d/41-armbian-config; fi
 
-printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed on Orange Pi
+printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed
     ____________________________________________________________________________
 
     To prevent kernel messages from printing to the terminal use \"dmesg -n 1\".
