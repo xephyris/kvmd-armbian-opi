@@ -17,8 +17,8 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20230630 0945 PDT
-# VER=3.0
+# Last change 20231020 1125 PDT
+VER=3.1
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
@@ -778,7 +778,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   armbian-packages
   systemctl disable --now janus
 
-  printf "\nEnd part 1 of PiKVM installer script by @srepac\n\n" >> $LOGFILE
+  printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n\n" >> $LOGFILE
   printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
 
   # Fix paste-as-keys if running python 3.7
@@ -790,7 +790,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   press-enter
   reboot
 else
-  printf "\nRunning part 2 of PiKVM installer script by @srepac\n" | tee -a $LOGFILE
+  printf "\nRunning part 2 of PiKVM installer script v$VER by @srepac\n" | tee -a $LOGFILE
   ### run these to make sure kvmd users are created ###
 
   echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
