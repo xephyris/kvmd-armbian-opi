@@ -17,8 +17,8 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20231020 1125 PDT
-VER=3.1
+# Last change 20231020 1445 PDT
+VER=3.2
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
@@ -264,22 +264,98 @@ get-packages() {
 get-platform() {
   tryagain=1
   while [ $tryagain -eq 1 ]; do
+    echo -n "MAKER:  $MAKER "
+
     case $MAKER in
       Raspberry)       ### get which capture device for use with RPi boards
-        # amglogic tv box only has usb port, use usb dongle.
-        printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n  3 - V3 HAT\n"
-        read -p "Please type [1-3]: " capture
-        ;;
+        model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f3,4,5 | sed -e 's/ //g' -e 's/Z/z/g' -e 's/Model//' -e 's/Rev//g'  -e 's/1.[0-9]//g' )
 
-      *) capture=1;;    ### force all other sbcs to use hdmiusb platform
-    esac
+        echo "Pi Model $model"
+        case $model in
 
-    case $capture in
-      1) platform="kvmd-platform-v2-hdmiusb-rpi4"; tryagain=0;;
-      2) platform="kvmd-platform-v2-hdmi-rpi4"; tryagain=0;;
-      3) platform="kvmd-platform-v3-hdmi-rpi4"; tryagain=0;;
-      *) printf "\nTry again.\n"; tryagain=1;;
-    esac
+          zero2*)
+            # force platform to only use v2-hdmi for zero2w
+            platform="kvmd-platform-v2-hdmi-zero2w"
+            export GPUMEM=96
+            ;;
+
+          zeroW)
+            ### added on 02/18/2022
+            # force platform to only use v2-hdmi for zerow
+            platform="kvmd-platform-v2-hdmi-zerow"
+            ZEROWREPO="https://kvmnerds.com/REPO/NEW"
+            wget -O kvmnerds-packages.txt $ZEROWREPO 2> /dev/null
+            ZEROWPLATFILE=$( cat kvmnerds-packages.txt | grep kvmd-platform | grep -v sig | cut -d'"' -f4 | grep zerow | tail -1 )
+
+            # download the zerow platform file from custom repo
+            wget -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE 2> /dev/null
+            export GPUMEM=64
+            ;;
+
+          3A*)
+            ### added on 02/18/2022
+            # force platform to only use v2-hdmi for rpi3 A+ ONLY
+            # this script doesn't make distinction between rpi3 A, A+ or B
+            ### it assumes you are using an rpi3 A+ that has the OTG support
+            ### if your pikvm doesn't work (e.g. kb/mouse won't work), then
+            ### ... rpi3 does NOT have an OTG port and will require arduino HID
+            #platform="kvmd-platform-v2-hdmi-rpi3"    # this platform package doesn't support webrtc
+            platform="kvmd-platform-v2-hdmi-rpi4"     # use rpi4 platform which supports webrtc
+            export GPUMEM=96
+            ;;
+
+          "3B"|"2B"|"2A"|"B"|"A")
+            ### added on 02/25/2022 but updated on 03/01/2022 (GPUMEM hardcoded to 16MB)
+            echo "Pi ${model} board does not have OTG support.  You will need to use serial HID via Arduino."
+            SERIAL=1   # set flag to indicate Serial HID (default is 0 for all other boards)
+            number=$( echo $model | sed 's/[A-Z]//g' )
+
+            tryagain=1
+            while [ $tryagain -eq 1 ]; do
+              printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n"
+              read -p "Please type [1-2]: " capture
+              case $capture in
+                1) platform="kvmd-platform-v0-hdmiusb-rpi${number}"; tryagain=0;;
+                2) platform="kvmd-platform-v0-hdmi-rpi${number}"; tryagain=0;;
+                *) printf "\nTry again.\n"; tryagain=1;;
+              esac
+            done
+            ;;
+
+          "400")
+            ### added on 02/22/2022 -- force pi400 to use usb dongle as there's no CSI connector on it
+            platform="kvmd-platform-v2-hdmiusb-rpi4"
+            export GPUMEM=256
+            ;;
+
+          *)   ### default to use rpi4 platform image (this may also work with other SBCs with OTG)
+            tryagain=1
+            while [ $tryagain -eq 1 ]; do
+              printf "Choose which capture device you will use:\n
+  1 - USB dongle
+  2 - v2 CSI
+  3 - V3 HAT
+  4 - V4mini
+  5 - V4plus\n"
+              read -p "Please type [1-5]: " capture
+              case $capture in
+                1) platform="kvmd-platform-v2-hdmiusb-rpi4"; export GPUMEM=256; tryagain=0;;
+                2) platform="kvmd-platform-v2-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
+                3) platform="kvmd-platform-v3-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
+                4) platform="kvmd-platform-v4mini-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
+                5) platform="kvmd-platform-v4plus-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
+                *) printf "\nTry again.\n"; tryagain=1;;
+              esac
+            done
+            ;; # end case $model in *)
+
+        esac # end case $model
+        ;; # end case $MAKER in Raspberry)
+
+      # other SBC makers can only support hdmi dongle
+      *) echo; capture=1;;    ### force all other sbcs to use hdmiusb platform
+
+    esac # end case $MAKER
 
     echo
     echo "Platform selected -> $platform" | tee -a $LOGFILE
@@ -316,9 +392,11 @@ install-kvmd-pkgs() {
     if [ $? -eq 0 ]; then
       echo "You have a working valid janus binary." | tee -a $LOGFILE
     else    # error status code, so uncompress from REPO package
-      i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus )
-      echo "-> Extracting package $i into /" >> $INSTLOG
-      tar xfJ $i
+      #i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus )
+      #echo "-> Extracting package $i into /" >> $INSTLOG
+      #tar xfJ $i
+      apt-get remove janus janus-dev -y >> $LOGFILE
+      apt-get install janus janus-dev -y >> $LOGFILE
     fi
   fi
 
@@ -770,8 +848,8 @@ ln -sf python3 /usr/bin/python
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   printf "\nRunning part 1 of PiKVM installer script by @srepac\n" | tee -a $LOGFILE
-  get-packages
   get-platform
+  get-packages
   boot-files
   install-kvmd-pkgs
   create-override
@@ -838,4 +916,4 @@ sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd; fi
 
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
-sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
+#sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
