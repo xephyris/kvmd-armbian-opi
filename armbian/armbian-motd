@@ -1,7 +1,7 @@
 #!/bin/sh
-/etc/update-motd.d/10-armbian-header
-/etc/update-motd.d/30-armbian-sysinfo
-/etc/update-motd.d/41-armbian-config
+if [ -e /etc/update-motd.d/10-armbian-header ]; then /etc/update-motd.d/10-armbian-header; fi
+if [ -e /etc/update-motd.d/30-armbian-sysinfo ]; then /etc/update-motd.d/30-armbian-sysinfo; fi
+if [ -e /etc/update-motd.d/41-armbian-config ]; then /etc/update-motd.d/41-armbian-config; fi
 
 printf "    Welcome to Armbian-KVM - Open Source IP-KVM installed on Orange Pi
     ____________________________________________________________________________
