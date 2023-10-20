@@ -94,6 +94,10 @@ USBOVERRIDE
 
       cat <<CSIOVERRIDE >> /etc/kvmd/override.yaml
 kvmd:
+    ### disable fan socket check ###
+    info:
+        fan:
+            unix: ''
     hid:
         mouse_alt:
             device: /dev/kvmd-hid-mouse-alt
