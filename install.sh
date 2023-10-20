@@ -132,12 +132,14 @@ otg-devices() {
 
 install-tc358743() {
   ### CSI Support for Raspbian ###
-  curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | apt-key add -
-  echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | tee /etc/apt/sources.list.d/uv4l.list
+  #curl https://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | apt-key add -
+  #echo "deb https://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | tee /etc/apt/sources.list.d/uv4l.list
 
   #apt-get update > /dev/null
-  echo "apt-get install uv4l-tc358743-extras -y"
-  apt-get install uv4l-tc358743-extras -y > /dev/null
+  #echo "apt-get install uv4l-tc358743-extras -y"
+  #apt-get install uv4l-tc358743-extras -y > /dev/null
+
+  systemctl enable kvmd-tc358743
 } # install package for tc358743
 
 boot-files() {
@@ -204,7 +206,7 @@ CSIFIRMWARE
 
   fi  # end of check if entries are already in /boot/config.txt
 
-  #install-tc358743
+  install-tc358743
 
   # Remove OTG serial (Orange pi zero's kernel not support it)
   sed -i '/^g_serial/d' /etc/modules
@@ -795,6 +797,11 @@ cp -rf web.css /etc/kvmd/web.css
 cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
+
+case $( pikvm-info | grep kvmd-platform | cut -d'-' -f4 ) in
+  hdmi) echo "Starting kvmd-tc358743 service for CSI 2 HDMI capture"; systemctl start kvmd-tc358743;;
+  hdmiusb) echo "USB-HDMI capture";;
+esac
 
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
