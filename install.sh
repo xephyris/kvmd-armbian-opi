@@ -694,8 +694,11 @@ ocr-fix() {  # create function
   echo
   echo "-> Apply OCR fix..."
 
+  PIP3LIST="/tmp/pip3.list"; /bin/rm -f $PIP3LIST
+  pip3 list 2> /dev/null > $PIP3LIST
+
   # 1.  verify that Pillow module is currently running 9.0.x
-  PILLOWVER=$( pip3 list | grep -i pillow | awk '{print $NF}' )
+  PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
 
   case $PILLOWVER in
     9.*|8.*|7.*)   # Pillow running at 9.x and lower
@@ -717,6 +720,14 @@ ocr-fix() {  # create function
 
   echo
 } # end ocr-fix
+
+async-lru-fix() {
+  ASYNCLRUVER=$( grep -i 'async[-_]lru' $PIP3LIST | aw '{print $NF}' )
+  case $ASYNCLRUVER in
+    1.*) pip3 install -U async_lru;;
+    2.*) echo "Nothing to do.  aync-lru is already running $ASYNCLRUVER";;
+  esac
+} # end async-lru-fix
 
 
 ### MAIN STARTS HERE ###
@@ -772,7 +783,8 @@ else
   fix-nfs-msd
   fix-nginx
   ocr-fix
-  
+  async-lru-fix
+
   set-ownership
   create-kvmdfix
   check-kvmd-works
