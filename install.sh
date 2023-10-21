@@ -24,7 +24,7 @@ PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
 PKGINFO="${KVMDCACHE}/packages.txt"
 APP_PATH=$(readlink -f $(dirname $0))
-LOGFILE="${KVMDCACHE}/installer.log"; touch $LOGFILE; date >> $LOGFILE
+LOGFILE="${KVMDCACHE}/installer.log"; touch $LOGFILE; echo "==== $( date ) ====" >> $LOGFILE
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   echo "usage:  $0 [-f]   where -f will force re-install new pikvm platform"
