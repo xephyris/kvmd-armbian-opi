@@ -285,11 +285,11 @@ get-platform() {
             platform="kvmd-platform-v2-hdmi-zerow"
             ZEROWREPO="https://kvmnerds.com/REPO/NEW"
             wget -O kvmnerds-packages.txt $ZEROWREPO 2> /dev/null
-            ZEROWPLATFILE=$( cat kvmnerds-packages.txt | grep kvmd-platform | grep -v sig | cut -d'"' -f4 | grep zerow | tail -1 )
+            ZEROWPLATFILE=$( grep kvmd-platform kvmnerds-packages.txt | grep -v sig | cut -d'"' -f4 | grep zerow | tail -1 )
 
             # download the zerow platform file from custom repo
-            echo "wget -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE" | tee -a $LOGFILE
-            wget -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE 2> /dev/null
+            echo "wget --no-check-certificate -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE" | tee -a $LOGFILE
+            wget --no-check-certificate -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE 2> /dev/null
             export GPUMEM=64
             ;;
 
@@ -839,6 +839,9 @@ async-lru-fix() {
 # Install is done in two parts
 # First part requires a reboot in order to create kvmd users and groups
 # Second part will start the necessary kvmd services
+
+# if /etc/kvmd/htpasswd exists, then make a backup
+if [ -e /etc/kvmd/htpasswd ]; then cp /etc/kvmd/htpasswd /etc/kvmd/htpasswd.save; fi
 
 ### I uploaded all these into github on 05/22/23 -- so just copy them into correct location
 cd ${APP_PATH}
