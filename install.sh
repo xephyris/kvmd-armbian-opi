@@ -323,7 +323,8 @@ get-platform() {
   2 - v0 CSI (ch9329 or arduino)
   3 - v1 USB dongle (pico hid)
   4 - v1 CSI (pico hid)
-\n"
+
+"
               read -p "Please type [1-4]: " capture
               case $capture in
                 1) platform="kvmd-platform-v0-hdmiusb-rpi${number}"; tryagain=0;;
@@ -341,7 +342,7 @@ get-platform() {
             export GPUMEM=256
             ;;
 
-          *)   ### default to use rpi4 platform image (this may also work with other SBCs with OTG)
+          *)   ### default to use rpi4 platform image for CM4 and Pi4
             tryagain=1
             while [ $tryagain -eq 1 ]; do
               printf "Choose which capture device you will use:\n
@@ -349,7 +350,9 @@ get-platform() {
   2 - v2 CSI
   3 - V3 HAT
   4 - V4mini
-  5 - V4plus\n"
+  5 - V4plus
+
+"
               read -p "Please type [1-5]: " capture
               case $capture in
                 1) platform="kvmd-platform-v2-hdmiusb-rpi4"; export GPUMEM=256; tryagain=0;;
@@ -365,8 +368,7 @@ get-platform() {
         esac # end case $model
         ;; # end case $MAKER in Raspberry)
 
-      # other SBC makers can only support hdmi dongle
-      *)
+      *) # other SBC makers can only support hdmi dongle
         model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f2,3,4,5,6 )
         echo "$model" | tee -a $LOGFILE
         platform="kvmd-platform-v2-hdmiusb-rpi4"; tryagain=0
@@ -754,7 +756,7 @@ fix-nfs-msd() {
   cd /usr/lib/python3/dist-packages
   mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
   ln -s $LOCATION/aiofiles .
-  ls -ld aiofiles*
+  ls -ld aiofiles* | tail -5
 }
 
 fix-nginx() {
@@ -889,7 +891,7 @@ ln -sf python3 /usr/bin/python
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
-  printf "\nRunning part 1 of PiKVM installer script by @srepac\n" | tee -a $LOGFILE
+  printf "\nRunning part 1 of PiKVM installer script v$VER by @srepac\n" | tee -a $LOGFILE
   get-platform
   get-packages
   boot-files
@@ -903,8 +905,8 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
 
   cm4-mods
 
-  printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n\n" >> $LOGFILE
-  printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
+  printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n" >> $LOGFILE
+  printf "\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
 
   # Fix paste-as-keys if running python 3.7
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
