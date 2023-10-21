@@ -17,14 +17,16 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20231020 1445 PDT
-VER=3.2
+# Last change 20231020 2100 PDT
+VER=3.3
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
 KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
 PKGINFO="${KVMDCACHE}/packages.txt"
 APP_PATH=$(readlink -f $(dirname $0))
 LOGFILE="${KVMDCACHE}/installer.log"; touch $LOGFILE; echo "==== $( date ) ====" >> $LOGFILE
+
+cm4=0   # variable to take care of CM4 specific changes
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   echo "usage:  $0 [-f]   where -f will force re-install new pikvm platform"
@@ -158,7 +160,9 @@ boot-files() {
 hdmi_force_hotplug=1
 gpu_mem=${GPUMEM}
 enable_uart=1
+
 #dtoverlay=tc358743
+
 dtoverlay=disable-bt
 dtoverlay=dwc2,dr_mode=peripheral
 dtparam=act_led_gpio=13
@@ -184,7 +188,9 @@ FIRMWARE
 hdmi_force_hotplug=1
 gpu_mem=${GPUMEM}
 enable_uart=1
+
 dtoverlay=tc358743
+
 dtoverlay=disable-bt
 dtoverlay=dwc2,dr_mode=peripheral
 dtparam=act_led_gpio=13
@@ -265,10 +271,9 @@ get-platform() {
   tryagain=1
   while [ $tryagain -eq 1 ]; do
     echo -n "Single Board Computer:  $MAKER " | tee -a $LOGFILE
-    model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f3,4,5 | sed -e 's/ //g' -e 's/Z/z/g' -e 's/Model//' -e 's/Rev//g'  -e 's/1.[0-9]//g' )
-
     case $MAKER in
       Raspberry)       ### get which capture device for use with RPi boards
+        model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f3,4,5 | sed -e 's/ //g' -e 's/Z/z/g' -e 's/Model//' -e 's/Rev//g'  -e 's/1.[0-9]//g' )
 
         echo "Pi Model $model" | tee -a $LOGFILE
         case $model in
@@ -279,7 +284,7 @@ get-platform() {
             export GPUMEM=96
             ;;
 
-          zeroW)
+          zero[Ww])
             ### added on 02/18/2022
             # force platform to only use v2-hdmi for zerow
             platform="kvmd-platform-v2-hdmi-zerow"
@@ -313,11 +318,18 @@ get-platform() {
 
             tryagain=1
             while [ $tryagain -eq 1 ]; do
-              printf "Choose which capture device you will use:\n\n  1 - USB dongle\n  2 - v2 CSI\n"
-              read -p "Please type [1-2]: " capture
+              printf "Choose which capture device you will use:\n\n
+  1 - v0 USB dongle (ch9329 or arduino)
+  2 - v0 CSI (ch9329 or arduino)
+  3 - v1 USB dongle (pico hid)
+  4 - v1 CSI (pico hid)
+\n"
+              read -p "Please type [1-4]: " capture
               case $capture in
                 1) platform="kvmd-platform-v0-hdmiusb-rpi${number}"; tryagain=0;;
                 2) platform="kvmd-platform-v0-hdmi-rpi${number}"; tryagain=0;;
+                3) platform="kvmd-platform-v1-hdmiusb-rpi${number}"; tryagain=0;;
+                4) platform="kvmd-platform-v1-hdmi-rpi${number}"; tryagain=0;;
                 *) printf "\nTry again.\n"; tryagain=1;;
               esac
             done
@@ -343,8 +355,8 @@ get-platform() {
                 1) platform="kvmd-platform-v2-hdmiusb-rpi4"; export GPUMEM=256; tryagain=0;;
                 2) platform="kvmd-platform-v2-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
                 3) platform="kvmd-platform-v3-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
-                4) platform="kvmd-platform-v4mini-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
-                5) platform="kvmd-platform-v4plus-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
+                4) platform="kvmd-platform-v4mini-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
+                5) platform="kvmd-platform-v4plus-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
                 *) printf "\nTry again.\n"; tryagain=1;;
               esac
             done
@@ -355,6 +367,7 @@ get-platform() {
 
       # other SBC makers can only support hdmi dongle
       *)
+        model=$( tr -d '\0' < /proc/device-tree/model | cut -d' ' -f2,3,4,5,6 )
         echo "$model" | tee -a $LOGFILE
         platform="kvmd-platform-v2-hdmiusb-rpi4"; tryagain=0
         ;;
@@ -834,6 +847,24 @@ async-lru-fix() {
   esac
 } # end async-lru-fix
 
+cm4-mods() {  # apply CM4 specific mods
+  if [ $cm4 -eq 1 ]; then
+    echo "-> Applying CM4 specific changes" | tee -a $LOGFILE
+
+    # add 4lane CSI support
+    sed -i -e 's|^dtoverlay=tc358743$|\n# Video (CM4)\ndtoverlay=tc358743,4lane=1\n|g' /boot/config.txt
+
+    # v4mini and v4plus yaml file are the same
+    cp /etc/kvmd/main.yaml /etc/kvmd/main.yaml.orig
+    cp /usr/share/kvmd/configs.default/kvmd/main/v4mini-hdmi-rpi4.yaml /etc/kvmd/main.yaml
+
+    # update EDID to support 1920x1080p 60hz and 1920x1200 60hz
+    cp /etc/kvmd/tc358743-edid.hex /etc/kvmd/tc358743-edid.hex.orig
+    cp /usr/share/kvmd/configs.default/kvmd/edid/v4mini-hdmi.hex /etc/kvmd/tc358743-edid.hex
+  fi
+} # end cm4-mods
+
+
 
 ### MAIN STARTS HERE ###
 # Install is done in two parts
@@ -869,7 +900,8 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   install-dependencies
   otg-devices
   armbian-packages
-  systemctl disable --now janus
+
+  cm4-mods
 
   printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n\n" >> $LOGFILE
   printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
