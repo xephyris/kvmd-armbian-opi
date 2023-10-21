@@ -26,7 +26,7 @@ else
 
         USTREAMVER=$( /usr/bin/ustreamer -v )
         printf "%-32s\t%s\n" $USTREAMVER "ustreamer"
-        JANUSVER=$( /usr/bin/janus -V | tail -1 | awk '{print $NF}' )
+        JANUSVER=$( /usr/bin/janus -V | egrep 'version|janus' | awk '{print $NF}' | sed -e 's|(||g' -e 's|)||g' )
         printf "%-32s\t%s\n" $JANUSVER "janus"
 
         if [ ! -e $TMPFILE ]; then
