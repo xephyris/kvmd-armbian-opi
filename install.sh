@@ -885,7 +885,6 @@ cd ${APP_PATH}
 cp -rf pistat /usr/local/bin/pistat
 cp -rf pi-temp /usr/local/bin/pi-temp
 cp -rf pikvm-info /usr/local/bin/pikvm-info
-cp -rf web.css /etc/kvmd/web.css
 cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
 chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 
@@ -951,6 +950,8 @@ else
 
   printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n" | tee -a $LOGFILE
 fi
+
+cp -rf web.css /etc/kvmd/web.css
 
 systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded | tee -a $LOGFILE
 
