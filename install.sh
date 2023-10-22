@@ -282,6 +282,7 @@ get-platform() {
             # force platform to only use v2-hdmi for zero2w
             platform="kvmd-platform-v2-hdmi-zero2w"
             export GPUMEM=96
+            tryagain=0
             ;;
 
           zero[Ww])
@@ -296,6 +297,7 @@ get-platform() {
             echo "wget --no-check-certificate -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE" | tee -a $LOGFILE
             wget --no-check-certificate -O $KVMDCACHE/$ZEROWPLATFILE $ZEROWREPO/$ZEROWPLATFILE 2> /dev/null
             export GPUMEM=64
+            tryagain=0
             ;;
 
           3A*)
@@ -308,6 +310,7 @@ get-platform() {
             #platform="kvmd-platform-v2-hdmi-rpi3"    # this platform package doesn't support webrtc
             platform="kvmd-platform-v2-hdmi-rpi4"     # use rpi4 platform which supports webrtc
             export GPUMEM=96
+            tryagain=0
             ;;
 
           "3B"|"2B"|"2A"|"B"|"A")
@@ -340,6 +343,7 @@ get-platform() {
             ### added on 02/22/2022 -- force pi400 to use usb dongle as there's no CSI connector on it
             platform="kvmd-platform-v2-hdmiusb-rpi4"
             export GPUMEM=256
+            tryagain=0
             ;;
 
           *)   ### default to use rpi4 platform image for CM4 and Pi4
