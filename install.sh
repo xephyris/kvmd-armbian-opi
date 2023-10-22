@@ -897,8 +897,8 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   printf "\nRunning part 1 of PiKVM installer script v$VER by @srepac\n" | tee -a $LOGFILE
   get-platform
   get-packages
-  boot-files
   install-kvmd-pkgs
+  boot-files
   create-override
   gen-ssl-certs
   fix-udevrules
