@@ -850,8 +850,7 @@ async-lru-fix() {
   echo "ASYNC-LRU version:  $ASYNCLRUVER"
   case $ASYNCLRUVER in
     2.*) echo "Nothing to do.  aync-lru is already running $ASYNCLRUVER" | tee -a $LOFILE;;
-    1.*|*) pip3 install -U async_lru --break-system-packages | tee -a $LOGFILE;;     # raspbian bookworm only installs 1.0.x,
- this forces 2.0.x
+    1.*|*) pip3 install -U async_lru --break-system-packages | tee -a $LOGFILE;;     # raspbian bookworm only installs 1.0.x, this forces 2.0.x
   esac
 } # end async-lru-fix
 
