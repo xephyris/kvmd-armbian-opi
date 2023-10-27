@@ -369,7 +369,7 @@ perform-update
 update-ustreamer
 set-ownership
 restore-configs
-update-logo
+#update-logo
 misc-fixes
 fix-python311
 fix-nfs-msd
