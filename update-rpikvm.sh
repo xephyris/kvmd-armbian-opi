@@ -377,4 +377,6 @@ fi
 sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
 sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
-systemctl restart dnsmasq
+if systemctl is-enabled -q dnsmasq; then
+  systemctl restart dnsmasq
+fi
