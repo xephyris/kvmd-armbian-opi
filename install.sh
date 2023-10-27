@@ -254,7 +254,7 @@ get-packages() {
   echo
 
   # Download each of the pertinent packages for Rpi4, webterm, and the main service
-  for pkg in `egrep 'janus|kvmd' ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2 | egrep -v 'fan|oled' | egrep 'janus|pi4|webterm|kvmd-[0-9]'`
+  for pkg in `egrep 'janus|kvmd' ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2 | egrep -v 'fan|oled' | egrep 'janus|pi4|pi3|zero|webterm|kvmd-[0-9]'`
   do
     rm -f ${KVMDCACHE}/$pkg*
     echo "wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg" | tee -a $LOGFILE
@@ -518,7 +518,7 @@ install-dependencies() {
     cd WiringPi
     ./build
   else
-    printf "\n\n-> Wiringpi (gpio) is already instaled.\n\n" | tee -a $LOGFILE
+    printf "\n\n-> Wiringpi (gpio) is already installed.\n\n" | tee -a $LOGFILE
   fi
   gpio -v | tee -a $LOGFILE
 
