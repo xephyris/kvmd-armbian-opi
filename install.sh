@@ -212,12 +212,12 @@ CSIFIRMWARE
       if [[ $( grep -w tc358743 /etc/modules | wc -l ) -eq 0 ]]; then
         echo "tc358743" >> /etc/modules
       fi
+      
+      install-tc358743
 
     fi
 
   fi  # end of check if entries are already in /boot/config.txt
-
-  install-tc358743
 
   # Remove OTG serial (Orange pi zero's kernel not support it)
   sed -i '/^g_serial/d' /etc/modules
