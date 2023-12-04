@@ -340,6 +340,7 @@ x86-fix-3.256() {
   mv __init__.py.1 __init__.py
 
   cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd
+  cp streamer.py streamer.py.$( date +%Y%m%d )
   wget -O streamer.py.1 --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/a1b8a077ee1ae829e01aa5224196ce687adc9deb/kvmd/apps/kvmd/streamer.py 2> /dev/null
   mv streamer.py.1 streamer.py
 
