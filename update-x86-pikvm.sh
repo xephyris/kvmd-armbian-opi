@@ -333,8 +333,15 @@ x86-fix-3.256() {
   set -x
   cd /usr/lib/python3/dist-packages/kvmd/apps/
   cp __init__.py __init__.py.$( date +%Y%m%d )
-  wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
+  #wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/__init__.py 2> /dev/null
+
+  ### x86 pikvm fix for 3.281 and higher
+  wget -O __init__.py.1 --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/a1b8a077ee1ae829e01aa5224196ce687adc9deb/kvmd/apps/__init__.py 2> /dev/null
   mv __init__.py.1 __init__.py
+
+  cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd
+  wget -O streamer.py.1 --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/a1b8a077ee1ae829e01aa5224196ce687adc9deb/kvmd/apps/kvmd/streamer.py 2> /dev/null
+  mv streamer.py.1 streamer.py
 
   cd /usr/share/kvmd/web/share/js
   if [ -e session.js ]; then
@@ -414,7 +421,7 @@ else
 fi
 
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
-sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
+#sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
 sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
