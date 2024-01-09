@@ -689,14 +689,14 @@ fix-nfs-msd() {
 }
 
 add-ch9329-support() {
-  wget --no-check-certificate -O install-ch9329.sh https://148.135.104.55/PiKVM/install-ch9329.sh 2> /dev/null
+  wget --no-check-certificate -O install-ch9329.sh http://148.135.104.55/PiKVM/install-ch9329.sh 2> /dev/null
   chmod +x install-ch9329.sh
   ./install-ch9329.sh
 }
 
 apply-x86-mods() {
   TARBALL="x86-mods.tar"
-  wget --no-check-certificate -O $TARBALL https://148.135.104.55/RPiKVM/$TARBALL 2> /dev/null
+  wget --no-check-certificate -O $TARBALL http://148.135.104.55/RPiKVM/$TARBALL 2> /dev/null
 
   if [ -e $TARBALL ]; then
     echo "-> Making backup of files that require modification"
@@ -732,7 +732,7 @@ fix-nginx() {
   cat $HTTPSCONF
 
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
-    wget --no-check-certificate -O /usr/local/bin/pikvm-info https://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
+    wget --no-check-certificate -O /usr/local/bin/pikvm-info http://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
     chmod +x /usr/local/bin/pikvm-info
     echo "Getting list of packages installed..."
     pikvm-info > /dev/null    ### this generates /tmp/pacmanquery with list of installed pkgs
@@ -813,7 +813,7 @@ x86-fix-3.256() {
   cp hw.py hw.py.$( date +%Y%m%d )
   #wget --no-check-certificate https://raw.githubusercontent.com/pikvm/kvmd/cec03c4468df87bcdc68f20c2cf51a7998c56ebd/kvmd/apps/kvmd/info/hw.py 2> /dev/null
   #mv hw.py.1 hw.py
-  wget --no-check-certificate -O hw.py https://148.135.104.55/PiKVM/TESTING/hw.py 2> /dev/null
+  wget --no-check-certificate -O hw.py http://148.135.104.55/PiKVM/TESTING/hw.py 2> /dev/null
 } # end x86-fix-3.256
 
 
