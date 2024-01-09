@@ -78,6 +78,16 @@ print("Output: ", data)
 chip.close()
 ```
 
+**NOTE:  Before moving on to the next step, make sure that you see two sets of prolific (uart+ch9329) and macrosilicon (usb hdmi) usb devices**
+```
+[root@x86kvm ~]# lsusb
+Bus 003 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 002 Device 005: ID 534d:2109 MacroSilicon
+Bus 002 Device 004: ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port / Mobile Action MA-8910P
+Bus 002 Device 003: ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port / Mobile Action MA-8910P
+Bus 002 Device 002: ID 534d:2109 MacroSilicon
+```
+
 3.  Setup sudoers to allow kvmd user to perform any commands
 ```
 [root@x86kvm bin]# cat /etc/sudoers.d/custom_commands
