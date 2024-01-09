@@ -5,6 +5,9 @@ Requirements:
 - 2x uart + ch9329 (one per target)
 - 2x usb hdmi (one per target)
 
+VIDEO IN ACTION:
+- https://discord.com/channels/580094191938437144/580858755827367956/1194307516838977598
+
 Overview steps:
 
 1.  Create x86 pikvm per the doc above.  Connect one pair of uart + ch9329 and usb hdmi per target.
