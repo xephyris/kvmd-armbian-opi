@@ -9,7 +9,7 @@ Overview steps:
 
 1.  Create x86 pikvm per the doc above.  Connect one pair of uart + ch9329 and usb hdmi per target.
 
-2.  Setup scripts in /usr/local/bin/ for use by GPIO menu.  The highlighed commands may need to be edited to reflect the correct devices used for your target 1 and target 2.  In my case, I confirmed the first target used ttyUSB0 and video0, before connecting the next target uart + usb hdmi to the x86 PC.
+2.  Setup scripts in /usr/local/bin/ for use by GPIO menu.  The ln -sf commands may need to be edited to reflect the correct devices used for your target 1 and target 2.  In my case, I confirmed the first target used ttyUSB0 and video0, before connecting the next target uart + usb hdmi to the x86 PC.
 ```
 [root@x86kvm bin]# pwd
 /usr/local/bin
