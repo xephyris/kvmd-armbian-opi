@@ -138,3 +138,13 @@ kvmd:
                 - ["#TARGET1", "target1_button|Target1"]
                 - ["#TARGET2", "target2_button|Target2"]
 ```
+
+5.  Add the default target 1 symlink changes to /usr/bin/kvmd-fix.  **NOTE:  Please make sure this matches your target 1 serial hid and video**
+```
+### setup the default target system
+ln -sf ttyUSB0 /dev/kvmd-hid
+ln -sf video0 /dev/kvmd-video
+systemctl restart kvmd
+```
+
+6.  Enjoy!
