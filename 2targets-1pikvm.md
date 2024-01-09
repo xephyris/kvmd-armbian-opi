@@ -1,9 +1,9 @@
 QUICK HOW TO "ONE PIKVM - TWO TARGETS" by @srepac
 
 Requirements:
- x86pikvm  https://github.com/srepac/kvmd-armbian/blob/master/How%20to%20Install%20PiKVM%20x86.pdf 
-2x uart + ch9329 (one per target)
-2x usb hdmi (one per target)
+- x86pikvm  https://github.com/srepac/kvmd-armbian/blob/master/How%20to%20Install%20PiKVM%20x86.pdf 
+- 2x uart + ch9329 (one per target)
+- 2x usb hdmi (one per target)
 
 Overview steps:
 
