@@ -123,6 +123,6 @@ kvmd:
                 - []
                 - ["#CHANGE TARGETS - requires webui restart"]
                 - []
-                - ["#Pi400 Armbian", "target1_button|PI400"]
-                - ["#GA-BRIX Win10", "target2_button|BRIX"]
+                - ["#TARGET1", "target1_button|Target1"]
+                - ["#TARGET2", "target2_button|Target2"]
 ```
