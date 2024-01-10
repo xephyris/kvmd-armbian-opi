@@ -162,6 +162,7 @@ else
   TGT="target1"
   ln -sf ttyUSB0 /dev/kvmd-hid
   ln -sf video0 /dev/kvmd-video
+  echo "ttyUSB0,video0,$TGT" > $CONFIG
 fi
 echo "Controlling $TGT"
 systemctl restart kvmd
