@@ -156,14 +156,14 @@ if [ -e $CONFIG ]; then
   USB=$( cat $CONFIG | cut -d',' -f1 )
   VID=$( cat $CONFIG | cut -d',' -f2 )
   TGT=$( cat $CONFIG | cut -d',' -f3 )
-  ln -sf $USB /dev/kvmd-hid
-  ln -sf $VID /dev/kvmd-video
 else
   TGT="target1"
-  ln -sf ttyUSB0 /dev/kvmd-hid
-  ln -sf video0 /dev/kvmd-video
-  echo "ttyUSB0,video0,$TGT" > $CONFIG
+  USB="ttyUSB0"
+  VID="video0"
+  echo "$USB,$VID,$TGT" > $CONFIG
 fi
+ln -sf $USB /dev/kvmd-hid
+ln -sf $VID /dev/kvmd-video
 echo "Controlling $TGT"
 systemctl restart kvmd
 ls -l /dev/kvmd-video
