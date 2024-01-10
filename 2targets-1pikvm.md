@@ -152,10 +152,18 @@ kvmd:
 set -x
 ### setup the default target system
 CONFIG="/etc/kvmd/current-target"
-USB=$( cat $CONFIG | cut -d',' -f1 )
-VID=$( cat $CONFIG | cut -d',' -f2 )
-ln -sf $USB /dev/kvmd-hid
-ln -sf $VID /dev/kvmd-video
+if [ -e $CONFIG ]; then
+  USB=$( cat $CONFIG | cut -d',' -f1 )
+  VID=$( cat $CONFIG | cut -d',' -f2 )
+  TGT=$( cat $CONFIG | cut -d',' -f3 )
+  ln -sf $USB /dev/kvmd-hid
+  ln -sf $VID /dev/kvmd-video
+else
+  TGT="target1"
+  ln -sf ttyUSB0 /dev/kvmd-hid
+  ln -sf video0 /dev/kvmd-video
+fi
+echo "Controlling $TGT"
 systemctl restart kvmd
 ls -l /dev/kvmd-video
 ```
