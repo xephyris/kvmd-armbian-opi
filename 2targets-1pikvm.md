@@ -25,15 +25,18 @@ Overview steps:
 [root@x86kvm bin]# cat target.sh
 #!/bin/bash
 set -x
+CONFIG="/etc/kvmd/current-target"
 
 case $1 in
   1) echo "Control change to target 1"
      ln -sf ttyUSB0 /dev/kvmd-hid
      ln -sf video0 /dev/kvmd-video
+     echo "ttyUSB0,video0,target1" > $CONFIG
      ;;
   2) echo "Control change to target 2"
      ln -sf ttyUSB1 /dev/kvmd-hid
      ln -sf video2 /dev/kvmd-video
+     echo "ttyUSB1,video2,target2" > $CONFIG
      ;;
   *) echo "Target not defined.  Exiting."
      exit 1
@@ -141,10 +144,20 @@ kvmd:
 
 5.  Add the default target 1 symlink changes to /usr/bin/kvmd-fix.  **NOTE:  Please make sure this matches your target 1 serial hid and video**
 ```
+#!/bin/bash
+# Written by @srepac
+#
+### These fixes are required in order for kvmd service to start properly
+#
+set -x
 ### setup the default target system
-ln -sf ttyUSB0 /dev/kvmd-hid
-ln -sf video0 /dev/kvmd-video
+CONFIG="/etc/kvmd/current-target"
+USB=$( cat $CONFIG | cut -d',' -f1 )
+VID=$( cat $CONFIG | cut -d',' -f2 )
+ln -sf $USB /dev/kvmd-hid
+ln -sf $VID /dev/kvmd-video
 systemctl restart kvmd
+ls -l /dev/kvmd-video
 ```
 
 6.  Enjoy!
