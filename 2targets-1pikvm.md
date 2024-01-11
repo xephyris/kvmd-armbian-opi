@@ -24,31 +24,77 @@ Overview steps:
 
 [root@x86kvm bin]# cat target.sh
 #!/bin/bash
-set -x
-CONFIG="/etc/kvmd/current-target"
+function usage() {
+  echo "usage:  $0 [#]  where # is the target number to switch to."
+  exit 1
+}
+
+function perform-change() {
+  set -x
+  echo "$USB,$VID,$TGT" > $CONFIG
+  ln -sf $USB /dev/kvmd-hid
+  ln -sf $VID /dev/kvmd-video
+  systemctl restart kvmd    # restart kvmd services after changing hid
+  sleep 2
+  ch_reset.py   # reset ch9329 so it's fresh once we change targets
+  ls -l /dev/kvmd*
+  set +x
+}
+
+function show-config() {
+  CONFIG="/etc/kvmd/current-target"
+  if [ -e $CONFIG ]; then
+    USB=$( cat $CONFIG | cut -d',' -f1 )
+    VID=$( cat $CONFIG | cut -d',' -f2 )
+    TGT=$( cat $CONFIG | cut -d',' -f3 )
+    NUM=$( echo $TGT | sed 's/target//g' )
+    echo "-> Current target info:  $USB,$VID,$TGT"
+    ls -l /dev/kvmd*
+  else
+    NUM=1     # CONFIG file does not exist so default is target 1
+  fi
+}
+
+
+### MAIN STARTS HERE ###
+show-config
+
+if [ $# -eq 0 ]; then
+  echo "*** Missing target number. ***"
+  usage
+fi
 
 case $1 in
-  1) echo "Control change to target 1"
-     ln -sf ttyUSB0 /dev/kvmd-hid
-     ln -sf video0 /dev/kvmd-video
-     echo "ttyUSB0,video0,target1" > $CONFIG
+  1) if [ $1 -ne $NUM ] ; then
+       echo "-> Control change to target $1.  Please wait..."
+       USB="ttyUSB0"
+       VID="video0"
+       TGT="target$1"
+       perform-change
+     else
+       echo "-> Target you want is already set to $NUM"
+     fi
      ;;
-  2) echo "Control change to target 2"
-     ln -sf ttyUSB1 /dev/kvmd-hid
-     ln -sf video2 /dev/kvmd-video
-     echo "ttyUSB1,video2,target2" > $CONFIG
+  2) if [ $1 -ne $NUM ]; then
+       echo "-> Control change to target $1.  Please wait..."
+       USB="ttyUSB1"
+       VID="video2"
+       TGT="target$1"
+       perform-change
+     else
+       echo "-> Target you want is already set to $NUM"
+     fi
      ;;
-  *) echo "Target not defined.  Exiting."
+
+  -h|--help)
+     usage
+     ;;
+
+  *) echo "*** Target not defined.  Exiting. ***"
      exit 1
      ;;
 esac
 
-systemctl restart kvmd
-
-sleep 3
-ch_reset.py
-
-set +x
 
 [root@x86kvm bin]# cat ch_reset.py
 #!/usr/bin/python3
