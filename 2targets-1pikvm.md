@@ -1,5 +1,8 @@
 QUICK HOW TO "ONE PIKVM - TWO TARGETS" by @srepac
 
+Have you ever wanted to control multiple targets without a KVM switch using only one PiKVM?  If so, this solution is exactly for you.  In place of the x86 pikvm, you can also use RPi 3B with hdmi USB platform aka kvmd-platform-v0-hdmiusb-rpi3  http://148.135.104.55/IMAGES/v0-hdmiusb-rpi3-20211210.img.xz
+
+
 REQUIREMENTS:
 - x86pikvm  https://github.com/srepac/kvmd-armbian/blob/master/How%20to%20Install%20PiKVM%20x86.pdf 
 - 2x uart + ch9329 (one per target)
