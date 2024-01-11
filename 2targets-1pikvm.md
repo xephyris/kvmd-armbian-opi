@@ -102,21 +102,15 @@ import serial
 import time
 
 device_path = "/dev/kvmd-hid"
-
 chip = serial.Serial(device_path, 9600, timeout=1)
-
 command = [87, 171, 0, 15, 0]
 sum = sum(command) % 256
 command.append(sum)
 
 print("Resetting CH9329")
-
 chip.write(serial.to_bytes(command))
-
 time.sleep(2)
-
 data = list(chip.read(5))
-
 print("Initial data:", data)
 
 if data[4] :
