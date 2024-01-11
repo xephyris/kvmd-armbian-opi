@@ -196,6 +196,7 @@ kvmd:
 ### These fixes are required in order for kvmd service to start properly
 #
 set -x
+
 ### setup the default target system
 CONFIG="/etc/kvmd/current-target"
 if [ -e $CONFIG ]; then
@@ -212,7 +213,9 @@ ln -sf $USB /dev/kvmd-hid
 ln -sf $VID /dev/kvmd-video
 echo "Controlling $TGT"
 systemctl restart kvmd
-ls -l /dev/kvmd-video
+ls -l /dev/kvmd*
+
+set +x
 ```
 
 6.  Enjoy!
