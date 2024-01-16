@@ -17,10 +17,11 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20231020 2100 PDT
-VER=3.3
+# Last change 20240116 1130 PDT
+VER=3.4
 set +x
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
+KVMDFILE="kvmd-3.291-1-any.pkg.tar.xz"
 KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
 PKGINFO="${KVMDCACHE}/packages.txt"
 APP_PATH=$(readlink -f $(dirname $0))
@@ -212,7 +213,7 @@ CSIFIRMWARE
       if [[ $( grep -w tc358743 /etc/modules | wc -l ) -eq 0 ]]; then
         echo "tc358743" >> /etc/modules
       fi
-      
+
       install-tc358743
 
     fi
@@ -393,13 +394,24 @@ install-kvmd-pkgs() {
   date > $INSTLOG
 
 # uncompress platform package first
-  i=$( ls ${KVMDCACHE}/${platform}-*.tar.xz )
-  echo "-> Extracting package $i into /" >> $INSTLOG
+  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz )
+  _platformver=$( echo $i | sed -e 's/3\.29[2-9]*/3.291/g' -e 's/3\.3[0-9]*/3.291/g' )
+  echo "-> Extracting package $_platformver into /" | tee -a $INSTLOG
   tar xfJ $i
 
 # then uncompress, kvmd-{version}, kvmd-webterm, and janus packages
   for i in $( ls ${KVMDCACHE}/*.tar.xz | egrep 'kvmd-[0-9]|webterm' )
   do
+    case $i in
+      *kvmd-3.29[2-9]*|*kvmd-3.[3-9]*)   # if latest/greatest is 3.292 and higher, then force 3.291 install
+        echo "*** Force install kvmd 3.291 ***" | tee -a $LOGFILE
+        wget -O $KVMDCACHE/$KVMDFILE http://148.135.104.55/REPO/NEW/$KVMDFILE 2> /dev/null
+        i=$KVMDCACHE/$KVMDFILE
+        ;;
+      *)
+        ;;
+    esac
+
     echo "-> Extracting package $i into /" >> $INSTLOG
     tar xfJ $i
   done
@@ -428,15 +440,15 @@ install-kvmd-pkgs() {
 
 fix-udevrules() {
   # for hdmiusb, replace %b with 1-1.4:1.0 in /etc/udev/rules.d/99-kvmd.rules
-  sed -i -e 's+\%b+1-1.4:1.0+g' /etc/udev/rules.d/99-kvmd.rules
+  sed -i -e 's+\%b+1-1.4:1.0+g' /etc/udev/rules.d/99-kvmd.rules | tee -a $LOGFILE
   echo
-  cat /etc/udev/rules.d/99-kvmd.rules
+  cat /etc/udev/rules.d/99-kvmd.rules | tee -a $LOGFILE
 } # end fix-udevrules
 
 enable-kvmd-svcs() {
   # enable KVMD services but don't start them
-  echo "-> Enabling kvmd-nginx kvmd-webterm kvmd-otg and kvmd services, but do not start them." | tee -a $LOGFILE
-  systemctl enable kvmd-nginx kvmd-webterm kvmd-otg kvmd kvmd-fix
+  echo "-> Enabling $SERVICES services, but do not start them." | tee -a $LOGFILE
+  systemctl enable $SERVICES
 
   case $( pikvm-info | grep kvmd-platform | cut -d'-' -f4 ) in
     hdmi)
@@ -723,7 +735,7 @@ start-kvmd-svcs() {
   # 2. kvmd-otg is for OTG devices (keyboard/mouse, etc..)
   # 3. kvmd is the main daemon
   systemctl daemon-reload
-  systemctl restart kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix
+  systemctl restart $SERVICES
 } # end start-kvmd-svcs
 
 fix-motd() {
@@ -774,8 +786,8 @@ fix-nginx() {
   esac
 
   HTTPSCONF="/etc/kvmd/nginx/listen-https.conf"
-  echo "HTTPSCONF BEFORE:  $HTTPSCONF"
-  cat $HTTPSCONF
+  echo "HTTPSCONF BEFORE:  $HTTPSCONF" | tee -a $LOGFILE
+  cat $HTTPSCONF | tee -a $LOGFILE
 
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
     wget --no-check-certificate -O /usr/local/bin/pikvm-info http://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
@@ -892,6 +904,8 @@ chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
 ### fix for kvmd 3.230 and higher
 ln -sf python3 /usr/bin/python
 
+SERVICES="kvmd-nginx kvmd-webterm kvmd-otg kvmd kvmd-fix"
+
 # added option to re-install by adding -f parameter (for use as platform switcher)
 PYTHON_VERSION=$( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 )
 if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
@@ -907,7 +921,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   otg-devices
   armbian-packages
   systemctl disable --now janus
-  
+
   cm4-mods
 
   printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n" >> $LOGFILE
@@ -955,7 +969,7 @@ fi
 
 cp -rf web.css /etc/kvmd/web.css
 
-systemctl status kvmd-nginx kvmd-otg kvmd-webterm kvmd kvmd-fix | grep Loaded | tee -a $LOGFILE
+systemctl status $SERVICES | grep Loaded | tee -a $LOGFILE
 
 ### fix totp.secret file permissions for use with 2FA
 chmod go+r /etc/kvmd/totp.secret
