@@ -512,6 +512,9 @@ fix-webterm() {
   mkdir -p /home/kvmd-webterm
   chown kvmd-webterm /home/kvmd-webterm
   ls -ld /home/kvmd-webterm | tee -a $LOGFILE
+
+  # remove -W option since ttyd installed on raspbian/armbian is 1.6.3 (-W option only works with ttyd 1.7.x)
+  sed -i -e 's/-W \\/ \\/' /lib/systemd/system/kvmd-webterm.service
 } # end fix-webterm
 
 create-kvmdfix() {
