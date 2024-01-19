@@ -62,7 +62,7 @@ Update armbian pikvm anytime in order to take advantage of new features/updates.
 
 - run the update-rpikvm.sh script to perform update
 ```
-wget -O /usr/local/bin/update-rpikvm.sh https://kvmnerds.com/RPiKVM/update-rpikvm.sh
+wget -O /usr/local/bin/update-rpikvm.sh http://148.135.104.55/RPiKVM/update-rpikvm.sh
 update-rpikvm.sh
 ```
 
