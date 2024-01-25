@@ -362,7 +362,7 @@ get-platform() {
               case $capture in
                 1) platform="kvmd-platform-v2-hdmiusb-rpi4"; export GPUMEM=256; tryagain=0;;
                 2) platform="kvmd-platform-v2-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
-                3) platform="kvmd-platform-v3-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
+                3) platform="kvmd-platform-v3-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
                 4) platform="kvmd-platform-v4mini-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
                 5) platform="kvmd-platform-v4plus-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
                 *) printf "\nTry again.\n"; tryagain=1;;
