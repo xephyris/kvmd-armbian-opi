@@ -522,6 +522,7 @@ install-dependencies() {
     wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
+  ttyd -v | tee -a $LOGFILE
 
   if [ ! -e /usr/local/bin/gpio ]; then
     printf "\n\n-> Building wiringpi from source\n\n" | tee -a $LOGFILE
@@ -542,6 +543,9 @@ install-dependencies() {
     build-ustreamer
     cd ${APP_PATH}
   fi
+  echo -n "ustreamer version: " | tee -a $LOGFILE
+  ustreamer -v | tee -a $LOGFILE
+  ustreamer --features | tee -a $LOGFILE
 } # end install-dependencies
 
 python-pkg-dir() {
@@ -934,10 +938,10 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
     sed -i -e 's/reversed//g' /usr/lib/python3.1*/site-packages/kvmd/keyboard/printer.py
   fi
-  
+
   # Add CM4 fix
   sed -i -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
-  
+
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
   reboot
