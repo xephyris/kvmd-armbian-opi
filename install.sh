@@ -877,6 +877,9 @@ cm4-mods() {  # apply CM4 specific mods
   if [ $cm4 -eq 1 ]; then
     echo "-> Applying CM4 specific changes" | tee -a $LOGFILE
 
+    # Add CM4 otg fix
+    sed -i -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
+
     # add 4lane CSI support
     sed -i -e 's|^dtoverlay=tc358743$|\n# Video (CM4)\ndtoverlay=tc358743,4lane=1\n|g' /boot/config.txt
 
@@ -938,9 +941,6 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
     sed -i -e 's/reversed//g' /usr/lib/python3.1*/site-packages/kvmd/keyboard/printer.py
   fi
-
-  # Add CM4 fix
-  sed -i -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
 
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
