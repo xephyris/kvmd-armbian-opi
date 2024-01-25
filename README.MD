@@ -83,4 +83,7 @@ update-rpikvm.sh
  - Big Tree Tech CB1+Rpi4 board (WIP by @srepac)
  - Orange Pi PC+ and orange pi 3 (tested by @ducs4rs)
  - RPi4B + PiKVM V3 HAT on Raspberry Pi OS bookworm (tested by @srepac on 10/19/23)
+ - RPi4B + BliKVM V3 HAT on Raspberry Pi OS bookworm (tested by @srepac)
+ - RPiCM4 + BliKVM V2 pcie HAT on Raspberry Pi OS bookworm (tested by @srepac)
+ - RPiCM4 + Geekworm A8 pcie HAT on Raspberry Pi OS bookworm (tested by @srepac)
 
