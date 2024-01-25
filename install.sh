@@ -934,7 +934,10 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   if [[ $( python3 -V | awk '{print $2}' | cut -d'.' -f1,2 ) == "3.7" ]]; then
     sed -i -e 's/reversed//g' /usr/lib/python3.1*/site-packages/kvmd/keyboard/printer.py
   fi
-
+  
+  # Add CM4 fix
+  sed -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
+  
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
   reboot
