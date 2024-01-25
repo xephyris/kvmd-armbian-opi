@@ -38,6 +38,7 @@ Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 overlays=usbhost0 usbhost1 usbhost2 usbhost3
 ```
 
+**NOTE:  Skip steps 1 and 2 if you are running raspbian bookworm on rpi boards**
 ## Step 3 - Perform part 1 of install
 ```
 apt update && apt upgrade -y
