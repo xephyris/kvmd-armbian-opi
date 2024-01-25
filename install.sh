@@ -28,6 +28,7 @@ APP_PATH=$(readlink -f $(dirname $0))
 LOGFILE="${KVMDCACHE}/installer.log"; touch $LOGFILE; echo "==== $( date ) ====" >> $LOGFILE
 
 cm4=0   # variable to take care of CM4 specific changes
+csisvc=0  # variable to take care of starting CSI specific services
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   echo "usage:  $0 [-f]   where -f will force re-install new pikvm platform"
@@ -71,6 +72,12 @@ gen-ssl-certs() {
   cp server* /etc/kvmd/vnc/ssl/
   cd ${APP_PATH}
 } # end gen-ssl-certs
+
+enable-csi-svcs() {
+  if [ ${csisvc} -eq 1 ]; then
+    systemctl enable kvmd-tc358743 kvmd-janus-static
+  fi
+}
 
 create-override() {
   if [ $( grep ^kvmd: /etc/kvmd/override.yaml | wc -l ) -eq 0 ]; then
@@ -361,10 +368,10 @@ get-platform() {
               read -p "Please type [1-5]: " capture
               case $capture in
                 1) platform="kvmd-platform-v2-hdmiusb-rpi4"; export GPUMEM=256; tryagain=0;;
-                2) platform="kvmd-platform-v2-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
-                3) platform="kvmd-platform-v3-hdmi-rpi4"; export GPUMEM=128; tryagain=0;;
-                4) platform="kvmd-platform-v4mini-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
-                5) platform="kvmd-platform-v4plus-hdmi-rpi4"; export GPUMEM=128; cm4=1; tryagain=0;;
+                2) platform="kvmd-platform-v2-hdmi-rpi4"; export GPUMEM=128; csisvc=1; tryagain=0;;
+                3) platform="kvmd-platform-v3-hdmi-rpi4"; export GPUMEM=128; csisvc=1; tryagain=0;;
+                4) platform="kvmd-platform-v4mini-hdmi-rpi4"; export GPUMEM=128; csisvc=1; cm4=1; tryagain=0;;
+                5) platform="kvmd-platform-v4plus-hdmi-rpi4"; export GPUMEM=128; csisvc=1; cm4=1; tryagain=0;;
                 *) printf "\nTry again.\n"; tryagain=1;;
               esac
             done
@@ -927,6 +934,8 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   get-platform
   get-packages
   install-kvmd-pkgs
+  enable-csi-svcs
+  cm4-mods
   boot-files
   create-override
   gen-ssl-certs
@@ -935,8 +944,6 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   otg-devices
   armbian-packages
   systemctl disable --now janus
-
-  cm4-mods
 
   printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n" >> $LOGFILE
   printf "\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
