@@ -479,6 +479,10 @@ build-ustreamer() {
   make install
   # kvmd service is looking for /usr/bin/ustreamer
   ln -sf /usr/local/bin/ustreamer* /usr/bin/
+
+  # add janus support
+  mkdir -p /usr/lib/ustreamer/janus
+  cp /tmp/ustreamer/janus/libjanus_ustreamer.so /usr/lib/ustreamer/janus
 } # end build-ustreamer
 
 install-dependencies() {
