@@ -936,7 +936,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   fi
   
   # Add CM4 fix
-  sed -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
+  sed -i -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
   
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
