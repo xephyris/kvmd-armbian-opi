@@ -354,7 +354,7 @@ get-platform() {
   1 - USB dongle
   2 - v2 CSI
   3 - V3 HAT
-  4 - V4mini
+  4 - V4mini  (use this for any CM4 boards with CSI capture
   5 - V4plus
 
 "
