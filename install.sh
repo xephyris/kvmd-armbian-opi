@@ -889,10 +889,10 @@ cm4-mods() {  # apply CM4 specific mods
     echo "-> Applying CM4 specific changes" | tee -a $LOGFILE
 
     # Add CM4 otg fix
-    sed -i -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
+    sed -i --follow-symlinks -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
 
     # add 4lane CSI support
-    sed -i -e 's|^dtoverlay=tc358743$|\n# Video (CM4)\ndtoverlay=tc358743,4lane=1\n|g' /boot/config.txt
+    sed -i --follow-symlinks -e 's|^dtoverlay=tc358743$|\n# Video (CM4)\ndtoverlay=tc358743,4lane=1\n|g' /boot/config.txt
 
     # v4mini and v4plus yaml file are the same
     cp /etc/kvmd/main.yaml /etc/kvmd/main.yaml.orig
