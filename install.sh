@@ -53,8 +53,10 @@ case $PYTHONVER in
 esac
 
 ### added on 01/31/23 in case armbian is installed on rpi boards
-if [[ ! -e /boot/config.txt && -e /boot/firmware/config.txt ]]; then
-  ln -sf /boot/firmware/config.txt /boot/config.txt
+if [ -e /boot/firmware/config.txt ]; then
+  _BOOTCONF="/boot/firmware/config.txt"
+else
+  _BOOTCONF="/boot/config.txt"
 fi
 
 MAKER=$(tr -d '\0' < /proc/device-tree/model | awk '{print $1}')
@@ -158,11 +160,11 @@ install-tc358743() {
 } # install package for tc358743
 
 boot-files() {
-  if [[ -e /boot/config.txt && $( grep srepac /boot/config.txt | wc -l ) -eq 0 ]]; then
+  if [[ -e ${_BOOTCONF} && $( grep srepac ${_BOOTCONF} | wc -l ) -eq 0 ]]; then
 
     if [[ $( echo $platform | grep usb | wc -l ) -eq 1 ]]; then  # hdmiusb platforms
 
-      cat <<FIRMWARE >> /boot/config.txt
+      cat <<FIRMWARE >> ${_BOOTCONF}
 # srepac custom configs
 ###
 hdmi_force_hotplug=1
@@ -190,7 +192,7 @@ FIRMWARE
 
     else   # CSI platforms
 
-      cat <<CSIFIRMWARE >> /boot/config.txt
+      cat <<CSIFIRMWARE >> ${_BOOTCONF}
 # srepac custom configs
 ###
 hdmi_force_hotplug=1
@@ -241,9 +243,9 @@ CSIFIRMWARE
     echo "i2c-dev" >> /etc/modules
   fi
 
-  if [ -e /boot/config.txt ]; then
-    printf "\n/boot/config.txt\n\n" | tee -a $LOGFILE
-    cat /boot/config.txt | tee -a $LOGFILE
+  if [ -e ${_BOOTCONF} ]; then
+    printf "\n${_BOOTCONF}\n\n" | tee -a $LOGFILE
+    cat ${_BOOTCONF} | tee -a $LOGFILE
   fi
 
   printf "\n/etc/modules\n\n" | tee -a $LOGFILE
@@ -889,10 +891,10 @@ cm4-mods() {  # apply CM4 specific mods
     echo "-> Applying CM4 specific changes" | tee -a $LOGFILE
 
     # Add CM4 otg fix
-    sed -i --follow-symlinks -e 's/^otg_mode=1/#otg_mode=1/g' /boot/config.txt
+    sed -i --follow-symlinks -e 's/^otg_mode=1/#otg_mode=1/g' ${_BOOTCONF}
 
     # add 4lane CSI support
-    sed -i --follow-symlinks -e 's|^dtoverlay=tc358743$|\n# Video (CM4)\ndtoverlay=tc358743,4lane=1\n|g' /boot/config.txt
+    sed -i --follow-symlinks -e 's|^dtoverlay=tc358743$|\n# Video (CM4)\ndtoverlay=tc358743,4lane=1\n|g' ${_BOOTCONF}
 
     # v4mini and v4plus yaml file are the same
     cp /etc/kvmd/main.yaml /etc/kvmd/main.yaml.orig
