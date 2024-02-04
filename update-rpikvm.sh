@@ -3,7 +3,7 @@
 ## Update script for Raspbian/Armbian
 #
 ###
-# Updated on 20230914 1100PDT
+# Updated on 20240203 1815PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -106,33 +106,49 @@ perform-update() {
     *) echo "Unsupported python version $PYTHONVER.  Exiting"; exit 1;;
   esac
 
+  function do-update() {
+    printf "\n  -> Performing update to version [ ${KVMDVER} ] now.\n"
+
+    # Install new version of kvmd and kvmd-platform
+    printf "
+    cd /
+    tar xfJ $KVMDCACHE/$KVMDFILE
+    tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
+
+    rm $PYTHONPACKAGES/kvmd*info*
+    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
+
+    echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
+    "
+
+    cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
+    tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
+    rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
+    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
+    echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
+  } # end do-update
+
+  _libgpiodver=$( gpioinfo -v | head -1 | awk '{print $NF}' )
   case $KVMDVER in
     $CURRENTVER)
       printf "\n  -> Update not required.  Version installed is ${CURRENTVER} and REPO version is ${KVMDVER}.\n"
       ;;
-    3.29[2-9]*|3.3[0-9]*|3.4[0-9]*)
-      echo "-> kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
+    3.29[2-9]*|3.[3-9][0-9]*)
+      case $_libgpiodver in
+        v1.6*)
+          echo "** kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
+          ;;
+        v2.*)
+          echo "libgpiod v$_libgpiodver found.  Performing update."
+          do-update
+          ;;
+        *)
+          echo "libgpiod v$_libgpiodver found.  Nothing to do."
+          ;;
+      esac
       ;;
     *)
-      printf "\n  -> Performing update to version [ ${KVMDVER} ] now.\n"
-
-      # Install new version of kvmd and kvmd-platform
-      printf "
-      cd /
-      tar xfJ $KVMDCACHE/$KVMDFILE
-      tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
-
-      rm $PYTHONPACKAGES/kvmd*info*
-      ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
-
-      echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
-      "
-
-      cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
-      tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
-      rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
-      ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
-      echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
+      do-update
       ;;
   esac
 } # end perform-update
