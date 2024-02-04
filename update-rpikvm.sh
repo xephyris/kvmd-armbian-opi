@@ -139,11 +139,11 @@ perform-update() {
           echo "** kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
           ;;
         v2.*)
-          echo "libgpiod v$_libgpiodver found.  Performing update."
+          echo "libgpiod $_libgpiodver found.  Performing update."
           do-update
           ;;
         *)
-          echo "libgpiod v$_libgpiodver found.  Nothing to do."
+          echo "libgpiod $_libgpiodver found.  Nothing to do."
           ;;
       esac
       ;;
