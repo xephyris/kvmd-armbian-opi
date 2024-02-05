@@ -401,3 +401,6 @@ sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
 fi
+
+# get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
+sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
