@@ -386,14 +386,6 @@ sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 
 wget --no-check-certificate -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
 
-### if kvmd service is enabled, then restart service and show message ###
-if systemctl is-enabled -q kvmd; then
-  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
-  printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
-else
-  printf "\nkvmd service is disabled.  Not starting service\n"
-fi
-
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
 sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
@@ -405,4 +397,13 @@ fi
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
 if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
   sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
+  systemctl restart kvmd-nginx
+fi
+
+### if kvmd service is enabled, then restart service and show message ###
+if systemctl is-enabled -q kvmd; then
+  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
+  printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
+else
+  printf "\nkvmd service is disabled.  Not starting service\n"
 fi
