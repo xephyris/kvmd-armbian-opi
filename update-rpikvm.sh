@@ -403,4 +403,6 @@ if systemctl is-enabled -q dnsmasq; then
 fi
 
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
-sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
+if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
+  sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
+fi
