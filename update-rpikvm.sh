@@ -273,10 +273,6 @@ fix-nginx() {
     *) SEARCHKEY="nginx/";;
   esac
 
-  HTTPSCONF="/etc/kvmd/nginx/listen-https.conf"
-  echo "HTTPSCONF BEFORE:  $HTTPSCONF"
-  cat $HTTPSCONF
-
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
     wget --no-check-certificate -O /usr/local/bin/pikvm-info http://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
     chmod +x /usr/local/bin/pikvm-info
@@ -286,28 +282,52 @@ fix-nginx() {
 
   NGINXVER=$( grep $SEARCHKEY /tmp/pacmanquery | awk '{print $1}' | cut -d'.' -f1,2 )
   echo
-  echo "NGINX version installed:  $NGINXVER"
 
-  case $NGINXVER in
-    1.2[56789]|1.3*|1.4*|1.5*)   # nginx version 1.25 and higher
-      cat << NEW_CONF > $HTTPSCONF
+  # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
+  if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
+    case $NGINXVER in
+      1.2[5-9]*|1.3*|1.4*|1.5*)
+        echo "nginx version is $NGINXVER.  Nothing to do.";;
+      1.18|*)
+        echo "nginx version is $NGINXVER.  Updating /etc/kvmd/nginx/nginx.conf.mako"
+        # remove http2 on; line and change the ssl; to ssl http2; for proper syntax
+        sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
+        sed -i -e 's/ ssl;/ ssl http2;/g' /etc/kvmd/nginx/nginx.conf.mako
+        systemctl restart kvmd-nginx
+        grep ' ssl' /etc/kvmd/nginx/nginx.conf.mako
+        ;;
+    esac
+
+  else
+
+    HTTPSCONF="/etc/kvmd/nginx/listen-https.conf"
+    echo "HTTPSCONF BEFORE:  $HTTPSCONF"
+    cat $HTTPSCONF
+
+    echo "NGINX version installed:  $NGINXVER"
+    case $NGINXVER in
+      1.2[56789]|1.3*|1.4*|1.5*)   # nginx version 1.25 and higher
+        cat << NEW_CONF > $HTTPSCONF
 listen 443 ssl;
 listen [::]:443 ssl;
 http2 on;
 NEW_CONF
-      ;;
+        ;;
 
-    1.18|*)   # nginx version 1.18 and lower
-      cat << ORIG_CONF > $HTTPSCONF
+      1.18|*)   # nginx version 1.18 and lower
+        cat << ORIG_CONF > $HTTPSCONF
 listen 443 ssl http2;
 listen [::]:443 ssl;
 ORIG_CONF
-      ;;
+        ;;
 
-  esac
+    esac
 
-  echo "HTTPSCONF AFTER:  $HTTPSCONF"
-  cat $HTTPSCONF
+    echo "HTTPSCONF AFTER:  $HTTPSCONF"
+    cat $HTTPSCONF
+
+  fi
+
   set +x
 } # end fix-nginx
 
@@ -392,13 +412,6 @@ sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.
 sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
-fi
-
-# get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
-if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
-  sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
-  sed -i -e 's/ssl;/ssl http2;/g' /etc/kvmd/nginx/nginx.conf.mako
-  systemctl restart kvmd-nginx
 fi
 
 ### if kvmd service is enabled, then restart service and show message ###
