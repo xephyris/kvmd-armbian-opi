@@ -419,5 +419,6 @@ if systemctl is-enabled -q kvmd; then
   printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
   printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
 else
-  printf "\nkvmd service is disabled.  Not starting service\n"
+  printf "\nkvmd service is disabled.  Stopping service\n"
+  systemctl stop kvmd
 fi
