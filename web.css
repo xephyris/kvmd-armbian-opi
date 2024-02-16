@@ -1,4 +1,7 @@
 /* Here you can customize the Web UI */
+div.stream-box-mouse-dot {         /* required for kvmd 3.305+ */
+    cursor: crosshair !important;  /* crosshair instead of blue blob */
+}
 div.stream-box-mouse-enabled {
     cursor: crosshair !important;  /* crosshair instead of blue blob */
 }
