@@ -5,8 +5,8 @@ uptime
 NAME=$( egrep ^NAME= /etc/os-release | cut -d'"' -f2 )
 echo "Host OS:  $NAME `uname -r`  `uname -m`"
 
-# pistat is built-in to pi-kvm (/usr/local/bin)
-/usr/local/bin/pistat && echo
+# pistat is built-in to pikvm
+pistat && echo
 
 printf "%-32s\t%s\n" "Version" "Package-Name" "---------------------------------" "-----------------------------"
 
