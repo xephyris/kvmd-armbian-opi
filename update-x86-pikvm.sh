@@ -3,7 +3,7 @@
 ## Update script for x86
 #
 ###
-# Updated on 20240303 1500PDT
+# Updated on 20230922 1100PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -114,47 +114,33 @@ perform-update() {
     *) echo "Unsupported python version $PYTHONVER.  Exiting"; exit 1;;
   esac
 
-  function do-update() {
-    printf "\n  -> Performing update to version [ ${KVMDVER} ] now.\n"
-
-    # Install new version of kvmd and kvmd-platform
-    printf "
-    cd /
-    tar xfJ $KVMDCACHE/$KVMDFILE
-    tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
-    rm $PYTHONPACKAGES/kvmd*info*
-    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
-    echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
-    "
-
-    cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
-    tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
-    rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
-    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
-    echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
-  } # end do-update
-
-  _libgpiodver=$( gpioinfo -v | head -1 | awk '{print $NF}' )
   case $KVMDVER in
     $CURRENTVER)
       printf "\n  -> Update not required.  Version installed is ${CURRENTVER} and REPO version is ${KVMDVER}.\n"
       ;;
-    3.29[2-9]*|3.[3-9][0-9]*)
-      case $_libgpiodver in
-        v1.6*)
-          echo "** kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
-          ;;
-        v2.*)
-          echo "libgpiod $_libgpiodver found.  Performing update."
-          do-update
-          ;;
-        *)
-          echo "libgpiod $_libgpiodver found.  Nothing to do."
-          ;;
-      esac
+    3.29[2-9]*|3.3[0-9]*|3.4[0-9]*)
+      echo "-> kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
       ;;
     *)
-      do-update
+      printf "\n  -> Performing update to version [ ${KVMDVER} ] now.\n"
+
+      # Install new version of kvmd and kvmd-platform
+      printf "
+      cd /
+      tar xfJ $KVMDCACHE/$KVMDFILE
+      tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
+
+      rm $PYTHONPACKAGES/kvmd*info*
+      ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
+
+      echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
+      "
+
+      cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
+      tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
+      rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
+      ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
+      echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
       ;;
   esac
 } # end perform-update
@@ -280,6 +266,9 @@ fix-nginx() {
     *) SEARCHKEY="nginx/";;
   esac
 
+  HTTPSCONF="/etc/kvmd/nginx/listen-https.conf"
+  echo "HTTPSCONF BEFORE:  $HTTPSCONF"
+  cat $HTTPSCONF
 
   if [[ ! -e /usr/local/bin/pikvm-info || ! -e /tmp/pacmanquery ]]; then
     wget --no-check-certificate -O /usr/local/bin/pikvm-info http://148.135.104.55/PiKVM/pikvm-info 2> /dev/null
@@ -290,52 +279,28 @@ fix-nginx() {
 
   NGINXVER=$( grep $SEARCHKEY /tmp/pacmanquery | awk '{print $1}' | cut -d'.' -f1,2 )
   echo
+  echo "NGINX version installed:  $NGINXVER"
 
-  # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
-  if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
-    case $NGINXVER in
-      1.2[5-9]*|1.3*|1.4*|1.5*)
-        echo "nginx version is $NGINXVER.  Nothing to do.";;
-      1.18|*)
-        echo "nginx version is $NGINXVER.  Updating /etc/kvmd/nginx/nginx.conf.mako"
-        # remove http2 on; line and change the ssl; to ssl http2; for proper syntax
-        sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
-        sed -i -e 's/ ssl;/ ssl http2;/g' /etc/kvmd/nginx/nginx.conf.mako
-        systemctl restart kvmd-nginx
-        grep ' ssl' /etc/kvmd/nginx/nginx.conf.mako
-        ;;
-    esac
-
-  else
-
-    HTTPSCONF="/etc/kvmd/nginx/listen-https.conf"
-    echo "HTTPSCONF BEFORE:  $HTTPSCONF"
-    cat $HTTPSCONF
-
-    echo "NGINX version installed:  $NGINXVER"
-    case $NGINXVER in
-      1.2[56789]|1.3*|1.4*|1.5*)   # nginx version 1.25 and higher
-        cat << NEW_CONF > $HTTPSCONF
+  case $NGINXVER in
+    1.2[56789]|1.3*|1.4*|1.5*)   # nginx version 1.25 and higher
+      cat << NEW_CONF > $HTTPSCONF
 listen 443 ssl;
 listen [::]:443 ssl;
 http2 on;
 NEW_CONF
-        ;;
+      ;;
 
-      1.18|*)   # nginx version 1.18 and lower
-        cat << ORIG_CONF > $HTTPSCONF
+    1.18|*)   # nginx version 1.18 and lower
+      cat << ORIG_CONF > $HTTPSCONF
 listen 443 ssl http2;
 listen [::]:443 ssl;
 ORIG_CONF
-        ;;
+      ;;
 
-    esac
+  esac
 
-    echo "HTTPSCONF AFTER:  $HTTPSCONF"
-    cat $HTTPSCONF
-
-  fi
-
+  echo "HTTPSCONF AFTER:  $HTTPSCONF"
+  cat $HTTPSCONF
   set +x
 } # end fix-nginx
 
@@ -459,6 +424,12 @@ sed -i -e 's/ttyAMA0/ttyUSB[0-2]/g' /etc/udev/rules.d/99-kvmd.rules
 sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
+fi
+
+# get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
+if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
+  sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
+  systemctl restart kvmd-nginx
 fi
 
 ### if kvmd service is enabled, then restart service and show message ###
