@@ -857,6 +857,7 @@ ocr-fix() {  # create function
   echo
   echo "-> Apply OCR fix..." | tee -a $LOGFILE
 
+  set -x
   # 1.  verify that Pillow module is currently running 9.0.x
   PILLOWVER=$( grep -i pillow $PIP3LIST | awk '{print $NF}' )
 
@@ -878,6 +879,7 @@ ocr-fix() {  # create function
 
   esac
 
+  set +x
   echo
 } # end ocr-fix
 
@@ -970,8 +972,14 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   reboot
 else
   printf "\nRunning part 2 of PiKVM installer script v$VER by @srepac\n" | tee -a $LOGFILE
-  apt reinstall -y janus
-  
+
+  ### Fix for kvmd 3.291 ###
+  sed -i -e 's|gpiod.LineEvent|gpiod.EdgeEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
+  sed -i -e 's|gpiod.Line,|gpiod.line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
+
+  echo "-> Re-installing janus ..." | tee -a $LOGFILE
+  apt reinstall -y janus > /dev/null 2>&1
+
   ### run these to make sure kvmd users are created ###
 
   echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
@@ -990,6 +998,7 @@ else
   fix-motd
   fix-nfs-msd
   fix-nginx
+  async-lru-fix
   ocr-fix
 
   set-ownership
