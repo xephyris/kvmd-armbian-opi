@@ -519,23 +519,24 @@ install-dependencies() {
   apt install -y ttyd | tee -a $LOGFILE
   if [ ! -e /usr/bin/ttyd ]; then
     # Build and install ttyd
-    # cd /tmp
+    cd /tmp
     apt-get install -y build-essential cmake git libjson-c-dev libwebsockets-dev
-    # git clone --depth=1 https://github.com/tsl0922/ttyd.git
-    # cd ttyd && mkdir build && cd build
-    # cmake ..
-    # make -j && make install
+    git clone https://github.com/tsl0922/ttyd.git
+    cd ttyd && mkdir build && cd build
+    cmake ..
+    make -j && make install
+    cp ttyd /usr/bin/ttyd
     # Install binary from GitHub
-    arch=$(dpkg --print-architecture)
+    #arch=$(dpkg --print-architecture)
     #latest=$(curl -sL https://api.github.com/repos/tsl0922/ttyd/releases/latest | jq -r ".tag_name")
-    latest=1.6.3     # confirmed works with pikvm, latest from github (1.7.4) did not allow typing in webterm
-    if [ $arch = arm64 ]; then
-      arch='aarch64'
-    fi
-    wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
+    #latest=1.6.3     # confirmed works with pikvm, latest from github (1.7.4) did not allow typing in webterm
+    #if [ $arch = arm64 ]; then
+    #  arch='aarch64'
+    #fi
+    #wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
-  ttyd -v | tee -a $LOGFILE
+  /usr/bin/ttyd -v | tee -a $LOGFILE
 
   if [ ! -e /usr/local/bin/gpio ]; then
     printf "\n\n-> Building wiringpi from source\n\n" | tee -a $LOGFILE
@@ -650,7 +651,16 @@ fix-webterm() {
   ls -ld /home/kvmd-webterm | tee -a $LOGFILE
 
   # remove -W option since ttyd installed on raspbian/armbian is 1.6.3 (-W option only works with ttyd 1.7.x)
-  sed -i -e '/-W \\/d' /lib/systemd/system/kvmd-webterm.service
+  _ttydver=$( /usr/bin/ttyd -v | awk '{print $NF}' )
+  case $_ttydver in
+    1.6*)
+      echo "ttyd $_ttydver found.  Removing -W from /lib/systemd/system/kvmd-webterm.service"
+      sed -i -e '/-W \\/d' /lib/systemd/system/kvmd-webterm.service
+      ;;
+    1.7*)
+      echo "ttyd $_ttydver found.  Nothing to do."
+      ;;
+  esac
 } # end fix-webterm
 
 create-kvmdfix() {
@@ -945,7 +955,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   install-dependencies
   otg-devices
   armbian-packages
-  systemctl disable --now janus
+  systemctl disable --now janus ttyd
 
   printf "\nEnd part 1 of PiKVM installer script v$VER by @srepac\n" >> $LOGFILE
   printf "\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
@@ -960,6 +970,8 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   reboot
 else
   printf "\nRunning part 2 of PiKVM installer script v$VER by @srepac\n" | tee -a $LOGFILE
+  systemctl reinstall -y janus
+  
   ### run these to make sure kvmd users are created ###
 
   echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
