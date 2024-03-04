@@ -970,7 +970,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   reboot
 else
   printf "\nRunning part 2 of PiKVM installer script v$VER by @srepac\n" | tee -a $LOGFILE
-  systemctl reinstall -y janus
+  apt reinstall -y janus
   
   ### run these to make sure kvmd users are created ###
 
