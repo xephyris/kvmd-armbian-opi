@@ -922,7 +922,10 @@ else
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
   ### additional python pip dependencies for kvmd 3.238 and higher
-  pip3 install async-lru 2> /dev/null
+  case $PYTHONVER in
+    *3.10*) pip3 install async-lru 2> /dev/null;;
+    *3.11*) pip3 install async-lru --break-system-packages 2> /dev/null;;
+  esac
 
   fix-nginx-symlinks
   fix-python-symlinks
