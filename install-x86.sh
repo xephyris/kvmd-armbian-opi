@@ -394,17 +394,18 @@ install-dependencies() {
     # Build and install ttyd
     # cd /tmp
     apt-get install -y build-essential cmake git libjson-c-dev libwebsockets-dev
-    # git clone --depth=1 https://github.com/tsl0922/ttyd.git
-    # cd ttyd && mkdir build && cd build
-    # cmake ..
-    # make -j && make install
+    git clone https://github.com/tsl0922/ttyd.git
+    cd ttyd && mkdir build && cd build
+    cmake ..
+    make -j && make install
+    cp ttyd /usr/bin/ttyd
     # Install binary from GitHub
-    arch=$(dpkg --print-architecture)
-    latest=$(curl -sL https://api.github.com/repos/tsl0922/ttyd/releases/latest | jq -r ".tag_name")
-    if [ $arch = arm64 ]; then
-      arch='aarch64'
-    fi
-    wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
+    #arch=$(dpkg --print-architecture)
+    #latest=$(curl -sL https://api.github.com/repos/tsl0922/ttyd/releases/latest | jq -r ".tag_name")
+    #if [ $arch = arm64 ]; then
+    #  arch='aarch64'
+    #fi
+    #wget --no-check-certificate "https://github.com/tsl0922/ttyd/releases/download/$latest/ttyd.$arch" -O /usr/bin/ttyd
     chmod +x /usr/bin/ttyd
   fi
 
@@ -514,7 +515,16 @@ fix-webterm() {
   ls -ld /home/kvmd-webterm | tee -a $LOGFILE
 
   # remove -W option since ttyd installed on raspbian/armbian is 1.6.3 (-W option only works with ttyd 1.7.x)
-  sed -i -e '/-W \\/d' /lib/systemd/system/kvmd-webterm.service
+  _ttydver=$( ttyd -v | awk '{print $NF}' )
+  case $_ttydver in
+    1.6*)
+      echo "ttyd $_ttydver found.  Removing -W from /lib/systemd/system/kvmd-webterm.service"
+      sed -i -e '/-W \\/d' /lib/systemd/system/kvmd-webterm.service
+      ;;
+    1.7*)
+      echo "ttyd $_ttydver found.  Nothing to do."
+      ;;
+  esac
 } # end fix-webterm
 
 create-kvmdfix() {
@@ -883,7 +893,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   install-dependencies
   otg-devices
   armbian-packages
-  systemctl disable --now janus
+  systemctl disable --now janus ttyd
 
   printf "\n\nReboot is required to create kvmd users and groups.\nPlease re-run this script after reboot to complete the install.\n" | tee -a $LOGFILE
 
@@ -906,10 +916,7 @@ else
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
   ### additional python pip dependencies for kvmd 3.238 and higher
-  case $PYTHONVER in
-    *3.10*) pip3 install async-lru 2> /dev/null;;
-    *3.11*) pip3 install async-lru --break-system-packages 2> /dev/null;;
-  esac
+  pip3 install async-lru 2> /dev/null
 
   fix-nginx-symlinks
   fix-python-symlinks
@@ -951,12 +958,11 @@ sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd; fi
 
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
-sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
+#sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
 if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
   sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
-  systemctl restart kvmd-nginx
 fi
 
-systemctl restart kvmd
+systemctl restart kvmd-nginx kvmd
