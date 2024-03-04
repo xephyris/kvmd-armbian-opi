@@ -909,7 +909,11 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
   reboot
 else
   printf "\nRunning part 2 of PiKVM installer script v$VER for x86 by @srepac\n" | tee -a $LOGFILE
-  apt reinstall -y janus
+  
+  ### Fixes issues with kvmd 3.291 on x86 ###
+  sed -i -e 's|gpiod.LineEvent|gpiod.EdgeEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
+  sed -i -e 's|gpiod.Line,|gpiod.line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
+  apt reinstall -y janus  
   
   ### run these to make sure kvmd users are created ###
 
