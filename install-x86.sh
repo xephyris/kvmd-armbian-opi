@@ -904,27 +904,35 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
     sed -i -e 's/reversed//g' /usr/lib/python3.1*/site-packages/kvmd/keyboard/printer.py
   fi
 
+  ### run these to make sure kvmd users are created ###
+  echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
+  systemd-sysusers /usr/lib/sysusers.d/kvmd.conf
+  systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
+
   # Ask user to press CTRL+C before reboot or ENTER to proceed with reboot
   press-enter
   reboot
 else
   printf "\nRunning part 2 of PiKVM installer script v$VER for x86 by @srepac\n" | tee -a $LOGFILE
-  
-  ### Fixes issues with kvmd 3.291 on x86 ###
-  sed -i -e 's|gpiod.LineEvent|gpiod.EdgeEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
-  sed -i -e 's|gpiod.Line,|gpiod.line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
-  apt reinstall -y janus  
-  
-  ### run these to make sure kvmd users are created ###
 
+  apt reinstall -y janus
+
+  ### run these to make sure kvmd users are created ###
   echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
   systemd-sysusers /usr/lib/sysusers.d/kvmd.conf
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
   ### additional python pip dependencies for kvmd 3.238 and higher
   case $PYTHONVER in
-    *3.10*) pip3 install async-lru 2> /dev/null;;
-    *3.11*) pip3 install async-lru --break-system-packages 2> /dev/null;;
+    *3.10*|*3.[987]*)
+      pip3 install async-lru 2> /dev/null
+      ### Fixes issues with kvmd 3.291 on x86 -- only applies to python 3.10 or older ###
+      sed -i -e 's|gpiod.LineEvent|gpiod.EdgeEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
+      sed -i -e 's|gpiod.Line,|gpiod.line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
+      ;;
+    *3.11*)
+      pip3 install async-lru --break-system-packages 2> /dev/null
+      ;;
   esac
 
   fix-nginx-symlinks
