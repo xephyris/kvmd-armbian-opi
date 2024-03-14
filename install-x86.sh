@@ -915,7 +915,7 @@ if [[ $( grep kvmd /etc/passwd | wc -l ) -eq 0 || "$1" == "-f" ]]; then
 else
   printf "\nRunning part 2 of PiKVM installer script v$VER for x86 by @srepac\n" | tee -a $LOGFILE
 
-  apt reinstall -y janus
+  apt reinstall -y janus > /dev/null 2>&1
 
   ### run these to make sure kvmd users are created ###
   echo "-> Ensuring KVMD users and groups ..." | tee -a $LOGFILE
