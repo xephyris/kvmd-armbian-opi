@@ -426,15 +426,18 @@ if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
 fi
 
+### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
+touch /usr/local/bin/rw /usr/local/bin/ro
+chmod +x /usr/local/bin/rw /usr/local/bin/ro
+
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
 if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
   sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
-  systemctl restart kvmd-nginx
 fi
 
 ### if kvmd service is enabled, then restart service and show message ###
 if systemctl is-enabled -q kvmd; then
-  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
+  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd-nginx kvmd
   printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
 else
   printf "\nkvmd service is disabled.  Stopping service\n"
