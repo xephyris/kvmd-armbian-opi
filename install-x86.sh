@@ -968,6 +968,10 @@ systemctl status $SERVICES | grep Loaded | tee -a $LOGFILE
 chmod go+r /etc/kvmd/totp.secret
 chown kvmd:kvmd /etc/kvmd/totp.secret
 
+### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
+touch /usr/local/bin/rw /usr/local/bin/ro
+chmod +x /usr/local/bin/rw /usr/local/bin/ro
+
 ### update default hostname info in webui to reflect current hostname
 sed -i -e "s/localhost.localdomain/`hostname`/g" /etc/kvmd/meta.yaml
 
