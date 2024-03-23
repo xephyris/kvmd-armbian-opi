@@ -178,13 +178,9 @@ update-ustreamer() {
   ls -l $KVMDCACHE/ustreamer*
   echo "ustreamer version:       $INSTALLEDVER"
   echo "Repo ustreamer version:  $REPOVER"
-  if [[ "$USTREAMMINOR" != "$REPOMINOR" ]]; then
-    if [ $USTREAMMINOR -gt $REPOMINOR ]; then
-      printf "\nInstalled version is higher than repo version.  Nothing to do.\n"
-    else
-      build-ustreamer
-      echo "Updated ustreamer to $REPOVER on $( date )" >> $KVMDCACHE/installed_ver.txt
-    fi
+  if [[ "$INSTALLEDVER" != "$REPOVER" ]]; then
+    build-ustreamer
+    echo "Updated ustreamer to $REPOVER on $( date )" >> $KVMDCACHE/installed_ver.txt
   fi
 } # end update-ustreamer
 
