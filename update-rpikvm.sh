@@ -3,7 +3,7 @@
 ## Update script for Raspbian/Armbian
 #
 ###
-# Updated on 20240203 1815PDT
+# Updated on 20240323 1230PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -185,7 +185,7 @@ update-ustreamer() {
   ls -l $KVMDCACHE/ustreamer*
   echo "ustreamer version:       $INSTALLEDVER"
   echo "Repo ustreamer version:  $REPOVER"
-  if [[ "$INSTALLEDVER" != "$REPOVER" ]]; then
+  if [[ "$INSTALLEDVER" != "$REPOVER" && "$INSTALLEDVER" != "6.4" ]]; then
     build-ustreamer
     echo "Updated ustreamer to $REPOVER on $( date )" >> $KVMDCACHE/installed_ver.txt
   fi
@@ -354,6 +354,35 @@ ocr-fix() {  # create function
   echo
 } # end ocr-fix
 
+function build-ustreamer-64() {
+  cd /tmp; rm -rf ustreamer-6.4
+  wget https://github.com/pikvm/ustreamer/archive/refs/tags/v6.4.tar.gz 2> /dev/null
+  tar xfz v6.4.tar.gz
+  cd ustreamer-6.4
+
+  PKGVER=$( grep ^pkgver= /tmp/ustreamer-6.4/pkg/arch/PKGBUILD | cut -d'=' -f 2 )
+  printf "\n\n-> Building ustreamer $PKGVER for use with kernel ${KERNELVER}\n\n"
+
+  #make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1
+  make WITH_GPIO=1 WITH_SYSTEMD=1
+} # end build-ustreamer-64
+
+fix-kvmd323() {
+  build-ustreamer-64
+  make install
+  # kvmd service is looking for /usr/bin/ustreamer
+  ln -sf /usr/local/bin/ustreamer /usr/bin/
+  ln -sf /usr/local/bin/ustreamer-dump /usr/bin/
+}
+
+fix-mainyaml() {
+  # fix main.yaml (change --jpeg-sink to --sink and m2m-image to omx)
+  egrep -n 'm2m-image|--jpeg-sink' /etc/kvmd/main.yaml
+  sed -i -e 's/encoder=m2m-image/encoder=omx/g' -e 's/--jpeg-sink/--sink/g' /etc/kvmd/main.yaml
+  egrep -n 'omx|--sink' /etc/kvmd/main.yaml
+}
+
+
 
 ### MAIN STARTS HERE ###
 PYTHONPACKAGES=$( ls -ld /usr/lib/python3*/dist-packages | awk '{print $NF}' | tail -1 )
@@ -375,6 +404,13 @@ misc-fixes
 fix-python311
 fix-nfs-msd
 fix-nginx
+
+set -x
+if [ "$( ustreamer -v )" != "6.4" ]; then
+  fix-kvmd323
+fi
+fix-mainyaml
+set +x
 
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
 RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
