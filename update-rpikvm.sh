@@ -361,6 +361,7 @@ function build-ustreamer-64() {
   cd ustreamer-6.4
 
   PKGVER=$( grep ^pkgver= /tmp/ustreamer-6.4/pkg/arch/PKGBUILD | cut -d'=' -f 2 )
+  KERNELVER=$( uname -r | cut -d'.' -f1,2 )
   printf "\n\n-> Building ustreamer $PKGVER for use with kernel ${KERNELVER}\n\n"
 
   #make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1
