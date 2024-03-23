@@ -289,7 +289,6 @@ fix-nginx() {
         # remove http2 on; line and change the ssl; to ssl http2; for proper syntax
         sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
         sed -i -e 's/ ssl;/ ssl http2;/g' /etc/kvmd/nginx/nginx.conf.mako
-        systemctl restart kvmd-nginx
         grep ' ssl' /etc/kvmd/nginx/nginx.conf.mako
         ;;
     esac
@@ -405,6 +404,10 @@ wget --no-check-certificate -O /usr/bin/armbian-motd https://raw.githubuserconte
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
 sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
+### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
+touch /usr/local/bin/rw /usr/local/bin/ro
+chmod +x /usr/local/bin/rw /usr/local/bin/ro
+
 sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
@@ -412,7 +415,7 @@ fi
 
 ### if kvmd service is enabled, then restart service and show message ###
 if systemctl is-enabled -q kvmd; then
-  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd
+  printf "\n-> Restarting kvmd service.\n"; systemctl daemon-reload; systemctl restart kvmd-nginx kvmd
   printf "\nPlease point browser to https://$(hostname) for confirmation.\n"
 else
   printf "\nkvmd service is disabled.  Stopping service\n"
