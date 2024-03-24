@@ -384,9 +384,13 @@ fix-kvmd323() {
 
 fix-mainyaml() {
   # fix main.yaml (change --jpeg-sink to --sink and m2m-image to omx)
-  egrep -n 'm2m-image|--jpeg-sink' /etc/kvmd/main.yaml
-  sed -i -e 's/encoder=m2m-image/encoder=omx/g' -e 's/--jpeg-sink/--sink/g' /etc/kvmd/main.yaml
-  egrep -n 'omx|--sink' /etc/kvmd/main.yaml
+  #egrep -n 'm2m-image|--jpeg-sink' /etc/kvmd/main.yaml
+  #sed -i -e 's/encoder=m2m-image/encoder=omx/g' -e 's/--jpeg-sink/--sink/g' /etc/kvmd/main.yaml
+  #egrep -n 'omx|--sink' /etc/kvmd/main.yaml
+
+  # revert back to originals
+  sed -i -e 's/omx/m2m-image/g' -e 's/--sink/--jpeg-sink/g' /etc/kvmd/main.yaml
+  egrep -n 'omx|m2m|-sink' /etc/kvmd/main.yaml
 }
 
 
@@ -416,7 +420,7 @@ fix-nginx
 #if [ "$( ustreamer -v )" != "6.4" ]; then
 #  fix-kvmd323
 #fi
-#fix-mainyaml
+fix-mainyaml
 #set +x
 
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
