@@ -168,7 +168,7 @@ build-ustreamer() {
   sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
 
   # Download ustreamer source and build it
-  cd /tmp
+  cd /tmp; rm -rf ustreamer
   git clone --depth=1 https://github.com/pikvm/ustreamer
   cd ustreamer/
   make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1 -j
