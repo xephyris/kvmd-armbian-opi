@@ -359,29 +359,6 @@ ocr-fix() {  # create function
   echo
 } # end ocr-fix
 
-function build-ustreamer-64() {
-  UVER=6.4
-  cd /tmp; rm -rf ustreamer-${UVER}
-  wget https://github.com/pikvm/ustreamer/archive/refs/tags/v${UVER}.tar.gz -O v${UVER}.tar.gz 2> /dev/null
-  tar xfz v${UVER}.tar.gz
-  cd ustreamer-${UVER}
-
-  PKGVER=$( grep ^pkgver= /tmp/ustreamer-${UVER}/pkg/arch/PKGBUILD | cut -d'=' -f 2 )
-  KERNELVER=$( uname -r | cut -d'.' -f1,2 )
-  printf "\n\n-> Building ustreamer $PKGVER for use with kernel ${KERNELVER}\n\n"
-
-  #make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1 WITH_JANUS=1
-  make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1
-} # end build-ustreamer-64
-
-fix-kvmd323() {
-  build-ustreamer-64
-  make install
-  # kvmd service is looking for /usr/bin/ustreamer
-  ln -sf /usr/local/bin/ustreamer /usr/bin/
-  ln -sf /usr/local/bin/ustreamer-dump /usr/bin/
-}
-
 fix-mainyaml() {
   # fix main.yaml (change --jpeg-sink to --sink and m2m-image to omx)
   #egrep -n 'm2m-image|--jpeg-sink' /etc/kvmd/main.yaml
@@ -415,13 +392,7 @@ misc-fixes
 fix-python311
 fix-nfs-msd
 fix-nginx
-
-#set -x
-#if [ "$( ustreamer -v )" != "6.4" ]; then
-#  fix-kvmd323
-#fi
 fix-mainyaml
-#set +x
 
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
 RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
