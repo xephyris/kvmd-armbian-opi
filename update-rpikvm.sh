@@ -3,7 +3,7 @@
 ## Update script for Raspbian/Armbian
 #
 ###
-# Updated on 20240323 1230PDT
+# Updated on 20240324 0715PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -187,7 +187,9 @@ update-ustreamer() {
   echo "Repo ustreamer version:  $REPOVER"
   if [[ "$INSTALLEDVER" != "$REPOVER" && "$INSTALLEDVER" != "6.4" ]]; then
     build-ustreamer
-    echo "Updated ustreamer to $REPOVER on $( date )" >> $KVMDCACHE/installed_ver.txt
+    echo "-> Updated ustreamer to $REPOVER on $( date )" >> $KVMDCACHE/installed_ver.txt
+  else
+    echo "-> Keeping ustreamer 6.4 as 6.5+ doesn't work with raspbian."
   fi
 } # end update-ustreamer
 
@@ -355,17 +357,18 @@ ocr-fix() {  # create function
 } # end ocr-fix
 
 function build-ustreamer-64() {
-  cd /tmp; rm -rf ustreamer-6.4
-  wget https://github.com/pikvm/ustreamer/archive/refs/tags/v6.4.tar.gz 2> /dev/null
-  tar xfz v6.4.tar.gz
-  cd ustreamer-6.4
+  UVER=6.4
+  cd /tmp; rm -rf ustreamer-${UVER}
+  wget https://github.com/pikvm/ustreamer/archive/refs/tags/v${UVER}.tar.gz -O v${UVER}.tar.gz 2> /dev/null
+  tar xfz v${UVER}.tar.gz
+  cd ustreamer-${UVER}
 
-  PKGVER=$( grep ^pkgver= /tmp/ustreamer-6.4/pkg/arch/PKGBUILD | cut -d'=' -f 2 )
+  PKGVER=$( grep ^pkgver= /tmp/ustreamer-${UVER}/pkg/arch/PKGBUILD | cut -d'=' -f 2 )
   KERNELVER=$( uname -r | cut -d'.' -f1,2 )
   printf "\n\n-> Building ustreamer $PKGVER for use with kernel ${KERNELVER}\n\n"
 
-  #make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1
-  make WITH_GPIO=1 WITH_SYSTEMD=1
+  #make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1 WITH_JANUS=1
+  make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1
 } # end build-ustreamer-64
 
 fix-kvmd323() {
