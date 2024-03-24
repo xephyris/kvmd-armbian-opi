@@ -161,19 +161,24 @@ get-installed-platform() {
 build-ustreamer() {
   printf "\n\n-> Building ustreamer\n\n"
   # Install packages needed for building ustreamer source
-  echo "apt install -y build-essential libevent-dev libjpeg-dev libbsd-dev libraspberrypi-dev libgpiod-dev"
-  apt install -y build-essential libevent-dev libjpeg-dev libbsd-dev libraspberrypi-dev libgpiod-dev > /dev/null
+  echo "apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus"
+  apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus
+
+  # fix refcount.h
+  sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
 
   # Download ustreamer source and build it
   cd /tmp
   git clone --depth=1 https://github.com/pikvm/ustreamer
   cd ustreamer/
-
-  make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1
+  make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1 -j
   make install
   # kvmd service is looking for /usr/bin/ustreamer
-  ln -sf /usr/local/bin/ustreamer /usr/bin/
-  ln -sf /usr/local/bin/ustreamer-dump /usr/bin/
+  ln -sf /usr/local/bin/ustreamer* /usr/bin/
+
+  # add janus support
+  mkdir -p /usr/lib/ustreamer/janus
+  cp /tmp/ustreamer/janus/libjanus_ustreamer.so /usr/lib/ustreamer/janus
 } # end build-ustreamer
 
 update-ustreamer() {
@@ -185,11 +190,9 @@ update-ustreamer() {
   ls -l $KVMDCACHE/ustreamer*
   echo "ustreamer version:       $INSTALLEDVER"
   echo "Repo ustreamer version:  $REPOVER"
-  if [[ "$INSTALLEDVER" != "$REPOVER" && "$INSTALLEDVER" != "6.4" ]]; then
+  if [[ "$INSTALLEDVER" != "$REPOVER" ]]; then
     build-ustreamer
     echo "-> Updated ustreamer to $REPOVER on $( date )" >> $KVMDCACHE/installed_ver.txt
-  else
-    echo "-> Keeping ustreamer 6.4 as 6.5+ doesn't work with raspbian."
   fi
 } # end update-ustreamer
 
@@ -409,12 +412,12 @@ fix-python311
 fix-nfs-msd
 fix-nginx
 
-set -x
-if [ "$( ustreamer -v )" != "6.4" ]; then
-  fix-kvmd323
-fi
-fix-mainyaml
-set +x
+#set -x
+#if [ "$( ustreamer -v )" != "6.4" ]; then
+#  fix-kvmd323
+#fi
+#fix-mainyaml
+#set +x
 
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
 RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
