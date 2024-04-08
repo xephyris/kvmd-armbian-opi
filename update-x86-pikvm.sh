@@ -417,6 +417,10 @@ sed -i -e 's/ttyAMA0/ttyUSB[0-2]/g' /etc/udev/rules.d/99-kvmd.rules
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
 #sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
+### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
+sed -i -e ‘s/kvmd-ttyd/ttyd/g’ /lib/systemd/system/kvmd-webterm.service
+systemctl restart kvmd-webterm
+
 sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
