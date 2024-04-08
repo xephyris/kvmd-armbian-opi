@@ -981,9 +981,12 @@ if [ -e /etc/kvmd/htpasswd.save ]; then cp /etc/kvmd/htpasswd.save /etc/kvmd/htp
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
 #sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
+### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
+sed -i -e ‘s/kvmd-ttyd/ttyd/g’ /lib/systemd/system/kvmd-webterm.service
+
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
 if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
   sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
 fi
 
-systemctl restart kvmd-nginx kvmd
+systemctl restart kvmd-nginx kvmd-webterm kvmd
