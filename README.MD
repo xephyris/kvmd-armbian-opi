@@ -15,7 +15,7 @@ Install script is a fork from @srepac raspbian pikvm install script.
 
 **NOTE:  all commands need to be run as root user.**
 
-Original Script [https://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
+Original Script [http://kvmnerds.com/RPiKVM/install-pikvm-raspbian.sh]
 
 # Hardware for kvmd-armbian project
 * A tv box/arm board that supports otg feature:
