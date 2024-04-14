@@ -43,7 +43,7 @@ fi
 TMPFILE="/tmp/pacmanquery"
 
 get-packages
-PACKAGES="janus pikvm kvmd ustreamer nginx wpa wireless python3/stable python$ firmware raspberrypi tailscale ttyd"
+PACKAGES="janus pikvm kvmd ustreamer nginx wpa wireless python3/stable python$ firmware raspberrypi tailscale"
 for PKG in $( echo $PACKAGES ); do
         if [ $(grep -w $PKG $TMPFILE | wc -l) -gt 0 ]; then
                 printf "%-32s\t%s\n" $(grep -w $PKG $TMPFILE | sed 's/-[1-9]+//g' | awk -F\/ '{print $1}' )
