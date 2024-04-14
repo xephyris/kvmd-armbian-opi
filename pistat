@@ -40,10 +40,15 @@ if [ -e /proc/device-tree/serial-number ]; then
 fi
 
 echo
-CPUTEMP=$(sensors 2> /dev/null | egrep -A 2 'coretemp|k10temp' | egrep '^temp|^Core' | awk '{print $2}' | sed -e 's/°C//g' -e 's/+//g')
-echo "CPU temp: ${color_value}${CPUTEMP}'C${color_reset}"
-gpu_temp=$(sensors 2> /dev/null | grep -A 2 radeon | grep ^temp | awk '{print $2}' | sed -e 's/°C//g' -e 's/+//g')
-echo "GPU temp: ${color_value}${gpu_temp}'C${color_reset}"
+if [ -e </sys/class/thermal/thermal_zone0/temp ]; then
+  echo "CPU temp: ${color_value}$(echo "scale=2; $(</sys/class/thermal/thermal_zone0/temp) / 1000" | bc -l)'C${color_reset}"
+  gpu_temp=$($VCGENCMD measure_temp)
+else
+  CPUTEMP=$(sensors 2> /dev/null | egrep -A 2 'coretemp|k10temp' | egrep '^temp|^Core' | awk '{print $2}' | sed -e 's/°C//g' -e 's/+//g')
+  echo "CPU temp: ${color_value}${CPUTEMP}'C${color_reset}"
+  gpu_temp=$(sensors 2> /dev/null | grep -A 2 radeon | grep ^temp | awk '{print $2}' | sed -e 's/°C//g' -e 's/+//g')
+  echo "GPU temp: ${color_value}${gpu_temp}'C${color_reset}"
+fi
 
 flags=$($VCGENCMD get_throttled)
 flags="${flags#*=}"
