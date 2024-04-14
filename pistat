@@ -40,7 +40,7 @@ if [ -e /proc/device-tree/serial-number ]; then
 fi
 
 echo
-if [ -e </sys/class/thermal/thermal_zone0/temp ]; then
+if [ -e /sys/class/thermal/thermal_zone0/temp ]; then
   echo "CPU temp: ${color_value}$(echo "scale=2; $(</sys/class/thermal/thermal_zone0/temp) / 1000" | bc -l)'C${color_reset}"
   gpu_temp=$($VCGENCMD measure_temp)
 else
