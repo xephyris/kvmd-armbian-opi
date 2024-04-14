@@ -26,7 +26,15 @@ yes="${color_fail}yes${color_reset}"
 
 # code section to get Pi RAM size
 RAMGB=$( $VCGENCMD get_config total_mem | awk -F= '{NUM = $2} END { if ( NUM < 1024 ) print NUM "MB"; else print (NUM / 1024) "GB"; }' )
-echo "${color_reset}# $(tr -d '\0' < /proc/device-tree/model) ${RAMGB}${color_reset}"
+if [ -f /proc/device-tree/model ]; then
+  echo "${color_reset}# $(tr -d '\0' < /proc/device-tree/model) ${RAMGB}${color_reset}"
+else
+  RAM=$( echo "( $( free -m | grep Mem: | awk '{print $2}' ) + 340 ) / 1024" | bc )
+  TMPFILE="/tmp/dmidecode.system"; rm -f $TMPFILE
+  dmidecode -t system > $TMPFILE
+  echo "${color_reset}# $(grep -i version $TMPFILE | cut -d':' -f2 | sed 's/^ //g') $(grep Product $TMPFILE | cut -d: -f2 | cut -d\( -f1 | sed 's/^ //g') ${RAM}GB${color_reset}"
+fi
+
 if [ -e /proc/device-tree/serial-number ]; then
   echo "${color_reset}Serial number: $(tr -d '\0' < /proc/device-tree/serial-number) ${color_reset}"
 fi
