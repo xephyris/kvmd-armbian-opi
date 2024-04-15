@@ -3,7 +3,7 @@
 ## Update script for x86
 #
 ###
-# Updated on 20230922 1100PDT
+# Updated on 20240415 0930PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -114,33 +114,49 @@ perform-update() {
     *) echo "Unsupported python version $PYTHONVER.  Exiting"; exit 1;;
   esac
 
+  function do-update() {
+    printf "\n  -> Performing update to version [ ${KVMDVER} ] now.\n"
+
+    # Install new version of kvmd and kvmd-platform
+    printf "
+    cd /
+    tar xfJ $KVMDCACHE/$KVMDFILE
+    tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
+
+    rm $PYTHONPACKAGES/kvmd*info*
+    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
+
+    echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
+    "
+
+    cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
+    tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
+    rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
+    ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
+    echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
+  } # end do-update
+
+  _libgpiodver=$( gpioinfo -v | head -1 | awk '{print $NF}' )
   case $KVMDVER in
     $CURRENTVER)
       printf "\n  -> Update not required.  Version installed is ${CURRENTVER} and REPO version is ${KVMDVER}.\n"
       ;;
     3.29[2-9]*|3.3[0-9]*|3.4[0-9]*)
-      echo "-> kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
+      case $_libgpiodver in
+        v1.6*)
+          echo "-> kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
+          ;;
+        v2.*)
+          echo "libgpiod $_libgpiodver found.  Performing update."
+          do-update
+          ;;
+        *)
+          echo "libgpiod $_libgpiodver found.  Nothing to do."
+          ;;
+      esac
       ;;
     *)
-      printf "\n  -> Performing update to version [ ${KVMDVER} ] now.\n"
-
-      # Install new version of kvmd and kvmd-platform
-      printf "
-      cd /
-      tar xfJ $KVMDCACHE/$KVMDFILE
-      tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE
-
-      rm $PYTHONPACKAGES/kvmd*info*
-      ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES
-
-      echo Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date ) >> $KVMDCACHE/installed_ver.txt
-      "
-
-      cd /; tar xfJ $KVMDCACHE/$KVMDFILE 2> /dev/null
-      tar xfJ $KVMDCACHE/$KVMDPLATFORMFILE 2> /dev/null
-      rm $PYTHONPACKAGES/kvmd*info* 2> /dev/null
-      ln -sf /usr/lib/python${PYTHON}/site-packages/kvmd*info* $PYTHONPACKAGES 2> /dev/null
-      echo "Updated pikvm to kvmd-platform-$INSTALLED_PLATFORM-$KVMDVER on $( date )" >> $KVMDCACHE/installed_ver.txt
+      do-update
       ;;
   esac
 } # end perform-update
@@ -429,6 +445,15 @@ systemctl restart kvmd-webterm
 ### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
 touch /usr/local/bin/rw /usr/local/bin/ro
 chmod +x /usr/local/bin/rw /usr/local/bin/ro
+
+# sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
+if systemctl is-enabled -q dnsmasq; then
+  systemctl restart dnsmasq
+fi
+
+### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
+sed -i -e 's/kvmd-ttyd/ttyd/g' /lib/systemd/system/kvmd-webterm.service
+systemctl restart kvmd-webterm
 
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
 if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
