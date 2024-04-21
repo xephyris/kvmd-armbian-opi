@@ -1,7 +1,8 @@
 # KVMD-ARMBIAN
 This project supports non-Raspberry Pi device to run pikvm on armbian or Raspberry Pi boards on Raspbian Bookworm
-As of 04/21/2024, I have left the PiKVM Discord so if you need assistance, please email me:  srepac@kvmnerds.com
-You can also try and see if I'm on the BliKVM Discord at https://discord.com/channels/943534043515977768/943534839213228125
+
+- As of 04/21/2024, I have left the PiKVM Discord so if you need assistance, please email me:  srepac@kvmnerds.com
+- You can also try and see if I'm on the BliKVM Discord at https://discord.com/channels/943534043515977768/943534839213228125
 
 # Install
 KVMD Install for armbian/raspbian
