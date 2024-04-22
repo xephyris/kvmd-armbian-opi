@@ -90,3 +90,4 @@ update-rpikvm.sh
  - RPiCM4 + BliKVM V2 pcie HAT on Raspberry Pi OS bookworm (tested by @srepac)
  - RPiCM4 + Geekworm A8 pcie HAT on Raspberry Pi OS bookworm (tested by @srepac)
  - RPiCM4 + Geekworm X650 pcie HAT on Raspberry Pi OS bookworm (tested by @srepac)
+ - RPiCM4 + Geekworm X635 HAT on Raspberry Pi OS bookworm (tested by @srepac)
