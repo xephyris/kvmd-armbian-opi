@@ -424,7 +424,7 @@ sed -i -e 's/ interval:/ interval (ms):/g' /usr/share/kvmd/web/kvm/index.html
 wget --no-check-certificate -O /usr/bin/armbian-motd https://raw.githubusercontent.com/srepac/kvmd-armbian/master/armbian/armbian-motd > /dev/null 2> /dev/null
 
 ### instead of showing # fps dynamic, show REDACTED fps dynamic instead;  USELESS fps meter fix
-sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
+#sed -i -e 's|${__fps}|REDACTED|g' /usr/share/kvmd/web/share/js/kvm/stream_mjpeg.js
 
 ### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
 touch /usr/local/bin/rw /usr/local/bin/ro
