@@ -918,6 +918,21 @@ cm4-mods() {  # apply CM4 specific mods
   fi
 } # end cm4-mods
 
+update-logo() {
+  sed -i -e 's|class="svg-gray"|class="svg-color"|g' /usr/share/kvmd/web/index.html
+  sed -i -e 's|target="_blank"><img class="svg-gray"|target="_blank"><img class="svg-color"|g' /usr/share/kvmd/web/kvm/index.html
+
+  ### download opikvm-logo.svg and then overwrite logo.svg
+  wget --no-check-certificate -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
+  cd /usr/share/kvmd/web/share/svg
+  cp logo.svg logo.svg.old
+  cp opikvm-logo.svg logo.svg
+
+  # change some text in the main html page
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's/mdevaev@gmail.com/srepac@kvmnerds.com/g' -e 's/Maxim Devaev/srepac@kvmnerds.com/g' /usr/share/kvmd/web/index.html
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's/mdevaev@gmail.com/srepac@kvmnerds.com/g' -e 's/Maxim Devaev/srepac@kvmnerds.com/g' /usr/share/kvmd/web/kvm/index.html
+  cd
+}
 
 
 ### MAIN STARTS HERE ###
@@ -1012,6 +1027,7 @@ else
   create-kvmdfix
   check-kvmd-works
   enable-kvmd-svcs
+  update-logo
   start-kvmd-svcs
 
   printf "\nCheck kvmd devices\n\n" | tee -a $LOGFILE
