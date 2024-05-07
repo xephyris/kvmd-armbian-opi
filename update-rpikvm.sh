@@ -205,6 +205,9 @@ update-logo() {
   cd /usr/share/kvmd/web/share/svg
   cp logo.svg logo.svg.old
   cp opikvm-logo.svg logo.svg
+
+  # change some text in the main html page
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's/mdevaev@gmail.com/srepac@kvmnerds.com/g' -e 's/Maxim Devaev/srepac@kvmnerds.com/g' /usr/share/kvmd/web/kvm/index.html
   cd
 }
 
@@ -387,7 +390,7 @@ perform-update
 update-ustreamer
 set-ownership
 restore-configs
-#update-logo
+update-logo
 misc-fixes
 fix-python311
 fix-nfs-msd
