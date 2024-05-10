@@ -211,8 +211,11 @@ update-logo() {
   cp opikvm-logo.svg logo.svg
 
   # change some text in the main html page
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's|mailto:mdevaev@gmail.com|https://discord.gg/YaJ87sVznc|g' -e 's|Maxim Devaev|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's|mailto:mdevaev@gmail.com|https://discord.gg/YaJ87sVznc|g' -e 's|Maxim Devaev|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html 
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/index.html
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/kvm/index.html 
+
+  sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
+  sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
   cd
 }
 
@@ -444,7 +447,7 @@ fi
 
 ### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
 sed -i -e 's/kvmd-ttyd/ttyd/g' /lib/systemd/system/kvmd-webterm.service
-systemctl restart kvmd-webterm
+systemctl daemon-reload && systemctl restart kvmd-webterm
 
 ### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
 touch /usr/local/bin/rw /usr/local/bin/ro
