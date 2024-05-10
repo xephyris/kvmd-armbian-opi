@@ -207,10 +207,9 @@ update-logo() {
   cp opikvm-logo.svg logo.svg
 
   # change some text in the main html page
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's|mailto:srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' -e 's|srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's|mailto:srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' -e 's|srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's|mailto:mdevaev@gmail.com|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS/g' -e 's|mailto:mdevaev@gmail.com|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' -e 's|mailto:srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' -e 's|srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' -e 's|mailto:srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' -e 's|srepac@kvmnerds.com|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
+
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
   cd
