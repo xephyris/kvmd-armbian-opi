@@ -441,7 +441,7 @@ fi
 
 ### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
 sed -i -e 's/kvmd-ttyd/ttyd/g' /lib/systemd/system/kvmd-webterm.service
-systemctl restart kvmd-webterm
+systemctl daemon-reload && systemctl restart kvmd-webterm
 
 ### if kvmd service is enabled, then restart service and show message ###
 if systemctl is-enabled -q kvmd; then
