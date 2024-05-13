@@ -419,6 +419,11 @@ else
   echo
 fi
 
+
+### kvmd 4.2 and higher requires python3.12 path
+cd /lib/python3/dist-packages/
+ln -sf /usr/lib/python3.12/site-packages/kvmd* .
+
 x86-fix-3.256
 
 ### additional python pip dependencies for kvmd 3.238 and higher
@@ -457,10 +462,6 @@ chmod +x /usr/local/bin/rw /usr/local/bin/ro
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
 fi
-
-### kvmd 4.2 and higher requires python3.12 path
-cd /lib/python3/dist-packages/
-ln -sf /usr/lib/python3.12/site-packages/kvmd* .
 
 ### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
 sed -i -e 's/kvmd-ttyd/ttyd/g' /lib/systemd/system/kvmd-webterm.service
