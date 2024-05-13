@@ -3,7 +3,7 @@
 ## Update script for x86
 #
 ###
-# Updated on 20240415 0930PDT
+# Updated on 20240513 1420PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -203,7 +203,7 @@ update-ustreamer() {
 update-logo() {
   sed -i -e 's|class="svg-gray"|class="svg-color"|g' /usr/share/kvmd/web/index.html
   sed -i -e 's|target="_blank"><img class="svg-gray"|target="_blank"><img class="svg-color"|g' /usr/share/kvmd/web/kvm/index.html
-  
+
   ### download opikvm-logo.svg and then overwrite logo.svg
   wget --no-check-certificate -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
   cd /usr/share/kvmd/web/share/svg
@@ -212,7 +212,7 @@ update-logo() {
 
   # change some text in the main html page
   sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/index.html
-  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/kvm/index.html 
+  sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/kvm/index.html
 
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
@@ -379,7 +379,8 @@ x86-fix-3.256() {
 
   cd /usr/lib/python3/dist-packages/kvmd/apps/kvmd/info/
   cp hw.py hw.py.$( date +%Y%m%d )
-  wget --no-check-certificate -O hw.py http://148.135.104.55/PiKVM/TESTING/hw.py 2> /dev/null
+  #wget --no-check-certificate -O hw.py http://148.135.104.55/PiKVM/TESTING/hw.py 2> /dev/null
+  sed -i.$(date +%Y%m%d-%H%M) -e 's/raise NotImplementedError/pass/g' hw.py
 
   set +x
   echo
@@ -465,7 +466,7 @@ fi
 
 ### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
 sed -i -e 's/kvmd-ttyd/ttyd/g' /lib/systemd/system/kvmd-webterm.service
-systemctl restart kvmd-webterm
+systemctl daemon-reload && systemctl restart kvmd-webterm
 
 # get rid of this line, otherwise kvmd-nginx won't start properly since the nginx version is not 1.25 and higher
 if [ -e /etc/kvmd/nginx/nginx.conf.mako ]; then
