@@ -2,8 +2,14 @@
 #
 ## Update script for Raspbian/Armbian
 #
+# NOTES:
+#
+#   kvmd 3.291 and earlier requires libgpiod v1.6 and python 3.11 (default installer uses kvmd 3.291)
+#   kvmd 3.292 to 3.333 requires libgpiod v2.1 and python 3.11
+#   kvmd 4.1 and higher requires python 3.12
+#
 ###
-# Updated on 20240324 0715PDT
+# Updated on 20240415 1510PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -133,7 +139,7 @@ perform-update() {
     $CURRENTVER)
       printf "\n  -> Update not required.  Version installed is ${CURRENTVER} and REPO version is ${KVMDVER}.\n"
       ;;
-    3.29[2-9]*|3.[3-9][0-9]*)
+    3.29[2-9]*|3.[3-9][0-9]*)   # kvmd 3.29[2-9] to 3.3xx
       case $_libgpiodver in
         v1.6*)
           echo "** kvmd 3.292 and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
@@ -146,6 +152,12 @@ perform-update() {
           echo "libgpiod $_libgpiodver found.  Nothing to do."
           ;;
       esac
+      ;;
+    4.*)
+      echo "** kvmd 4.x is NOT yet supported **"
+      ### kvmd 4.2 and higher requires python3.12 path
+      #cd /lib/python3/dist-packages/
+      #ln -sf /usr/lib/python3.12/site-packages/kvmd* .
       ;;
     *)
       do-update
@@ -209,7 +221,7 @@ update-logo() {
   # change some text in the main html page
   sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' -e 's|mailto:srepac@kvmnerds.com|mailto:mdevaev@gmail.com|g' -e 's|>srepac@kvmnerds.com|>Maxim Devaev|g' /usr/share/kvmd/web/index.html
   sed -i -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' -e 's|mailto:srepac@kvmnerds.com|mailto:mdevaev@gmail.com|g' -e 's|>srepac@kvmnerds.com|>Maxim Devaev|g' /usr/share/kvmd/web/kvm/index.html
-  
+
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
   cd
@@ -437,10 +449,6 @@ sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 if systemctl is-enabled -q dnsmasq; then
   systemctl restart dnsmasq
 fi
-
-### kvmd 4.2 and higher requires python3.12 path
-cd /lib/python3/dist-packages/
-ln -sf /usr/lib/python3.12/site-packages/kvmd* .
 
 ### fix kvmd-webterm 0.49 change that changed ttyd to kvmd-ttyd which broke webterm
 sed -i -e 's/kvmd-ttyd/ttyd/g' /lib/systemd/system/kvmd-webterm.service
