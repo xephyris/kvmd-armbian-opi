@@ -156,10 +156,22 @@ perform-update() {
       esac
       ;;
     4.*)
-      echo "** kvmd 4.x is NOT yet supported **"
-      ### kvmd 4.2 and higher requires python3.12 path
-      #cd /lib/python3/dist-packages/
-      #ln -sf /usr/lib/python3.12/site-packages/kvmd* .
+      echo "** kvmd 4.x is EXPERIMENTAL.  If issues arise, please restore to previous working kvmd version. **"
+      case $_libgpiodver in
+        v1.6*)
+          echo "** kvmd 4.x and higher is not supported due to libgpiod v2.x requirement.  Staying on kvmd ${CURRENTVER}"
+          ;;
+        v2.*)
+          echo "libgpiod $_libgpiodver found.  Performing update to $KVMDVER"
+          do-update
+          ### kvmd 4.1 and higher requires python3.12 path
+          cd /lib/python3/dist-packages/
+          ln -sf /usr/lib/python3.12/site-packages/kvmd .
+          ;;
+        *)
+          echo "libgpiod $_libgpiodver found.  Nothing to do."
+          ;;
+      esac
       ;;
     *)
       do-update
