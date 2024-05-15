@@ -3,7 +3,7 @@
 ## Update script for x86
 #
 ###
-# Updated on 20240513 1420PDT
+# Updated on 20240515 1510PDT
 ###
 PIKVMREPO="https://pikvm.org/repos/rpi4"
 PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4/"    # as of 11/05/2021
@@ -154,6 +154,12 @@ perform-update() {
           echo "libgpiod $_libgpiodver found.  Nothing to do."
           ;;
       esac
+      ;;
+    4.*)
+      echo "** kvmd 4.x is NOT yet supported **"
+      ### kvmd 4.2 and higher requires python3.12 path
+      #cd /lib/python3/dist-packages/
+      #ln -sf /usr/lib/python3.12/site-packages/kvmd* .
       ;;
     *)
       do-update
@@ -419,11 +425,6 @@ else
   apt remove -y tesseract-ocr tesseract-ocr-eng > /dev/null 2> /dev/null
   echo
 fi
-
-
-### kvmd 4.2 and higher requires python3.12 path
-cd /lib/python3/dist-packages/
-ln -sf /usr/lib/python3.12/site-packages/kvmd* .
 
 x86-fix-3.256
 
