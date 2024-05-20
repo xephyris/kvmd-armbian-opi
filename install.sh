@@ -403,7 +403,7 @@ install-kvmd-pkgs() {
   date > $INSTLOG
 
 # uncompress platform package first
-  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz )
+  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz | grep 3.291 )
   _platformver=$( echo $i | sed -e 's/3\.29[2-9]*/3.291/g' -e 's/3\.3[0-9]*/3.291/g' )
   echo "-> Extracting package $_platformver into /" | tee -a $INSTLOG
   tar xfJ $i
@@ -412,7 +412,7 @@ install-kvmd-pkgs() {
   for i in $( ls ${KVMDCACHE}/*.tar.xz | egrep 'kvmd-[0-9]|webterm' )
   do
     case $i in
-      *kvmd-3.29[2-9]*|*kvmd-3.[3-9]*)   # if latest/greatest is 3.292 and higher, then force 3.291 install
+      *kvmd-3.29[2-9]*|*kvmd-3.[3-9]*|*kvmd-[45].[1-9]*)  # if latest/greatest is 3.292 and higher, then force 3.291 install
         echo "*** Force install kvmd 3.291 ***" | tee -a $LOGFILE
         wget -O $KVMDCACHE/$KVMDFILE http://148.135.104.55/REPO/NEW/$KVMDFILE 2> /dev/null
         i=$KVMDCACHE/$KVMDFILE
