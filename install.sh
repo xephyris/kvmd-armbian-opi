@@ -35,6 +35,8 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   exit 1
 fi
 
+CWD=`pwd`
+
 WHOAMI=$( whoami )
 if [ "$WHOAMI" != "root" ]; then
   echo "$WHOAMI, please run script as root."
@@ -403,8 +405,10 @@ install-kvmd-pkgs() {
   date > $INSTLOG
 
 # uncompress platform package first
-  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz | grep 3.291 )
-  _platformver=$( echo $i | sed -e 's/3\.29[2-9]*/3.291/g' -e 's/3\.3[0-9]*/3.291/g' )
+  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz )  ### install the most up to date kvmd-platform package
+
+  # change the log entry to show 3.291 platform installed as we'll be forcing kvmd-3.291 instead of latest/greatest kvmd
+  _platformver=$( echo $i | sed -e 's/3\.29[2-9]*/3.291/g' -e 's/3\.3[0-9]*/3.291/g' -e 's/3.2911/3.291/g' )
   echo "-> Extracting package $_platformver into /" | tee -a $INSTLOG
   tar xfJ $i
 
@@ -414,6 +418,7 @@ install-kvmd-pkgs() {
     case $i in
       *kvmd-3.29[2-9]*|*kvmd-3.[3-9]*|*kvmd-[45].[1-9]*)  # if latest/greatest is 3.292 and higher, then force 3.291 install
         echo "*** Force install kvmd 3.291 ***" | tee -a $LOGFILE
+        # download kvmd-3.291 package from kvmnerds.com
         wget -O $KVMDCACHE/$KVMDFILE http://148.135.104.55/REPO/NEW/$KVMDFILE 2> /dev/null
         i=$KVMDCACHE/$KVMDFILE
         ;;
@@ -932,7 +937,7 @@ update-logo() {
   sed -i.bak -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/index.html
   sed -i.bak -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/kvm/index.html
   sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
-  sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html  
+  sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
   cd
 }
 
@@ -1003,19 +1008,6 @@ else
   systemd-sysusers /usr/lib/sysusers.d/kvmd.conf
   systemd-sysusers /usr/lib/sysusers.d/kvmd-webterm.conf
 
-  ### additional python pip dependencies for kvmd 3.238 and higher
-  case $PYTHONVER in
-    *3.10*|*3.[987]*)
-      pip3 install async-lru 2> /dev/null
-      ### Fix for kvmd 3.291 -- only applies to python 3.10 ###
-      sed -i -e 's|gpiod.LineEvent|gpiod.EdgeEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
-      sed -i -e 's|gpiod.Line,|gpiod.line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
-      ;;
-    *3.11*)
-      pip3 install async-lru --break-system-packages 2> /dev/null
-      ;;
-  esac
-
   fix-nginx-symlinks
   fix-python-symlinks
   fix-webterm
@@ -1027,7 +1019,21 @@ else
 
   set-ownership
   create-kvmdfix
+
+  ### additional python pip dependencies for kvmd 3.238 and higher
+  case $PYTHONVER in
+    3.10*|3.[987]*)
+      pip3 install async-lru 2> /dev/null
+      ### Fix for kvmd 3.291 -- only applies to python 3.10 ###
+      sed -i -e 's|gpiod.EdgeEvent|gpiod.LineEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
+      sed -i -e 's|gpiod.line,|gpiod.Line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
+      ;;
+    3.11*)
+      pip3 install async-lru --break-system-packages 2> /dev/null
+      ;;
+  esac
   check-kvmd-works
+
   enable-kvmd-svcs
   update-logo
   start-kvmd-svcs
@@ -1039,6 +1045,7 @@ else
   printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n" | tee -a $LOGFILE
 fi
 
+cd $CWD
 cp -rf web.css /etc/kvmd/web.css
 
 systemctl status $SERVICES | grep Loaded | tee -a $LOGFILE
