@@ -666,6 +666,9 @@ fix-webterm() {
       echo "ttyd $_ttydver found.  Nothing to do."
       ;;
   esac
+
+  # add sudoers entry for kvmd-webterm user to be able to run sudo
+  echo "kvmd-webterm ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/kvmd-webterm; chmod 440 /etc/sudoers.d/kvmd-webterm
 } # end fix-webterm
 
 create-kvmdfix() {
