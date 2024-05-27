@@ -402,6 +402,25 @@ fix-mainyaml() {
   egrep -n 'omx|m2m|-sink' /etc/kvmd/main.yaml
 }
 
+function fix-hk4401() {
+  # https://github.com/ThomasVon2021/blikvm/issues/168
+
+  # Download kvmd-4.2 package from kvmnerds.com to /tmp and extract only the xh_hk4401.py script
+  cd /tmp
+  wget -O kvmd-4.2-1-any.pkg.tar.xz http://148.135.104.55/REPO/NEW/kvmd-4.2-1-any.pkg.tar.xz 2> /dev/null
+  tar xvfJ kvmd-4.2-1-any.pkg.tar.xz --wildcards --no-anchored 'xh_hk4401.py'
+
+  # Show diff of 4.2 version of xh_hk4401.py vs. current installed version
+  cd usr/lib/python3.12/site-packages/kvmd/plugins/ugpio/
+  diff xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/
+
+  # make a backup of current xh_hk4401.py script
+  cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/xh_hk4401.py.3.291
+
+  # replace it with the kvmd 4.2 version of script which allows use of protocol: 2
+  cp xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/
+  cd
+} # end fix-hk4401
 
 
 ### MAIN STARTS HERE ###
@@ -425,6 +444,7 @@ fix-python311
 fix-nfs-msd
 fix-nginx
 fix-mainyaml
+fix-hk4401
 
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
 RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
