@@ -432,7 +432,7 @@ install-kvmd-pkgs() {
 
   # uncompress janus package if /usr/bin/janus doesn't exist
   if [ ! -e /usr/bin/janus ]; then
-    i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus )
+    i=$( ls ${KVMDCACHE}/*.tar.xz | egrep janus | grep -v 1x )
     echo "-> Extracting package $i into /" >> $INSTLOG
     tar xfJ $i
 
