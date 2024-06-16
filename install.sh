@@ -752,7 +752,7 @@ check-kvmd-works() {
   echo "-> Checking kvmd -m works before continuing" | tee -a $LOGFILE
   invalid=1
   while [ $invalid -eq 1 ]; do
-    kvmd -m
+    kvmd -m | tee -a $LOGFILE
     read -p "Did kvmd -m run properly?  [y/n] " answer
     case $answer in
       n|N|no|No)
