@@ -2,6 +2,12 @@
 # Copy this into /usr/local/bin/pistat
 # This version will show Pi RAM size and will work in Raspbian also
 # sample output:  Raspberry Pi 4 Model B 1.2 4GB
+if [ ! -e /usr/bin/vcgencmd ]; then
+        if [ -e /opt/vc/bin/vcgencmd ]; then
+                ln -sf /opt/vc/bin/vcgencmd /usr/bin/vcgencmd
+        fi
+fi
+
 if [[ $( whoami ) == "root" ]]; then
         VCGENCMD="/usr/bin/vcgencmd"
 else
