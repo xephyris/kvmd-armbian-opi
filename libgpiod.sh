@@ -33,8 +33,8 @@ function upgrade() {
   apt install -y autoconf-archive libtool dh-autoreconf
 
   cd /tmp
-  FILE="libgpiod-2.1.tar.gz"
-  GPIODVER="2.1"
+  FILE="libgpiod-2.1.1.tar.gz"
+  GPIODVER="2.1.1"
   wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/$FILE -O $FILE 2> /dev/null
   tar xfz $FILE
   cd libgpiod-$GPIODVER
