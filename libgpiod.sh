@@ -10,9 +10,11 @@ function downgrade() {
   apt install -y autoconf-archive libtool dh-autoreconf
 
   cd /tmp
-  wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/libgpiod-1.6.3.tar.gz -O libgpiod-1.6.3.tar.gz 2> /dev/null
-  tar xfz libgpiod-1.6.3.tar.gz
-  cd libgpiod-1.6.3
+  FILE="libgpiod-1.6.3.tar.gz"
+  GPIODVER="1.6.3"
+  wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/$FILE -O $FILE 2> /dev/null
+  tar xfz $FILE
+  cd libgpiod-$GPIODVER
 
   ### this works with python3.10
   ./autogen.sh --enable-tools=yes --prefix=/usr
@@ -31,9 +33,11 @@ function upgrade() {
   apt install -y autoconf-archive libtool dh-autoreconf
 
   cd /tmp
-  wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/libgpiod-2.1.tar.gz -O libgpiod-2.1.tar.gz 2> /dev/null
-  tar xfz libgpiod-2.1.tar.gz
-  cd libgpiod-2.1
+  FILE="libgpiod-2.1.tar.gz"
+  GPIODVER="2.1"
+  wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/$FILE -O $FILE 2> /dev/null
+  tar xfz $FILE
+  cd libgpiod-$GPIODVER
 
   ./autogen.sh --enable-tools=yes --enable-bindings-python=yes --prefix=/usr
   make -j$( nproc --all )
@@ -41,7 +45,7 @@ function upgrade() {
   set +x
 
   gpioinfo -v | head -1
-} # end function upgrade 
+} # end function upgrade
 
 
 ### MAIN STARTS HERE
