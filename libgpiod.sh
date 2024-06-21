@@ -11,7 +11,7 @@ function downgrade() {
 
   cd /tmp
   FILE="libgpiod-1.6.3.tar.gz"
-  GPIODVER="1.6.3"
+  GPIODVER=$( echo $FILE | cut -d'-' -f2 | sed 's/.tar.gz//g' )
   wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/$FILE -O $FILE 2> /dev/null
   tar xfz $FILE
   cd libgpiod-$GPIODVER
@@ -34,7 +34,7 @@ function upgrade() {
 
   cd /tmp
   FILE="libgpiod-2.1.2.tar.gz"
-  GPIODVER="2.1.2"
+  GPIODVER=$( echo $FILE | cut -d'-' -f2 | sed 's/.tar.gz//g' )
   wget https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/snapshot/$FILE -O $FILE 2> /dev/null
   tar xfz $FILE
   cd libgpiod-$GPIODVER
