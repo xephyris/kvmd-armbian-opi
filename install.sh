@@ -419,7 +419,7 @@ install-kvmd-pkgs() {
       *kvmd-3.29[2-9]*|*kvmd-3.[3-9]*|*kvmd-[45].[1-9]*)  # if latest/greatest is 3.292 and higher, then force 3.291 install
         echo "*** Force install kvmd 3.291 ***" | tee -a $LOGFILE
         # copy kvmd-3.291 package
-        cp $KVMDFILE $KVMDCACHE/
+        cp $CWD/$KVMDFILE $KVMDCACHE/
         i=$KVMDCACHE/$KVMDFILE
         ;;
       *)
