@@ -32,6 +32,8 @@ else
         printf "%-32s\t%s\n" $JANUSVER "janus"
         TTYDVER=$( ttyd -v | awk '{print $NF}' )
         printf "%-32s\t%s\n" $TTYDVER "ttyd"
+        GPIODVER=$( gpioinfo -v | grep libgpiod | awk '{print $NF}' | sed 's/v//g' )
+        printf "%-32s\t%s\n" $GPIODVER "libgpiod"
 
         if [ ! -e $TMPFILE ]; then
                 apt list 2> /dev/null | egrep 'upgradable|installed' | grep -v ^$ | awk '{print $2, $1}' > $TMPFILE
