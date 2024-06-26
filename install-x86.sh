@@ -884,7 +884,7 @@ function fix-hk4401() {
 
   # Download kvmd-4.2 package from kvmnerds.com to /tmp and extract only the xh_hk4401.py script
   cd /tmp
-  wget -O kvmd-4.2-1-any.pkg.tar.xz http://148.135.104.55/REPO/NEW/kvmd-4.2-1-any.pkg.tar.xz 2> /dev/null
+  wget --no-check-certificate -O kvmd-4.2-1-any.pkg.tar.xz http://148.135.104.55/REPO/NEW/kvmd-4.2-1-any.pkg.tar.xz 2> /dev/null
   tar xvfJ kvmd-4.2-1-any.pkg.tar.xz --wildcards --no-anchored 'xh_hk4401.py'
 
   # Show diff of 4.2 version of xh_hk4401.py vs. current installed version
