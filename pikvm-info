@@ -12,12 +12,15 @@ printf "%-32s\t%s\n" "Version" "Package-Name" "---------------------------------
 
 get-packages() {
         printf "%-32s\t%s\n" $( python3 -V | awk '{print $2}' ) "python3"
-if [[ $( echo $NAME | cut -d' ' -f1 ) == "Arch" ]]; then
+        GPIODVER=$( gpioinfo -v | grep libgpiod | awk '{print $NF}' | sed 's/v//g' )
+        printf "%-32s\t%s\n" $GPIODVER "libgpiod"
+
+    if [[ $( echo $NAME | cut -d' ' -f1 ) == "Arch" ]]; then
         if [ ! -e $TMPFILE ]; then
                 pacman -Q | awk '{print $2, $1}' > $TMPFILE
         fi
 
-else
+    else
         KVMDPLAT=$( grep kvmd-platform /var/cache/kvmd/installed_ver.txt | awk '{print $4}' | awk -F\/ '{print $NF}' | tail -1 )
         if [[ "$KVMDPLAT" != "" ]]; then
                 KVMDVER=$( echo $KVMDPLAT | cut -d'-' -f6 )
@@ -32,14 +35,12 @@ else
         printf "%-32s\t%s\n" $JANUSVER "janus"
         TTYDVER=$( ttyd -v | awk '{print $NF}' )
         printf "%-32s\t%s\n" $TTYDVER "ttyd"
-        GPIODVER=$( gpioinfo -v | grep libgpiod | awk '{print $NF}' | sed 's/v//g' )
-        printf "%-32s\t%s\n" $GPIODVER "libgpiod"
 
         if [ ! -e $TMPFILE ]; then
                 apt list 2> /dev/null | egrep 'upgradable|installed' | grep -v ^$ | awk '{print $2, $1}' > $TMPFILE
         fi
 
-fi
+    fi
 } # end get-packages
 
 
