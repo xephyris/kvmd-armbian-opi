@@ -19,6 +19,7 @@ get-packages() {
         if [ ! -e $TMPFILE ]; then
                 pacman -Q | awk '{print $2, $1}' > $TMPFILE
         fi
+        OPENSSH="openssh"
 
     else
         KVMDPLAT=$( grep kvmd-platform /var/cache/kvmd/installed_ver.txt | awk '{print $4}' | awk -F\/ '{print $NF}' | tail -1 )
@@ -35,6 +36,7 @@ get-packages() {
         printf "%-32s\t%s\n" $JANUSVER "janus"
         TTYDVER=$( ttyd -v | awk '{print $NF}' )
         printf "%-32s\t%s\n" $TTYDVER "ttyd"
+        OPENSSH="openssh-server"
 
         if [ ! -e $TMPFILE ]; then
                 apt list 2> /dev/null | egrep 'upgradable|installed' | grep -v ^$ | awk '{print $2, $1}' > $TMPFILE
@@ -47,7 +49,7 @@ get-packages() {
 TMPFILE="/tmp/pacmanquery"
 
 get-packages
-PACKAGES="janus pikvm kvmd ustreamer nginx wpa wireless python3/stable python$ firmware raspberrypi tailscale ttyd openssh-server"
+PACKAGES="janus pikvm kvmd ustreamer nginx wpa wireless python3/stable python$ firmware raspberrypi tailscale ttyd $OPENSSH"
 for PKG in $( echo $PACKAGES ); do
         if [ $(grep -w $PKG $TMPFILE | wc -l) -gt 0 ]; then
                 printf "%-32s\t%s\n" $(grep -w $PKG $TMPFILE | sed 's/-[1-9]+//g' | awk -F\/ '{print $1}' )
