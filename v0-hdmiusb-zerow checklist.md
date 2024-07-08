@@ -19,7 +19,7 @@ STEP-BY-STEP INSTRUCTIONS:
 
 For reference, this is the platform package that should be installed by the script above.
 
-  https://kvmnerds.com/REPO/kvmd-platform-v2-hdmi-zerow-3.54-1-any.pkg.tar.xz
+  https://kvmnerds.com:8443/REPO/kvmd-platform-v2-hdmi-zerow-3.54-1-any.pkg.tar.xz
 
 NOTE:  The most important file from the package is /etc/kvmd/main.yaml.  These are the streamer entries that are needed out of the /etc/kvmd/main.yaml file from the package above, but you should make sure /etc/kvmd/main.yaml exists after the install.
 ```
