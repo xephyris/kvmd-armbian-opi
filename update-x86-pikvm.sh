@@ -195,7 +195,7 @@ build-ustreamer() {
   git clone --depth=1 https://github.com/pikvm/ustreamer
   cd ustreamer/
 
-  make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1
+  make WITH_SYSTEMD=1 WITH_GPIO=1 WITH_SETPROCTITLE=1 WITH_V4P=1
   make install
 
   # kvmd service is looking for /usr/bin/ustreamer
