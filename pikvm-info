@@ -52,6 +52,6 @@ get-packages
 PACKAGES="janus pikvm kvmd ustreamer nginx wpa wireless python3/stable python$ firmware raspberrypi tailscale ttyd $OPENSSH"
 for PKG in $( echo $PACKAGES ); do
         if [ $(grep -c $PKG $TMPFILE) -gt 0 ]; then
-                printf "%-32s\t%s\n" $(grep -w $PKG $TMPFILE | sed 's/-[1-9]+//g' | awk -F\/ '{print $1}' )
+                printf "%-32s\t%s\n" $(grep $PKG $TMPFILE | sed 's/-[1-9]+//g' | awk -F\/ '{print $1}' )
         fi
 done | sort -u | sort -k2
