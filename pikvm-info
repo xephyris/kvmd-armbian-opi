@@ -11,14 +11,17 @@ pistat && echo
 printf "%-32s\t%s\n" "Version" "Package-Name" "---------------------------------" "-----------------------------"
 
 get-packages() {
-        printf "%-32s\t%s\n" $( python3 -V | awk '{print $2}' ) "python3"
-        GPIODVER=$( gpioinfo -v | grep libgpiod | awk '{print $NF}' | sed 's/v//g' )
-        printf "%-32s\t%s\n" $GPIODVER "libgpiod"
+    printf "%-32s\t%s\n" $( python3 -V | awk '{print $2}' ) "python3"
+    GPIODVER=$( gpioinfo -v | grep libgpiod | awk '{print $NF}' | sed 's/v//g' )
+    printf "%-32s\t%s\n" $GPIODVER "libgpiod"
 
     if [[ $( echo $NAME | cut -d' ' -f1 ) == "Arch" ]]; then
         if [ ! -e $TMPFILE ]; then
                 pacman -Q | awk '{print $2, $1}' > $TMPFILE
         fi
+        KVMDVER=$( grep kvmd-platform $TMPFILE | awk '{print $1}' )
+        PLATFORM=$( grep kvmd-platform $TMPFILE | awk '{print $2}' | cut -d'-' -f1,2,3,4,5 )
+        printf "%-32s\t%s\n" $KVMDVER $PLATFORM
         OPENSSH="openssh"
 
     else
@@ -29,13 +32,6 @@ get-packages() {
                 printf "%-32s\t%s\n" $KVMDVER $PLATFORM
         fi
 
-        USTREAMVER=$( /usr/bin/ustreamer -v )
-        printf "%-32s\t%s\n" $USTREAMVER "ustreamer"
-        #JANUSVER=$( /usr/bin/janus -V | tail -1 | awk '{print $NF}' )
-        JANUSVER=$( /usr/bin/janus -V | egrep 'version|janus' | awk '{print $NF}' | sed -e 's|(||g' -e 's|)||g' )
-        printf "%-32s\t%s\n" $JANUSVER "janus"
-        TTYDVER=$( ttyd -v | awk '{print $NF}' )
-        printf "%-32s\t%s\n" $TTYDVER "ttyd"
         OPENSSH="openssh-server"
 
         if [ ! -e $TMPFILE ]; then
@@ -43,6 +39,13 @@ get-packages() {
         fi
 
     fi
+    USTREAMVER=$( /usr/bin/ustreamer -v )
+    printf "%-32s\t%s\n" $USTREAMVER "ustreamer"
+    #JANUSVER=$( /usr/bin/janus -V | tail -1 | awk '{print $NF}' )
+    JANUSVER=$( /usr/bin/janus -V | egrep 'version|janus' | awk '{print $NF}' | sed -e 's|(||g' -e 's|)||g' )
+    printf "%-32s\t%s\n" $JANUSVER "janus"
+    TTYDVER=$( ttyd -v | awk '{print $NF}' )
+    printf "%-32s\t%s\n" $TTYDVER "ttyd"
 } # end get-packages
 
 
