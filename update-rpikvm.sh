@@ -186,8 +186,8 @@ get-installed-platform() {
 build-ustreamer() {
   printf "\n\n-> Building ustreamer\n\n"
   # Install packages needed for building ustreamer source
-  echo "apt install -y build-essential libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus"
-  apt install -y build-essential libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus 2> /dev/null
+  echo "apt install -y build-essential libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus libdrm-dev"
+  apt install -y build-essential libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus libdrm-dev 2> /dev/null
 
   # fix refcount.h
   sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
