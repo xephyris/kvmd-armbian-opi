@@ -19,6 +19,12 @@ PKGINFO="${KVMDCACHE}/packages.txt"
 REPOFILE="/tmp/pikvmrepo.html"; /bin/rm -f $REPOFILE
 ln -sf python3 /usr/bin/python
 
+WHOAMI=$( whoami )
+if [[ "$WHOAMI" != "root" ]]; then
+  echo "$WHOAMI, you must run this as root."
+  exit 1
+fi
+
 get-packages() {
   printf "\n-> Getting newest Pi-KVM packages from ${PIKVMREPO}\n\n"
   mkdir -p ${KVMDCACHE}; cd ${KVMDCACHE}
