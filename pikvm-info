@@ -2,7 +2,7 @@
 # Put this file into /usr/local/bin then you can run pikvm-info anywhere while logged in to Pi-KVM terminal/ssh
 #
 uptime
-NAME=$( egrep ^NAME= /etc/os-release | cut -d'"' -f2 )
+NAME=$( grep -E ^NAME= /etc/os-release | cut -d'"' -f2 )
 echo "Host OS:  $NAME `uname -r`  `uname -m`"
 
 # pistat is built-in to pi-kvm (/usr/local/bin)
@@ -35,14 +35,14 @@ get-packages() {
         OPENSSH="openssh-server"
 
         if [ ! -e $TMPFILE ]; then
-                apt list 2> /dev/null | egrep 'upgradable|installed' | grep -v ^$ | awk '{print $2, $1}' > $TMPFILE
+                apt list 2> /dev/null | grep -E 'upgradable|installed' | grep -v ^$ | awk '{print $2, $1}' > $TMPFILE
         fi
 
     fi
     USTREAMVER=$( /usr/bin/ustreamer -v )
     printf "%-32s\t%s\n" $USTREAMVER "ustreamer"
     #JANUSVER=$( /usr/bin/janus -V | tail -1 | awk '{print $NF}' )
-    JANUSVER=$( /usr/bin/janus -V | egrep 'version|janus' | awk '{print $NF}' | sed -e 's|(||g' -e 's|)||g' )
+    JANUSVER=$( /usr/bin/janus -V | grep -E 'version|janus' | awk '{print $NF}' | sed -e 's|(||g' -e 's|)||g' )
     printf "%-32s\t%s\n" $JANUSVER "janus"
     TTYDVER=$( ttyd -v | awk '{print $NF}' )
     printf "%-32s\t%s\n" $TTYDVER "ttyd"
