@@ -479,8 +479,8 @@ enable-kvmd-svcs() {
 build-ustreamer() {
   printf "\n\n-> Building ustreamer\n\n" | tee -a $LOGFILE
   # Install packages needed for building ustreamer source
-  echo "apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus" | tee -a $LOGFILE
-  apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev janus-dev janus >> $LOGFILE
+  echo "apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev libmd-dev libdrm-dev janus-dev janus" | tee -a $LOGFILE
+  apt install -y make libevent-dev libjpeg-dev libbsd-dev libgpiod-dev libsystemd-dev libmd-dev libdrm-dev janus-dev janus >> $LOGFILE
 
   # fix refcount.h
   sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' /usr/include/janus/plugins/plugin.h
