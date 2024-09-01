@@ -41,7 +41,7 @@ fi
 
 PYTHONVER=$( python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
 case $PYTHONVER in
-  3.10|3.11)
+  3.1[0-9])   # supports python 3.10+
     echo "Python $PYTHONVER is supported." | tee -a $LOGFILE
     ;;
   *)
