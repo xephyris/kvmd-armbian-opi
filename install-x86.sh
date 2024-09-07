@@ -55,7 +55,7 @@ if [[ ! -e /boot/config.txt && -e /boot/firmware/config.txt ]]; then
   ln -sf /boot/firmware/config.txt /boot/config.txt
 fi
 
-MAKER=$(tr -d '\0' < /proc/device-tree/model | awk '{print $1}')
+MAKER="x86-pikvm"
 
 press-enter() {
   echo
@@ -294,7 +294,7 @@ install-kvmd-pkgs() {
   date > $INSTLOG
 
 # uncompress platform package first
-  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz | grep 3.291 )
+  i=$( ls ${KVMDCACHE}/${platform}*.tar.xz )
   _platformver=$( echo $i | sed -e 's/3\.29[2-9]*/3.291/g' -e 's/3\.3[0-9]*/3.291/g' )
   echo "-> Extracting package $_platformver into /" | tee -a $INSTLOG
   tar xfJ $i
@@ -1008,6 +1008,7 @@ else
   printf "\nPoint a browser to https://$(hostname)\nIf it doesn't work, then reboot one last time.\nPlease make sure kvmd services are running after reboot.\n" | tee -a $LOGFILE
 fi
 
+cd $CWD
 cp -rf web.css /etc/kvmd/web.css
 
 systemctl status $SERVICES | grep Loaded | tee -a $LOGFILE
