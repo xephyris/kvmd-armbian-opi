@@ -45,7 +45,7 @@ fi
 
 PYTHONVER=$( python3 -V | cut -d' ' -f2 | cut -d'.' -f1,2 )
 case $PYTHONVER in
-  3.10|3.11)
+  3.1[0-9])
     echo "Python $PYTHONVER is supported." | tee -a $LOGFILE
     ;;
   *)
@@ -511,7 +511,7 @@ install-dependencies() {
   install-python-packages
 
   echo "-> Install python3 modules dbus_next and zstandard" | tee -a $LOGFILE
-  if [[ "$PYTHONVER" == "3.11" ]]; then
+  if [[ "$PYTHONVER" == "3.11" || "$PYTHONVER" == "3.12" ]]; then
     apt install -y python3-dbus-next python3-zstandard
   else
     pip3 install dbus_next zstandard
@@ -802,15 +802,19 @@ armbian-packages() {
 fix-nfs-msd() {
   NAME="aiofiles.tar"
 
-  LOCATION="/usr/lib/python3.11/site-packages"
-  echo "-> Extracting $NAME into $LOCATION" | tee -a $LOGFILE
-  tar xvf $NAME -C $LOCATION
+  for i in 3.11 3.12; do
+    LOCATION="/usr/lib/python$i/site-packages"
+    if [ -e $LOCATION ]; then
+      echo "-> Extracting $NAME into $LOCATION" | tee -a $LOGFILE
+      tar xvf $NAME -C $LOCATION
 
-  echo "-> Renaming original aiofiles and creating symlink to correct aiofiles" | tee -a $LOGFILE
-  cd /usr/lib/python3/dist-packages
-  mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
-  ln -s $LOCATION/aiofiles .
-  ls -ld aiofiles* | tail -5
+      echo "-> Renaming original aiofiles and creating symlink to correct aiofiles" | tee -a $LOGFILE
+      cd /usr/lib/python3/dist-packages
+      mv aiofiles aiofiles.$(date +%Y%m%d.%H%M)
+      ln -s $LOCATION/aiofiles .
+      ls -ld aiofiles* | tail -5
+    fi
+  done
 }
 
 fix-nginx() {
@@ -1052,7 +1056,7 @@ else
       sed -i -e 's|gpiod.EdgeEvent|gpiod.LineEvent|g' /usr/lib/python3/dist-packages/kvmd/aiogp.py
       sed -i -e 's|gpiod.line,|gpiod.Line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
       ;;
-    3.11*)
+    3.1[1-9]*)
       pip3 install async-lru --break-system-packages 2> /dev/null
       ;;
   esac
