@@ -2,7 +2,7 @@
 This project supports non-Raspberry Pi device to run pikvm on armbian or Raspberry Pi boards on Raspbian Bookworm
 - It also supports x86 pikvm with USB uart + ch9329 serial HID if you use the install-x86.sh script and follow the How to Install PiKVM x86.pdf
 - As of 04/21/2024, I have left the PiKVM Discord so if you need assistance, please email me:  srepac@kvmnerds.com
-- You can also try and see if I'm on my own Discord at https://discord.gg/YaJ87sVznc
+- You can also try and see if I'm on my own Discord at https://discord.gg/64EQQuwjsB
 
 # Install
 KVMD Install for armbian/raspbian
