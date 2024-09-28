@@ -428,6 +428,26 @@ function fix-hk4401() {
   cd
 } # end fix-hk4401
 
+make-platform-file() {
+  set -x
+  PLATFILE="/usr/share/kvmd/platform"
+  if [ -e $PLATFILE ]; then cat $PLATFILE; fi
+  rm -f $PLATFILE; touch $PLATFILE
+
+  ### contents follow this syntax - 3 lines total ###
+  #PIKVM_MODEL=v2       v0      v1      v2      v3
+  #PIKVM_VIDEO=hdmi     hdmiusb
+  #PIKVM_BOARD=rpi4     zerow   zero2w
+
+  HWPLATFORM=$( grep platform /var/cache/kvmd/installed_ver.txt | cut -d'-' -f3,4,5 | tail -1 )
+  echo "PIKVM_MODEL=$( echo $HWPLATFORM | cut -d- -f1 )" >> $PLATFILE
+  echo "PIKVM_VIDEO=$( echo $HWPLATFORM | cut -d- -f2 )" >> $PLATFILE
+  echo "PIKVM_BOARD=$( echo $HWPLATFORM | cut -d- -f3 )" >> $PLATFILE
+
+  set +x
+  cat $PLATFILE
+} # end make-platform-file
+
 
 ### MAIN STARTS HERE ###
 PYTHONPACKAGES=$( ls -ld /usr/lib/python3*/dist-packages | awk '{print $NF}' | tail -1 )
@@ -451,6 +471,7 @@ fix-nfs-msd
 fix-nginx
 fix-mainyaml
 fix-hk4401
+make-platform-file
 
 RAM=$( pistat | grep '^#' | awk '{print $NF}' )
 RAMMB=$( echo $RAM | sed -e 's/MB/*1/g' -e 's/GB/*1024/g' | bc )  # convert all RAM to MB
