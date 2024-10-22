@@ -41,6 +41,8 @@ get-packages() {
 
 save-configs() {
   printf "\n-> Saving config files\n"
+  cp /etc/udev/rules.d/99-kvmd.rules /etc/udev/rules.d/99-kvmd.rules.save
+  
   # Save passwd files used by PiKVM
   cp /etc/kvmd/htpasswd /etc/kvmd/htpasswd.save
   cp /etc/kvmd/ipmipasswd /etc/kvmd/ipmipasswd.save
@@ -65,6 +67,8 @@ save-configs() {
 
 restore-configs() {
   printf "\n-> Restoring config files\n"
+  cp /etc/udev/rules.d/99-kvmd.rules.save /etc/udev/rules.d/99-kvmd.rules
+  
   # Restore passwd files used by PiKVM
   cp /etc/kvmd/htpasswd.save /etc/kvmd/htpasswd
   cp /etc/kvmd/ipmipasswd.save /etc/kvmd/ipmipasswd
