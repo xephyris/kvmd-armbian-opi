@@ -19,7 +19,7 @@ else
   else
     platform="${v2v3}-hdmi-rpi4"
   fi
-  PLATFORM="$platform  $( grep kvmd-platform /var/cache/kvmd/installed_ver.txt | tail -1 | awk '{print $4}' | awk -F\- '{print $NF}')"
+  PLATFORM="$platform $( grep kvmd-platform /var/cache/kvmd/installed_ver.txt | tail -1 | awk '{print $4}' | awk -F\- '{print $NF}')"
 fi
  
 echo "kvmd-platform/installed version:  ${PLATFORM}"
