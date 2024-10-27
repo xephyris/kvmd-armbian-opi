@@ -983,7 +983,8 @@ cp -rf pistat /usr/local/bin/pistat
 cp -rf pi-temp /usr/local/bin/pi-temp
 cp -rf pikvm-info /usr/local/bin/pikvm-info
 cp -rf update-rpikvm.sh /usr/local/bin/update-rpikvm.sh
-chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh
+cp -rf tshoot.sh /usr/local/bin/tshoot.sh
+chmod +x /usr/local/bin/pi* /usr/local/bin/update-rpikvm.sh /usr/local/bin/tshoot.sh
 
 ### fix for kvmd 3.230 and higher
 ln -sf python3 /usr/bin/python
