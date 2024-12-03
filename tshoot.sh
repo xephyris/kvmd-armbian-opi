@@ -120,7 +120,7 @@ printf "\n--- KNOW THE LIMITS AND MAKE SURE TARGET RESOLUTIONS STAY WITHIN THOSE
 
 echo
 if [ $errors -gt 0 ]; then
-  echo "-> Found $errors error(s).  Please fix them then try again."
+  echo "-> Found $errors error(s).  Please fix then try again."
 else
   echo "Congratulations, $errors errors found.  If you are having issues with K V or M, then check hardware/cables."
 fi
