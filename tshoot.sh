@@ -31,7 +31,7 @@ fi
 echo "kvmd-platform/installed version:  ${PLATFORM}"
 echo
 
-echo "+ Checking for KB, VID, and MOUSE..."
+echo "+ Checking for KB, VID, and MOUSE symlinks..."
 KVMDEVS="/tmp/kvmdevs.txt"; rm -f $KVMDEVS
 ls -l /dev/kvmd* > $KVMDEVS                             # check for kb/mouse/video
 STATUS="Found"
