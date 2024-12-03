@@ -17,7 +17,8 @@ if [ $ARCHLINUX -eq 1 ]; then
   SEARCH="1-1.4"        # use only port 1-1.4 on arch linux pikvm
   PLATFORM=$( pacman -Q | grep kvmd-platform | cut -d'-' -f3,4,5 | sed 's/ /  /g' )
 else
-  SEARCH="MACRO"        # any port on anything other than arch pikvm
+  #SEARCH="MACRO"        # any port on anything other than arch pikvm
+  SEARCH="UVC"          # any port on anything other than arch pikvm
   # Show kvmd-platform version for raspbian pikvm on rpi4
   v2v3=$( grep platform /var/cache/kvmd/installed_ver.txt | cut -d'-' -f3 | tail -1 )
   if [[ $( grep video /etc/udev/rules.d/99-kvmd.rules | grep -c hdmiusb ) -gt 0 ]]; then
