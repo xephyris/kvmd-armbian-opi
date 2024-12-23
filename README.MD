@@ -93,3 +93,4 @@ update-rpikvm.sh
  - RPiCM4 + Geekworm X635 HAT on Raspberry Pi OS bookworm (tested by @srepac)
  - BliKVM V4 with MangoPi MCore H616 on blikvm OS (tested by @srepac)
  - x86 VM and bare metal (tested by @srepac)
+ - Orange pi 3b, OPi zero2w, and OPi zero 3 (tested by @thrice)
