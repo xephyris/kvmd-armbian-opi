@@ -746,6 +746,10 @@ set-ownership() {
 
   # add kvmd user to dialout group (required for xh_hk4401 kvm switch support)
   usermod -a -G dialout kvmd
+  
+  ### fix totp.secret file permissions for use with 2FA
+  chmod go+r /etc/kvmd/totp.secret
+  chown kvmd:kvmd /etc/kvmd/totp.secret
 } # end set-ownership
 
 check-kvmd-works() {
@@ -1078,10 +1082,6 @@ cd $CWD
 cp -rf web.css /etc/kvmd/web.css
 
 systemctl status $SERVICES | grep Loaded | tee -a $LOGFILE
-
-### fix totp.secret file permissions for use with 2FA
-chmod go+r /etc/kvmd/totp.secret
-chown kvmd:kvmd /etc/kvmd/totp.secret
 
 ### create rw and ro so that /usr/bin/kvmd-bootconfig doesn't fail
 touch /usr/local/bin/rw /usr/local/bin/ro
