@@ -16,7 +16,7 @@ printf "    Welcome to PiKVM - Open Source IP-KVM installed on SBC
       * Documentation:     https://docs.pikvm.org
       * Auth & 2FA:        https://docs.pikvm.org/auth
       * Networking:        https://wiki.archlinux.org/title/systemd-networkd
-      * https://github.com/srepac/kvmd-armbian
+      * Kvmd-armbian:      https://github.com/srepac/kvmd-armbian
 
 "
 
