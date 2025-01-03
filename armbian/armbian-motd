@@ -6,15 +6,17 @@ if [ -e /etc/update-motd.d/41-armbian-config ]; then /etc/update-motd.d/41-armbi
 printf "    Welcome to PiKVM - Open Source IP-KVM installed on SBC
     ____________________________________________________________________________
 
-    To prevent kernel messages from printing to the terminal use \"dmesg -n 1\".
+    Useful commands:
+      * Preventing kernel messages in the console:  dmesg -n 1
+      * Changing the Web UI password:  kvmd-htpasswd set admin
+      * Changing the root password:    passwd
 
-    To change KVM password use command \"kvmd-htpasswd set admin\".
-
-    Useful links:
-      * https://pikvm.org
-      * https://docs.pikvm.org
+    Links:
+      * Official website:  https://pikvm.org
+      * Documentation:     https://docs.pikvm.org
+      * Auth & 2FA:        https://docs.pikvm.org/auth
+      * Networking:        https://wiki.archlinux.org/title/systemd-networkd
       * https://github.com/srepac/kvmd-armbian
-      * https://wiki.archlinux.org/title/systemd-networkd
 
 "
 
