@@ -265,8 +265,12 @@ get-packages() {
   wget --no-check-certificate ${PIKVMREPO} -O ${PKGINFO} 2> /dev/null
   echo
 
+  # only get the latest kvmd version
+  LATESTKVMD=$( grep kvmd-[0-9] $PKGINFO | grep -v sig | tail -1 )
+  VERSION=$( echo $LATESTKVMD | cut -d'-' -f2 )
+
   # Download each of the pertinent packages for Rpi4, webterm, and the main service
-  for pkg in `egrep 'janus|kvmd' ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2 | egrep -v 'fan|oled' | egrep 'janus|pi4|pi3|zero|webterm|kvmd-[0-9]'`
+  for pkg in `egrep "janus|$LATESTKVMD|$platform-$VERSION|webterm" ${PKGINFO} | grep -v sig | cut -d'>' -f1 | cut -d'"' -f2`
   do
     rm -f ${KVMDCACHE}/$pkg*
     echo "wget --no-check-certificate ${PIKVMREPO}/$pkg -O ${KVMDCACHE}/$pkg" | tee -a $LOGFILE
