@@ -334,8 +334,7 @@ fix-nginx() {
       1.18|*)
         echo "nginx version is $NGINXVER.  Updating /etc/kvmd/nginx/nginx.conf.mako"
         # remove http2 on; line and change the ssl; to ssl http2; for proper syntax
-        sed -i -e '/http2 on;/d' /etc/kvmd/nginx/nginx.conf.mako
-        sed -i -e 's/ ssl;/ ssl http2;/g' /etc/kvmd/nginx/nginx.conf.mako
+        sed -i.bak -e '/http2 on;/d' -e 's/ ssl;/ ssl http2;/g' /etc/kvmd/nginx/nginx.conf.mako
         grep ' ssl' /etc/kvmd/nginx/nginx.conf.mako
         ;;
     esac
