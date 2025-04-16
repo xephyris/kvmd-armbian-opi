@@ -120,7 +120,7 @@ install-python-packages() {
   for i in $( echo "aiofiles aiohttp appdirs asn1crypto async-timeout bottle cffi chardet click
 colorama cryptography dateutil dbus dev hidapi idna libgpiod mako marshmallow more-itertools multidict netifaces
 packaging passlib pillow ply psutil pycparser pyelftools pyghmi pygments pyparsing requests semantic-version
-setproctitle setuptools six spidev systemd tabulate urllib3 wrapt xlib yaml yarl pyotp qrcode serial " )
+setproctitle setuptools six spidev systemd tabulate urllib3 wrapt xlib yaml yarl pyotp qrcode serial serial-asyncio" )
   do
     echo "apt-get install python3-$i -y" | tee -a $LOGFILE
     apt-get install python3-$i -y >> $LOGFILE
