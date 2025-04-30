@@ -8,6 +8,7 @@
 #   python 3.11 is required starting with kvmd 3.217 (prior to that, you could run kvmd on python 3.10)
 #   kvmd 3.292 to 3.333 requires libgpiod v2.1 and python 3.11
 #   kvmd 4.1 and higher requires python 3.12
+#   kvmd 4.21 and higher requires python 3.13
 #
 ###
 # Updated on 20240415 1510PDT
