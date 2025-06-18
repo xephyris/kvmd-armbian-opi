@@ -12,6 +12,7 @@ if [[ "$WHOAMI" != "root" ]]; then
 fi
 
 errors=0
+warning=0
 ARCHLINUX=$( grep PRETTY /etc/os-release | grep -c Arch )
 if [ $ARCHLINUX -eq 1 ]; then
   SEARCH="1-1.4"        # use only port 1-1.4 on arch linux pikvm
@@ -100,7 +101,7 @@ else
   HEIGHT=$( grep Active $DVTIMINGS | grep height | awk '{print $NF}')
   WIDTH=$( grep Active $DVTIMINGS | grep width | awk '{print $NF}')
   if [[ $HEIGHT -eq 0 && $WIDTH -eq 0 ]]; then
-    echo "+ < NO SIGNAL > from target.  Check/replace HDMI cable or power ON target."
+    echo "*** < NO SIGNAL > from target.  Check/replace HDMI cable or power ON target. ***"
     let errors=errors+1
   else
     HZ=$( grep Pixelclock $DVTIMINGS | awk -F\( '{print $2}' | cut -d' ' -f1 )
@@ -109,19 +110,55 @@ else
   fi
 
   echo
-  echo "*NOTE1:  PiKVM V2/V3 CSI builds max supported resolution: 720p 60Hz + 1080p 50Hz"
-  echo "*NOTE2:  PiKVM V4 max supported resolution: 1080p 60Hz + 1920x1200 60Hz"
-  echo "*NOTE3:  BliKVM v1/v2 max supported resolution: 1080p 60Hz + 1920x1200 60Hz"
-  echo "*NOTE4:  BliKVM v3 HAT max supported resolution: 720p 60Hz + 1080p 50Hz"
-  echo "*NOTE5:  Geekworm x652/x680 (v1.5) max supported resolution: 1080p 60Hz + 1920x1200 60Hz"
-  echo "*NOTE6:  Geekworm x650, old x680, and A3/A4/A8 max supported resolution: 720p 60Hz + 1080p 50Hz"
-  echo "*NOTE7:  Geekworm x635 max supported resolution: 720p 30Hz + 1080p 30Hz"
+  echo "* NOTE1:  CSI builds with Pi Zero (2) W or Pi4B max supported resolution: 720p 60Hz + 1080p 50Hz"
+  echo "* NOTE2:  CSI builds with Compute Module 4 max supported resolution: 1080p 60Hz + 1920x1200 60Hz"
 fi
 printf "\n--- KNOW THE LIMITS AND MAKE SURE TARGET RESOLUTIONS STAY WITHIN THOSE LIMITS ---\n"
 
 echo
+### show error status message regarding basic K V + M support
 if [ $errors -gt 0 ]; then
   echo "-> Found $errors error(s).  Please fix then try again."
 else
-  echo "Congratulations, $errors errors found.  If you are having issues with K V or M, then check hardware/cables."
+  echo "=== Congratulations, $errors errors found.  If you are having issues with K V or M, then check hardware/cables."
+fi
+
+
+function check-audio-support() {
+  printf "\n+ Checking for Audio OUT and Mic IN support\n"
+  TMPFILE="/tmp/ustreamer.jcfg"; /bin/rm -f $TMPFILE
+  grep -i tc358743-audio /boot/config.txt
+  cat /etc/kvmd/janus/janus.plugin.ustreamer.jcfg | grep -A3 -E 'aplay|acap' > $TMPFILE; cat $TMPFILE
+
+  if [ $( grep -ci tc358743-audio /boot/config.txt ) -ge 1 ]; then
+    if [ $( grep -A3 acap: $TMPFILE | grep -c 'tc358743' ) -ge 1 ]; then
+      echo "+ Audio OUT from target is enabled."
+    else
+      echo "*** Audio OUT from target is DISABLED. ***"
+      let warning=warning+1
+    fi
+
+    if [ $( grep -ci uac $TMPFILE ) -ge 1 ]; then
+      echo "+ Mic IN to target is enabled."
+    else
+      echo "*** Mic IN to target is DISABLED. ***"
+      let warning=warning+1
+    fi
+  else
+    echo "*** Missing AUDIO support altogether.  See https://docs.pikvm.org/audio to enable audio support. ***"
+    let warning=warning+1
+  fi
+}
+
+### Check for Audio out and mic support for archlinux arm running on rpi hardware
+OS=$( grep ^ID= /etc/os-release | cut -d= -f2 )
+case $OS in
+  arch*) check-audio-support;;
+  ubuntu|debian|*) echo "*** Audio support is NON-existent for this $OS OS. ***"; exit 0;;
+esac
+### show warning status message regarding AUDIO IN+OUT support.
+if [ $warning -gt 0 ]; then
+  echo "-> Found $warning warning(s) about Audio IN + OUT support.  These are nice to have and do not affect KVM functionality."
+else
+  echo "=== Congratulations, $warning warnings found.  Audio support IN + OUT should work properly."
 fi
