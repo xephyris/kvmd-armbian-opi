@@ -1,10 +1,11 @@
 #!/bin/bash
 # https://github.com/srepac/kvmd-armbian
 #
+# modified by xephyris          2025-07-18
 # modified by xe5700            2021-11-04      xe5700@outlook.com
 # modified by NewbieOrange      2021-11-04
 # created by @srepac   08/09/2021   srepac@kvmnerds.com
-# Scripted Installer of Pi-KVM on Armbian 32-bit and 64-bit (as long as it's running python 3.10 or higher)
+# Scripted Installer of Pi-KVM on Armbian Orange Pi 5 plus and 64-bit (as long as it's running python 3.12 or higher)
 #
 # *** MSD is disabled by default ***
 #
@@ -17,15 +18,16 @@
 '
 # NOTE:  This was tested on a new install of raspbian desktop and lite versions, but should also work on an existing install.
 #
-# Last change 20240526 2345 PDT
+# Last change 20250718 0603 PDT
 VER=3.4
+source config.sh
 set +x
-PIKVMREPO="https://files.pikvm.org/repos/arch/rpi4"
-KVMDFILE="kvmd-3.291-1-any.pkg.tar.xz"
-KVMDCACHE="/var/cache/kvmd"; mkdir -p $KVMDCACHE
-PKGINFO="${KVMDCACHE}/packages.txt"
-APP_PATH=$(readlink -f $(dirname $0))
-LOGFILE="${KVMDCACHE}/installer.log"; touch $LOGFILE; echo "==== $( date ) ====" >> $LOGFILE
+chmod +x ./config.sh
+
+mkdir -p $KVMDCACHE
+
+touch $LOGFILE; echo "==== $( date ) ====" >> $LOGFILE
+
 
 cm4=0   # variable to take care of CM4 specific changes
 csisvc=0  # variable to take care of starting CSI specific services
@@ -101,7 +103,7 @@ kvmd:
         cmd_append:
             - "--slowdown"      # so target doesn't have to reboot
         resolution:
-            default: 1280x720
+            default: 3840x2160
 USBOVERRIDE
 
     else
@@ -129,10 +131,10 @@ CSIOVERRIDE
 } # end create-override
 
 install-python-packages() {
-  for i in $( echo "aiofiles aiohttp appdirs asn1crypto async-timeout bottle cffi chardet click
-colorama cryptography dateutil dbus dev hidapi idna libgpiod mako marshmallow more-itertools multidict netifaces
+  for i in $( echo "aiofiles aiohttp appdirs asn1crypto async-timeout bottle build cffi chardet click
+colorama cryptography dateutil dbus dev hidapi idna mako marshmallow more-itertools multidict netifaces
 packaging passlib pillow ply psutil pycparser pyelftools pyghmi pygments pyparsing requests semantic-version
-setproctitle setuptools six spidev systemd tabulate urllib3 wrapt xlib yaml yarl pyotp qrcode serial serial-asyncio" )
+setproctitle setuptools six spidev systemd tabulate urllib3 wrapt xlib yaml yarl pyotp qrcode serial serial-asyncio venv" )
   do
     echo "apt-get install python3-$i -y" | tee -a $LOGFILE
     apt-get install python3-$i -y >> $LOGFILE
@@ -411,8 +413,8 @@ install-kvmd-pkgs() {
 # uncompress platform package first
   i=$( ls ${KVMDCACHE}/${platform}*.tar.xz )  ### install the most up to date kvmd-platform package
 
-  # change the log entry to show 3.291 platform installed as we'll be forcing kvmd-3.291 instead of latest/greatest kvmd
-  _platformver=$( echo $i | sed -e 's/3\.29[2-9]*/3.291/g' -e 's/3\.3[0-9]*/3.291/g' -e 's/3.2911/3.291/g' -e 's/4\.[0-9].*-/3.291-/g' )
+  # change the log entry to show 4.46 platform installed as we'll be forcing kvmd-4.46 instead of latest/greatest kvmd
+  _platformver=$( echo $i | sed -e "s/4\.4[7-9]*/$FALLBACK_VER/g" -e "s/4\.5[0-9]*/$FALLBACK_VER/g" -e "s/3.291/$FALLBACK_VER/g" -e "s/4\.[0-9].*-/$FALLBACK_VER-/g" )
   echo "-> Extracting package $_platformver into /" | tee -a $INSTLOG
   tar xfJ $i
 
@@ -421,8 +423,8 @@ install-kvmd-pkgs() {
   do
     case $i in
       *kvmd-3.29[2-9]*|*kvmd-3.[3-9]*|*kvmd-[45].[1-9]*)  # if latest/greatest is 3.292 and higher, then force 3.291 install
-        echo "*** Force install kvmd 3.291 ***" | tee -a $LOGFILE
-        # copy kvmd-3.291 package
+        echo "*** Force install kvmd $FALLBACK_VER ***" | tee -a $LOGFILE
+        # copy kvmd-4.46 package
         cp $CWD/$KVMDFILE $KVMDCACHE/
         i=$KVMDCACHE/$KVMDFILE
         ;;
@@ -491,24 +493,55 @@ build-ustreamer() {
 
   # Download ustreamer source and build it
   cd /tmp
-  git clone --depth=1 https://github.com/pikvm/ustreamer
-  cd ustreamer/
-  make WITH_GPIO=1 WITH_SYSTEMD=1 WITH_JANUS=1 WITH_V4P=1 -j
+  git clone -b rk3588-v5.43-patch --depth=1 https://github.com/xephyris/ustreamer-rk3588/
+  cd ustreamer-rk3588/
+  make WITH_GPIO=0 WITH_SYSTEMD=1 WITH_JANUS=1 WITH_V4P=1 WITH_PYTHON=1 -j
   make install
   # kvmd service is looking for /usr/bin/ustreamer
   ln -sf /usr/local/bin/ustreamer* /usr/bin/
+  
+  # install ustreamer as python package
+  cd python/
+  sudo python3 setup.py install
 
   # add janus support
   mkdir -p /usr/lib/ustreamer/janus
   cp /tmp/ustreamer/janus/libjanus_ustreamer.so /usr/lib/ustreamer/janus
 } # end build-ustreamer
 
+
+build-gpiod-v2() {
+  cd /tmp
+  git clone https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
+
+  cd libgpiod/bindings/python/
+
+  local file="pyproject.toml"
+  local backup="${file}.bak"
+
+  if [ ! -f "$file" ]; then
+      echo "pyproject.toml not found in current directory."
+      return 1
+  fi
+
+
+  # Replace license string with text format so setup.py can build
+  sed -i 's/^license = "LGPL-2.1-or-later"/license = {text = "LGPL-2.1-or-later"}/' "$file"
+
+  echo "License updated successfully."
+  
+  python3 setup.py install
+  
+  echo "Successfully installed libgpiod v2"
+  cd $CWD
+}
+
 install-dependencies() {
   echo
   echo "-> Installing dependencies for pikvm" | tee -a $LOGFILE
 
-  echo "apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev libdrm-dev" | tee -a $LOGFILE
-  apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev libdrm-dev >> $LOGFILE
+  echo "apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev libdrm-dev autoconf-archive libtool " | tee -a $LOGFILE
+  apt install -y nginx python3 net-tools bc expect v4l-utils iptables vim dos2unix screen tmate nfs-common gpiod ffmpeg dialog iptables dnsmasq git python3-pip tesseract-ocr tesseract-ocr-eng libasound2-dev libsndfile-dev libspeexdsp-dev libdrm-dev autoconf-archive libtool >> $LOGFILE
 
   sed -i -e 's/#port=5353/port=5353/g' /etc/dnsmasq.conf
 
@@ -569,6 +602,8 @@ install-dependencies() {
   echo -n "ustreamer version: " | tee -a $LOGFILE
   ustreamer -v | tee -a $LOGFILE
   ustreamer --features | tee -a $LOGFILE
+
+  build-gpiod-v2
 } # end install-dependencies
 
 python-pkg-dir() {
@@ -606,6 +641,7 @@ fix-nginx-symlinks() {
   if [ ! -e $PYTHONDIR/kvmd ]; then
     # Debian python版本比 pikvm官方的低一些
     # in case new kvmd packages are now using python 3.11
+    echo $PYTHONDIR
     ln -sf /usr/lib/python3.1*/site-packages/kvmd* ${PYTHONDIR}
   fi
 } # end fix-nginx-symlinks
@@ -810,8 +846,9 @@ armbian-packages() {
 fix-nfs-msd() {
   NAME="aiofiles.tar"
 
-  for i in 3.11 3.12; do
+  for i in 3.12; do
     LOCATION="/usr/lib/python$i/site-packages"
+    echo $i
     if [ -e $LOCATION ]; then
       echo "-> Extracting $NAME into $LOCATION" | tee -a $LOGFILE
       tar xvf $NAME -C $LOCATION
@@ -824,6 +861,89 @@ fix-nfs-msd() {
     fi
   done
 }
+
+disable-msd() {
+    local override_file="/etc/kvmd/override.yaml"
+    echo "Disabling MSD in $override_file..."
+
+    # Create the file if it doesn't exist
+    if [ ! -f "$override_file" ]; then
+        echo "Creating new override.yaml..."
+        echo "kvmd:" | sudo tee "$override_file" > /dev/null
+    fi
+
+    # Ensure kvmd block exists
+    if ! grep -q "^kvmd:" "$override_file"; then
+        echo "kvmd:" | sudo tee -a "$override_file" > /dev/null
+    fi
+
+    # Remove existing msd block
+    sudo sed -i '/^[ ]*msd:/,/^[^ ]/d' "$override_file"
+
+    # Insert msd block after kvmd:
+    sudo awk '
+        BEGIN { inserted=0 }
+        /^kvmd:/ {
+            print
+            print "  msd:"
+            print "    type: disabled"
+            inserted=1
+            next
+        }
+        { print }
+        END {
+            if (!inserted) {
+                print "kvmd:"
+                print "  msd:"
+                print "    type: disabled"
+            }
+        }
+    ' "$override_file" | sudo tee "$override_file.tmp" > /dev/null && sudo mv "$override_file.tmp" "$override_file"
+
+    echo "MSD disabled successfully."
+}
+
+disable-atx() {
+    local override_file="/etc/kvmd/override.yaml"
+    echo "Disabling ATX in $override_file..."
+
+    # Create the file if it doesn't exist
+    if [ ! -f "$override_file" ]; then
+        echo "Creating new override.yaml..."
+        echo "kvmd:" | sudo tee "$override_file" > /dev/null
+    fi
+
+    # Ensure kvmd block exists
+    if ! grep -q "^kvmd:" "$override_file"; then
+        echo "kvmd:" | sudo tee -a "$override_file" > /dev/null
+    fi
+
+    # Remove existing atx block
+    sudo sed -i '/^[ ]*atx:/,/^[^ ]/d' "$override_file"
+
+    # Insert atx block after kvmd:
+    sudo awk '
+        BEGIN { inserted=0 }
+        /^kvmd:/ {
+            print
+            print "  atx:"
+            print "    type: disabled"
+            inserted=1
+            next
+        }
+        { print }
+        END {
+            if (!inserted) {
+                print "kvmd:"
+                print "  atx:"
+                print "    type: disabled"
+            }
+        }
+    ' "$override_file" | sudo tee "$override_file.tmp" > /dev/null && sudo mv "$override_file.tmp" "$override_file"
+
+    echo "ATX disabled successfully."
+}
+
 
 fix-nginx() {
   #set -x
@@ -938,43 +1058,82 @@ cm4-mods() {  # apply CM4 specific mods
   fi
 } # end cm4-mods
 
-update-logo() {
-  sed -i -e 's|class="svg-gray"|class="svg-color"|g' /usr/share/kvmd/web/index.html
-  sed -i -e 's|target="_blank"><img class="svg-gray"|target="_blank"><img class="svg-color"|g' /usr/share/kvmd/web/kvm/index.html
+# update-logo() {
+  # sed -i -e 's|class="svg-gray"|class="svg-color"|g' /usr/share/kvmd/web/index.html
+  # sed -i -e 's|target="_blank"><img class="svg-gray"|target="_blank"><img class="svg-color"|g' /usr/share/kvmd/web/kvm/index.html
 
-  ### download opikvm-logo.svg and then overwrite logo.svg
-  wget --no-check-certificate -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
-  cd /usr/share/kvmd/web/share/svg
-  cp logo.svg logo.svg.old
-  cp opikvm-logo.svg logo.svg
+  # ### download opikvm-logo.svg and then overwrite logo.svg
+  # wget --no-check-certificate -O /usr/share/kvmd/web/share/svg/opikvm-logo.svg https://github.com/srepac/kvmd-armbian/raw/master/opikvm-logo.svg > /dev/null 2> /dev/null
+  # cd /usr/share/kvmd/web/share/svg
+  # cp logo.svg logo.svg.old
+  # cp opikvm-logo.svg logo.svg
 
-  # change some text in the main html page
-  sed -i.bak -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/index.html
-  sed -i.bak -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/kvm/index.html
-  sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
-  sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
-  cd
-}
+  # # change some text in the main html page
+  # sed -i.bak -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/index.html
+  # sed -i.bak -e 's/The Open Source KVM over IP/KVM over IP on non-Arch linux OS by @srepac/g' /usr/share/kvmd/web/kvm/index.html
+  # sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/kvm/index.html
+  # sed -i.backup -e 's|https://pikvm.org/support|https://discord.gg/YaJ87sVznc|g' /usr/share/kvmd/web/index.html
+  # cd
+# }
 
 function fix-hk4401() {
   # https://github.com/ThomasVon2021/blikvm/issues/168
 
   # Download kvmd-4.2 package from kvmnerds.com to /tmp and extract only the xh_hk4401.py script
   cd /tmp
-  wget --no-check-certificate -O kvmd-4.2-1-any.pkg.tar.xz https://148.135.104.55/REPO/NEW/kvmd-4.2-1-any.pkg.tar.xz 2> /dev/null
-  tar xvfJ kvmd-4.2-1-any.pkg.tar.xz --wildcards --no-anchored 'xh_hk4401.py'
+  wget --no-check-certificate -O kvmd-4.46-1-any.pkg.tar.xz https://148.135.104.55/REPO/NEW/kvmd-4.46-1-any.pkg.tar.xz 2> /dev/null
+  tar xvfJ kvmd-4.46-1-any.pkg.tar.xz --wildcards --no-anchored 'xh_hk4401.py'
 
   # Show diff of 4.2 version of xh_hk4401.py vs. current installed version
   cd usr/lib/python3.12/site-packages/kvmd/plugins/ugpio/
   diff xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/
 
   # make a backup of current xh_hk4401.py script
-  cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/xh_hk4401.py.3.291
+  cp /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/xh_hk4401.py.$FALLBACK_VER
 
   # replace it with the kvmd 4.2 version of script which allows use of protocol: 2
   cp xh_hk4401.py /usr/lib/python3/dist-packages/kvmd/plugins/ugpio/
   cd
 } # end fix-hk4401
+
+function attach-ustreamer() {
+  ln -sf /usr/local/bin/ustreamer /usr/bin/ustreamer 
+  echo "ustreamer linked"
+}
+
+function orangepi-5-plus-fix() {
+  YAML_FILE="/etc/kvmd/main.yaml"
+
+  # Backup the original file
+  cp "$YAML_FILE" "${YAML_FILE}.bak"
+
+  # Use sed to replace the format
+  sed -i 's/--format=mjpeg/--format=BGR3' "$YAML_FILE"
+
+  # Confirm the change
+  if grep -q -- '--format=BGR3' "$YAML_FILE"; then
+      echo "Format successfully updated to BGR3 in $YAML_FILE"
+  else
+      echo "Failed to update format"
+      cp "${YAML_FILE}.bak" "$YAML_FILE"
+  fi
+
+  # Remove jpeg-sink commands to support older ustreamer version + patch
+  grep -v -- "--jpeg-sink=kvmd::ustreamer::jpeg" "$YAML_FILE" | \
+  grep -v -- "--jpeg-sink-mode=0660" > temp.yaml && mv temp.yaml "$YAML_FILE"
+
+  echo "Removed jpeg-sink arguments"
+
+}
+
+reset-password() {
+kvmd-htpasswd set admin <<EOF
+admin
+admin
+EOF
+
+echo "Reset password back to admin"
+}
 
 
 ### MAIN STARTS HERE ###
@@ -1048,12 +1207,16 @@ else
   fix-python-symlinks
   fix-webterm
   fix-motd
-  fix-nfs-msd
+  # fix-nfs-msd
+  disable-atx
+  disable-msd
+
   fix-nginx
   async-lru-fix
   ocr-fix
   fix-hk4401
-  
+  attach-ustreamer
+  orangepi-5-plus-fix
   set-ownership
   create-kvmdfix
 
@@ -1066,13 +1229,13 @@ else
       sed -i -e 's|gpiod.line,|gpiod.Line,|g'         /usr/lib/python3/dist-packages/kvmd/aiogp.py
       ;;
     3.1[1-9]*)
-      pip3 install async-lru --break-system-packages 2> /dev/null
+      # pip3 install async-lru --break-system-packages 2> /dev/null
       ;;
   esac
   check-kvmd-works
 
   enable-kvmd-svcs
-  update-logo
+  # update-logo
   start-kvmd-svcs
 
   printf "\nCheck kvmd devices\n\n" | tee -a $LOGFILE
